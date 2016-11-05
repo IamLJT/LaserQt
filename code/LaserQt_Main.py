@@ -1,26 +1,29 @@
 #!bin/python
 # -*- coding: utf-8 -*-
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
 from LaserQt_Gui.LaserQt_Gui_Button import BrowseButton, NextButton, QuitButton, ConfirmButton
+from LaserQt_Gui.LaserQt_Gui_Dialog import OpenFileDialog
 
 '''
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.04
+@date    : 2016.11.05
 '''
 
 class LaserQtMainWindow(QWidget):
     def __init__(self):
         super(LaserQtMainWindow, self).__init__()
         self.setStyleSheet('''
-        QWidget{
-            background-color: white;}
+        QWidget {
+            color: black;
+            background-color: white;
+        }
         ''')
         self.create_main_window()
 
@@ -58,9 +61,18 @@ class LaserQtMainWindow(QWidget):
         self.width = 1366/1.1
         self.height = 768/1.1
 
+    # 类方法重载 -- 关闭窗口
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
     def browse_directory(self):
         mainDirectory = self.check_os()
-        fileName, filetype= QFileDialog.getOpenFileName(self, "选取文件", mainDirectory, "All Files (*);;Text Files (*.txt)")
+        currentFileDialog = OpenFileDialog()
+        fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="All Files (*);;Text Files (*.txt)")
         self.directoryLineEdit.setText(fileName)
 
     def check_os(self):
