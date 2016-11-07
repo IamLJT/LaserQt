@@ -12,8 +12,8 @@
 #include <vector>
 #include <algorithm>
 
-#include "boost/multi_array.hpp"
-#include <boost/array.hpp>
+#include <boost\multi_array.hpp>
+#include <boost\array.hpp>
 
 namespace kdtree {
   
