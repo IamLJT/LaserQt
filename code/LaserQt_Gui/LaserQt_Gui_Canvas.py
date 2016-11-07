@@ -26,9 +26,11 @@ class BaseCanvas(FigureCanvas):
         fig.set_edgecolor("black")
         self.axes = fig.add_subplot(111)
         self.axes.set_title("加工路径图", fontproperties=FONT, fontsize=14)
-        self.axes.set_xlabel("X - 板长方向", fontproperties=FONT)
-        self.axes.set_ylabel("Y - 板宽方向", fontproperties=FONT)
+        self.axes.set_xlabel("X - 板长方向", fontproperties=FONT, fontsize=9)
+        self.axes.set_ylabel("Y - 板宽方向", fontproperties=FONT, fontsize=9)
         self.axes.grid(True, which="both")
+        self.axes.arrow(0.05, 0.05, 0, 0.1)
+        self.axes.arrow(0.05, 0.05, 0.1, 0)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
 
