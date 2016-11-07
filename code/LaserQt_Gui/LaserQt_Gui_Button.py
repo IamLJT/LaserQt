@@ -15,7 +15,7 @@ QMessageBox.about       关于框
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.05
+@date    : 2016.11.07
 '''
 
 class BaseButton(QPushButton):
@@ -24,6 +24,12 @@ class BaseButton(QPushButton):
     '''
     def __init__(self, name=""):
         super(BaseButton, self).__init__(name)
+        self.setStyleSheet(
+            '''
+            QPushButton {
+            }
+            '''
+        )
 
 
 class BrowseButton(BaseButton):
@@ -110,6 +116,32 @@ class QuitButton(BaseButton):
             QCoreApplication.instance().quit()
         else:
             pass
+
+
+class EditButton(BaseButton):
+    '''
+    编辑按钮，继承自基类按钮
+    '''
+    def __init__(self):
+        super(EditButton, self).__init__(name="开启编辑")
+        self.function_init()
+    
+    # 功能绑定 - 
+    def function_init(self):
+        pass
+
+
+class UpdateButton(BaseButton):
+    '''
+    更新按钮，继承自基类按钮
+    '''
+    def __init__(self):
+        super(UpdateButton, self).__init__(name="更新路径")
+        self.function_init()
+    
+    # 功能绑定 - 
+    def function_init(self):
+        pass
 
 
 class StartProcessingButton(BaseButton):
