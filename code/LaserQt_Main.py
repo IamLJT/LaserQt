@@ -17,17 +17,18 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
 from LaserQt_Gui.LaserQt_Gui_Button import *
-from LaserQt_Gui.LaserQt_Gui_Canvas import FONT, StaticCanvas
+from LaserQt_Gui.LaserQt_Gui_Canvas import FONT, StaticCanvas, DynamicCanvas
 from LaserQt_Gui.LaserQt_Gui_Dialog import OpenFileDialog
 from LaserQt_Gui.LaserQt_Gui_Style import *
 
-import xlrd, xlwt
+import xlrd
+import xlutils.copy as xlcopy
 
 '''
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.07
+@date    : 2016.11.08
 '''
 
 class LaserQtMainWindow(QWidget):
@@ -64,8 +65,8 @@ class LaserQtMainWindow(QWidget):
         self.browseButton.clicked.connect(self.browse_directory)
         # 左半部分顶部布局
         self.leftTopLayout = QHBoxLayout()
-        self.leftTopLayout.addWidget(self.directoryLineEdit)
         self.leftTopLayout.setSpacing(20)
+        self.leftTopLayout.addWidget(self.directoryLineEdit)
         self.leftTopLayout.addWidget(self.browseButton)
 
         self.canvas = StaticCanvas()
@@ -75,8 +76,8 @@ class LaserQtMainWindow(QWidget):
         self.canvasRegionLable.setFont(self.qFont)
         # 左半部分中部布局
         self.leftMiddleLayout = QVBoxLayout()
-        self.leftMiddleLayout.addWidget(self.canvasRegionLable)
         self.leftMiddleLayout.setSpacing(10)
+        self.leftMiddleLayout.addWidget(self.canvasRegionLable)
         self.leftMiddleLayout.addWidget(self.canvas)
 
         self.nextButton = NextButton()
@@ -85,15 +86,15 @@ class LaserQtMainWindow(QWidget):
         # 左半部分底部布局
         self.leftBottomLayout = QHBoxLayout()
         self.leftBottomLayout.addStretch()
-        self.leftBottomLayout.addWidget(self.nextButton)
         self.leftBottomLayout.setSpacing(60)
+        self.leftBottomLayout.addWidget(self.nextButton)
         self.leftBottomLayout.addWidget(self.quitButton)
 
         # 左半部分布局
         self.leftLayout = QVBoxLayout()
+        self.leftLayout.setSpacing(18)
         self.leftLayout.addLayout(self.leftTopLayout)
         self.leftLayout.addLayout(self.leftMiddleLayout)
-        self.leftLayout.setSpacing(23)
         self.leftLayout.addLayout(self.leftBottomLayout)
 
         self.tableRegionLable = QLabel("数据列表区域")
@@ -112,8 +113,8 @@ class LaserQtMainWindow(QWidget):
         self.editFlag = False
         # 右半部分中部布局
         self.rightMiddleLayout = QVBoxLayout()
-        self.rightMiddleLayout.addWidget(self.tableRegionLable)
         self.rightMiddleLayout.setSpacing(10)
+        self.rightMiddleLayout.addWidget(self.tableRegionLable)
         self.rightMiddleLayout.addWidget(self.dataTable)
 
         self.editButton = EditButton()
@@ -123,21 +124,21 @@ class LaserQtMainWindow(QWidget):
         # 右半部分底部布局
         self.rightBottomLayout = QHBoxLayout()
         self.rightBottomLayout.addStretch()
-        self.rightBottomLayout.addWidget(self.editButton)
         self.rightBottomLayout.setSpacing(60)
+        self.rightBottomLayout.addWidget(self.editButton)
         self.rightBottomLayout.addWidget(self.updateButton)
 
         # 右半部分布局
         self.rightLayout = QVBoxLayout()
+        self.rightLayout.setSpacing(18)
         self.rightLayout.addLayout(self.rightMiddleLayout)
-        self.rightLayout.setSpacing(23)
         self.rightLayout.addLayout(self.rightBottomLayout )
 
         # 全局布局
         self.widgetLayout = QHBoxLayout()
         self.widgetLayout.setContentsMargins(40, 40, 40, 40)
-        self.widgetLayout.addLayout(self.leftLayout)
         self.widgetLayout.setSpacing(40)
+        self.widgetLayout.addLayout(self.leftLayout)     
         self.widgetLayout.addLayout(self.rightLayout)
 
     def get_current_screen_size(self):
@@ -157,17 +158,18 @@ class LaserQtMainWindow(QWidget):
         mainDirectory = self.check_os()
         currentFileDialog = OpenFileDialog()
         fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Excel Files (*.xlsx)")
-        self.directoryLineEdit.setText(fileName)
         if fileName != "":
-            self.put_the_data_into_table(fileName)
+            self.fileName = fileName
+            self.directoryLineEdit.setText(self.fileName)
+            self.put_the_data_into_table()
             self.plot_the_data()
     
     # 读取Excel文件数据进表格
-    def put_the_data_into_table(self, fileName):
-        data = xlrd.open_workbook(fileName)
-        table = data.sheets()[0]
+    def put_the_data_into_table(self):
+        excelReadOnly = xlrd.open_workbook(self.fileName)
+        table = excelReadOnly.sheets()[0]
         self.numOfPath = numOfRows = table.nrows
-        numOfColums = table.ncols
+        self.numofParams = numOfColums = table.ncols
         for i in range(numOfRows):
             for j in range(numOfColums):
                 value = table.cell(i, j).value
@@ -199,12 +201,15 @@ class LaserQtMainWindow(QWidget):
         handles, labels = self.canvas.axes.get_legend_handles_labels()
         unique_handles = []; unique_labels = []
         for i, label in enumerate(labels):
-            if label == labels[i + 1]:
+            if i == 0 :
                 continue
             else:
-                unique_handles.append(handles[i]); unique_handles.append(handles[i + 1])
-                unique_labels.append(labels[i]); unique_labels.append(labels[i + 1])
-                break
+                if label == labels[i - 1]:
+                    continue
+                else:
+                    unique_handles.append(handles[i]); unique_handles.append(handles[i - 1])
+                    unique_labels.append(labels[i]); unique_labels.append(labels[i - 1])
+                    break
         self.canvas.axes.legend(unique_handles, unique_labels, prop=FONT, bbox_to_anchor=(1.1, 1.1))
         self.canvas.draw()
         self.canvas.axes.hold(False)
@@ -227,7 +232,22 @@ class LaserQtMainWindow(QWidget):
     def update_the_plot(self):
         self.canvas.axes.plot()
         self.plot_the_data()
-        QMessageBox.information(self, "消息提示对话框", "更新路径完毕！", QMessageBox.Yes, QMessageBox.Yes)
+        self.update_the_excel()
+        QMessageBox.information(self, "消息提示对话框", "更新数据完毕！", QMessageBox.Yes, QMessageBox.Yes)
+
+    def update_the_excel(self):
+        excelReadOnly = xlrd.open_workbook(self.fileName)
+        excelReadWrite = xlcopy.copy(excelReadOnly)
+        sheet = excelReadWrite.get_sheet(0)
+        for i in range(self.numOfPath):
+            for j in range(self.numofParams):
+                if j <= 3:
+                    sheet.write(i, j, float(self.dataTable.item(i, j).text()))
+                elif j > 3 and j <=5:
+                    sheet.write(i, j, float(self.dataTable.item(i, j).text()))
+                elif j == 6:
+                    sheet.write(i, j, int(self.dataTable.item(i, j).text())) 
+        excelReadWrite.save(self.fileName)
 
     # 检查当前的操作系统并依此设置主路径
     def check_os(self):
@@ -267,15 +287,15 @@ class LaserQtMainWindowSub01(QWidget):
         self.setLayout(self.widgetLayout)
 
     def set_widgets(self):
-        self.canvas = StaticCanvas()
+        self.canvas = StaticCanvas() ## TODO
         self.canvasRegionLable = QLabel("数据可视化区域")
         self.qFont = QFont()
         self.qFont.setPointSize(14)
         self.canvasRegionLable.setFont(self.qFont)
         # 左半部分中部布局
         self.leftMiddleLayout = QVBoxLayout()
-        self.leftMiddleLayout.addWidget(self.canvasRegionLable)
         self.leftMiddleLayout.setSpacing(10)
+        self.leftMiddleLayout.addWidget(self.canvasRegionLable)
         self.leftMiddleLayout.addWidget(self.canvas)
 
         self.prevButton = PreviousButton()
@@ -286,22 +306,20 @@ class LaserQtMainWindowSub01(QWidget):
         # 左半部分底部布局
         self.leftBottomLayout = QHBoxLayout()
         self.leftBottomLayout.addStretch()
+        self.leftBottomLayout.setSpacing(60)
         self.leftBottomLayout.addWidget(self.prevButton)
-        self.leftBottomLayout.setSpacing(60)
         self.leftBottomLayout.addWidget(self.nextButton)
-        self.leftBottomLayout.setSpacing(60)
         self.leftBottomLayout.addWidget(self.quitButton)
 
         # 左半部分布局
         self.leftLayout = QVBoxLayout()
-        self.leftLayout.addLayout(self.leftMiddleLayout)
         self.leftLayout.setSpacing(23)
+        self.leftLayout.addLayout(self.leftMiddleLayout)
         self.leftLayout.addLayout(self.leftBottomLayout)
 
         self.tableRegionLable = QLabel("数据实时显示区域")
         self.tableRegionLable.setFont(self.qFont)
         self.dataShowLayout = QGridLayout()
-
         self.dataShow01Lable = QLabel("路径编号")
         self.dataShow01Lable.setFont(self.qFont)
         self.dataShowLayout.addWidget(self.dataShow01Lable, 0, 0)
@@ -358,35 +376,43 @@ class LaserQtMainWindowSub01(QWidget):
         # 右半部分底部布局
         self.rightBottomLayout = QHBoxLayout()
         self.rightBottomLayout.addStretch()
+        self.rightBottomLayout.setSpacing(60)
         self.rightBottomLayout.addWidget(self.startProcessingButton)
-        self.rightBottomLayout.setSpacing(60)
         self.rightBottomLayout.addWidget(self.stopProcessingButton)
-        self.rightBottomLayout.setSpacing(60)
         self.rightBottomLayout.addWidget(self.continueProcessingButton)
 
         # 右半部分布局
         self.rightLayout = QVBoxLayout()
-        self.rightLayout.addLayout(self.rightMiddleLayout)
         self.rightLayout.setSpacing(62)
+        self.rightLayout.addLayout(self.rightMiddleLayout)
         self.rightLayout.addLayout(self.rightBottomLayout )
 
         # 全局布局
         self.widgetLayout = QHBoxLayout()
         self.widgetLayout.setContentsMargins(40, 40, 40, 40)
-        self.widgetLayout.addLayout(self.leftLayout)
         self.widgetLayout.setSpacing(40)
+        self.widgetLayout.addLayout(self.leftLayout)
         self.widgetLayout.addLayout(self.rightLayout)
 
     def get_current_screen_size(self):
         self.width = 1440
         self.height = 720
 
+    # 类方法重载 -- 关闭窗口事件
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
     def prev_page(self):
         myLaserQtSub01.hide()
         myLaserQt.show()
 
     def next_page(self):
-        pass
+        myLaserQtSub01.hide()
+        myLaserQtSub02.show()
 
     def start_processing(self):
         pass
@@ -399,7 +425,121 @@ class LaserQtMainWindowSub01(QWidget):
 
 
 class LaserQtMainWindowSub02(QWidget):
-    pass
+    def __init__(self):
+        super(LaserQtMainWindowSub02, self).__init__()
+        self.setStyleSheet(
+            '''
+            QWidget {
+                color: black;
+                background-color: #DDDDDD;
+            }
+            '''
+        )
+        self.create_main_window()
+
+    def create_main_window(self):
+        self.setWindowTitle("复杂曲率板加工系统-开发者V1.0版")
+        self.get_current_screen_size()
+        self.setMinimumSize(self.width, self.height)
+        self.setMaximumSize(self.width, self.height)
+        self.set_widgets()
+        self.setLayout(self.widgetLayout)
+
+    def set_widgets(self):
+        self.targetDataLable = QLabel("目标数据")
+        self.qFont = QFont()
+        self.qFont.setPointSize(14)
+        self.targetDataLable.setFont(self.qFont)
+        self.scanningDataLable = QLabel("扫描数据")
+        self.scanningDataLable.setFont(self.qFont)
+        self.targetDataDirectoryLineEdit = QLineEdit()
+        self.targetDataDirectoryLineEdit.setStyleSheet(
+            '''
+            QLineEdit {
+                background-color: white;
+            }
+            '''
+        )
+        self.scanningDataDirectoryLineEdit = QLineEdit()
+        self.scanningDataDirectoryLineEdit.setStyleSheet(
+            '''
+            QLineEdit {
+                background-color: white;
+            }
+            '''
+        )
+        self.targetDataBrowseButton = BrowseButton()
+        self.targetDataBrowseButton.clicked.connect(self.browse_directory)
+        self.scanningDataBrowseButton = BrowseButton()
+        self.scanningDataBrowseButton.clicked.connect(self.browse_directory)
+        # 顶部布局
+        self.topLayout = QGridLayout()
+        self.topLayout.addWidget(self.targetDataLable, 0, 0)
+        self.topLayout.addWidget(self.scanningDataLable, 1, 0)
+        self.topLayout.addWidget(self.targetDataDirectoryLineEdit, 0, 1)
+        self.topLayout.addWidget(self.scanningDataDirectoryLineEdit, 1, 1)
+        self.topLayout.addWidget(self.targetDataBrowseButton, 0, 2)
+        self.topLayout.addWidget(self.scanningDataBrowseButton, 1, 2)
+        
+        self.canvas = StaticCanvas()
+        self.canvasRegionLable = QLabel("数据可视化区域")
+        self.qFont = QFont()
+        self.qFont.setPointSize(14)
+        self.canvasRegionLable.setFont(self.qFont)
+        # 中部布局
+        self.middleLayout = QVBoxLayout()
+        self.middleLayout.setSpacing(10)
+        self.middleLayout.addWidget(self.canvasRegionLable)
+        self.middleLayout.addWidget(self.canvas)
+
+        self.prevButton = PreviousButton()
+        self.prevButton.clicked.connect(self.prev_page)
+        self.nextButton = NextButton()
+        self.nextButton.clicked.connect(self.next_page)
+        self.quitButton = QuitButton()
+        self.pointCloudDataScanButton = PointCloudDataScanButton()
+        self.pointCloudDataDenoisingButton = PointCloudDataDenoisingButton()
+        self.pointCloudDataFittingButton = PointCloudDataFittingButton()
+        # 底部布局
+        self.bottomLayout = QHBoxLayout()
+        self.bottomLayout.addStretch()
+        self.bottomLayout.setSpacing(80)
+        self.bottomLayout.addWidget(self.prevButton)
+        self.bottomLayout.addWidget(self.nextButton)
+        self.bottomLayout.addWidget(self.quitButton)
+        self.bottomLayout.addWidget(self.pointCloudDataScanButton)
+        self.bottomLayout.addWidget(self.pointCloudDataDenoisingButton)
+        self.bottomLayout.addWidget(self.pointCloudDataFittingButton)
+
+        # 全局布局
+        self.widgetLayout = QVBoxLayout()
+        self.widgetLayout.setContentsMargins(280, 20, 280, 40)
+        self.widgetLayout.setSpacing(20)
+        self.widgetLayout.addLayout(self.topLayout)
+        self.widgetLayout.addLayout(self.middleLayout)
+        self.widgetLayout.addLayout(self.bottomLayout)
+
+    def get_current_screen_size(self):
+        self.width = 1440
+        self.height = 720
+
+    # 类方法重载 -- 关闭窗口事件
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
+    def prev_page(self):
+        myLaserQtSub02.hide()
+        myLaserQtSub01.show()
+
+    def next_page(self):
+        pass
+
+    def browse_directory(self):
+        pass
 
 
 class LaserQtMainWindowSub03(QWidget):
