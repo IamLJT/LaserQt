@@ -24,12 +24,6 @@ class BaseButton(QPushButton):
     '''
     def __init__(self, name=""):
         super(BaseButton, self).__init__(name)
-        self.setStyleSheet(
-            '''
-            QPushButton {
-            }
-            '''
-        )
 
 
 class BrowseButton(BaseButton):
@@ -214,7 +208,7 @@ class PointCloudDataFittingButton(BaseButton):
     点云数据拟合按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(PointCloudDataFittingButton, self).__init__(name="点云去噪")
+        super(PointCloudDataFittingButton, self).__init__(name="点云拟合")
         self.function_init()
     
     # 功能绑定 - 

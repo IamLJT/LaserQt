@@ -1,0 +1,23 @@
+
+QWidget {
+    background-color: #DDDDDD;
+}
+
+QLineEdit {
+    background-color: white;
+}
+
+QPushButton {
+}
+
+QTableWidget {
+    background-color: white;
+}
+
+QTextEdit {
+    background-color: white;
+}
+
+QProgressBar {
+    background-color: white;
+}

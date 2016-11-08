@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import qApp
 from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QGridLayout
@@ -10,16 +11,17 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QProgressBar
 from PyQt5.QtWidgets import QStackedWidget
 from PyQt5.QtWidgets import QTableWidget
 from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
 from LaserQt_Gui.LaserQt_Gui_Button import *
-from LaserQt_Gui.LaserQt_Gui_Canvas import FONT, StaticCanvas, DynamicCanvas
+from LaserQt_Gui.LaserQt_Gui_Canvas import FONT, StaticCanvasForPathInfo, DynamicCanvasForPathInfo, StaticCanvasForPointCloud
 from LaserQt_Gui.LaserQt_Gui_Dialog import OpenFileDialog
-from LaserQt_Gui.LaserQt_Gui_Style import *
 
 import xlrd
 import xlutils.copy as xlcopy
@@ -31,17 +33,21 @@ import xlutils.copy as xlcopy
 @date    : 2016.11.08
 '''
 
+# 检查当前的操作系统并依此设置主路径
+def check_os():
+    import platform
+    if platform.system() == "Windows":
+        return "C:/"
+
+    elif platform.system() == "Linux":
+        import getpass
+        user = getpass.getuser()
+        return "/home/" + user + "/"
+
+
 class LaserQtMainWindow(QWidget):
     def __init__(self):
         super(LaserQtMainWindow, self).__init__()
-        self.setStyleSheet(
-            '''
-            QWidget {
-                color: black;
-                background-color: #DDDDDD;
-            }
-            '''
-        )
         self.create_main_window()
 
     def create_main_window(self):
@@ -54,13 +60,6 @@ class LaserQtMainWindow(QWidget):
 
     def set_widgets(self):
         self.directoryLineEdit = QLineEdit()
-        self.directoryLineEdit.setStyleSheet(
-            '''
-            QLineEdit {
-                background-color: white;
-            }
-            '''
-        )
         self.browseButton = BrowseButton()
         self.browseButton.clicked.connect(self.browse_directory)
         # 左半部分顶部布局
@@ -69,10 +68,10 @@ class LaserQtMainWindow(QWidget):
         self.leftTopLayout.addWidget(self.directoryLineEdit)
         self.leftTopLayout.addWidget(self.browseButton)
 
-        self.canvas = StaticCanvas()
+        self.canvas = StaticCanvasForPathInfo()
         self.canvasRegionLable = QLabel("数据可视化区域")
         self.qFont = QFont()
-        self.qFont.setPointSize(14)
+        self.qFont.setPointSize(12)
         self.canvasRegionLable.setFont(self.qFont)
         # 左半部分中部布局
         self.leftMiddleLayout = QVBoxLayout()
@@ -100,13 +99,6 @@ class LaserQtMainWindow(QWidget):
         self.tableRegionLable = QLabel("数据列表区域")
         self.tableRegionLable.setFont(self.qFont)
         self.dataTable = QTableWidget(100, 7)
-        self.dataTable.setStyleSheet(
-            '''
-            QTableWidget {
-                background-color: white;
-            }
-            '''
-        )  
         self.dataTable.setHorizontalHeaderLabels(["起点X坐标", "起点Y坐标", "终点X坐标", "终点Y坐标", "下压量", "热参数", "正反标志"])
         self.dataTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) # 按照表格宽度对各单元格宽度进行均分
         self.dataTable.setEditTriggers(QAbstractItemView.NoEditTriggers) # 禁止编辑单元格
@@ -155,7 +147,7 @@ class LaserQtMainWindow(QWidget):
 
     # 浏览本地文件夹中的文件并选择文件
     def browse_directory(self):
-        mainDirectory = self.check_os()
+        mainDirectory = check_os()
         currentFileDialog = OpenFileDialog()
         fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Excel Files (*.xlsx)")
         if fileName != "":
@@ -249,17 +241,6 @@ class LaserQtMainWindow(QWidget):
                     sheet.write(i, j, int(self.dataTable.item(i, j).text())) 
         excelReadWrite.save(self.fileName)
 
-    # 检查当前的操作系统并依此设置主路径
-    def check_os(self):
-        import platform
-        if platform.system() == "Windows":
-            return "C:/"
-
-        elif platform.system() == "Linux":
-            import getpass
-            user = getpass.getuser()
-            return "/home/" + user + "/"
-
     def next_page(self):
         myLaserQt.hide()
         myLaserQtSub01.show()
@@ -268,14 +249,6 @@ class LaserQtMainWindow(QWidget):
 class LaserQtMainWindowSub01(QWidget):
     def __init__(self):
         super(LaserQtMainWindowSub01, self).__init__()
-        self.setStyleSheet(
-            '''
-            QWidget {
-                color: black;
-                background-color: #DDDDDD;
-            }
-            '''
-        )
         self.create_main_window()
 
     def create_main_window(self):
@@ -287,10 +260,10 @@ class LaserQtMainWindowSub01(QWidget):
         self.setLayout(self.widgetLayout)
 
     def set_widgets(self):
-        self.canvas = StaticCanvas() ## TODO
+        self.canvas = DynamicCanvasForPathInfo() ## TODO
         self.canvasRegionLable = QLabel("数据可视化区域")
         self.qFont = QFont()
-        self.qFont.setPointSize(14)
+        self.qFont.setPointSize(12)
         self.canvasRegionLable.setFont(self.qFont)
         # 左半部分中部布局
         self.leftMiddleLayout = QVBoxLayout()
@@ -363,7 +336,7 @@ class LaserQtMainWindowSub01(QWidget):
         self.dataShowLayout.addWidget(self.dataShow06Edit, 5, 1)
         # 右半部分中部布局
         self.rightMiddleLayout = QVBoxLayout()
-        self.rightMiddleLayout.addStretch()
+        self.rightMiddleLayout.setSpacing(62)
         self.rightMiddleLayout.addWidget(self.tableRegionLable)
         self.rightMiddleLayout.addLayout(self.dataShowLayout)
         
@@ -376,14 +349,14 @@ class LaserQtMainWindowSub01(QWidget):
         # 右半部分底部布局
         self.rightBottomLayout = QHBoxLayout()
         self.rightBottomLayout.addStretch()
-        self.rightBottomLayout.setSpacing(60)
+        self.rightBottomLayout.setSpacing(62)
         self.rightBottomLayout.addWidget(self.startProcessingButton)
         self.rightBottomLayout.addWidget(self.stopProcessingButton)
         self.rightBottomLayout.addWidget(self.continueProcessingButton)
 
         # 右半部分布局
         self.rightLayout = QVBoxLayout()
-        self.rightLayout.setSpacing(62)
+        self.rightLayout.setSpacing(75)
         self.rightLayout.addLayout(self.rightMiddleLayout)
         self.rightLayout.addLayout(self.rightBottomLayout )
 
@@ -415,7 +388,7 @@ class LaserQtMainWindowSub01(QWidget):
         myLaserQtSub02.show()
 
     def start_processing(self):
-        pass
+        pass       
 
     def stop_processing(self):
         pass
@@ -427,14 +400,6 @@ class LaserQtMainWindowSub01(QWidget):
 class LaserQtMainWindowSub02(QWidget):
     def __init__(self):
         super(LaserQtMainWindowSub02, self).__init__()
-        self.setStyleSheet(
-            '''
-            QWidget {
-                color: black;
-                background-color: #DDDDDD;
-            }
-            '''
-        )
         self.create_main_window()
 
     def create_main_window(self):
@@ -448,76 +413,91 @@ class LaserQtMainWindowSub02(QWidget):
     def set_widgets(self):
         self.targetDataLable = QLabel("目标数据")
         self.qFont = QFont()
-        self.qFont.setPointSize(14)
+        self.qFont.setPointSize(12)
         self.targetDataLable.setFont(self.qFont)
         self.scanningDataLable = QLabel("扫描数据")
         self.scanningDataLable.setFont(self.qFont)
         self.targetDataDirectoryLineEdit = QLineEdit()
-        self.targetDataDirectoryLineEdit.setStyleSheet(
-            '''
-            QLineEdit {
-                background-color: white;
-            }
-            '''
-        )
         self.scanningDataDirectoryLineEdit = QLineEdit()
-        self.scanningDataDirectoryLineEdit.setStyleSheet(
-            '''
-            QLineEdit {
-                background-color: white;
-            }
-            '''
-        )
         self.targetDataBrowseButton = BrowseButton()
-        self.targetDataBrowseButton.clicked.connect(self.browse_directory)
+        self.targetDataBrowseButton.clicked.connect(self.browse_target_data_directory)
         self.scanningDataBrowseButton = BrowseButton()
-        self.scanningDataBrowseButton.clicked.connect(self.browse_directory)
-        # 顶部布局
-        self.topLayout = QGridLayout()
-        self.topLayout.addWidget(self.targetDataLable, 0, 0)
-        self.topLayout.addWidget(self.scanningDataLable, 1, 0)
-        self.topLayout.addWidget(self.targetDataDirectoryLineEdit, 0, 1)
-        self.topLayout.addWidget(self.scanningDataDirectoryLineEdit, 1, 1)
-        self.topLayout.addWidget(self.targetDataBrowseButton, 0, 2)
-        self.topLayout.addWidget(self.scanningDataBrowseButton, 1, 2)
+        self.scanningDataBrowseButton.clicked.connect(self.browse_scanning_data_directory)
+        # 左半部分顶部布局
+        self.leftTopLayout = QGridLayout()
+        self.leftTopLayout.addWidget(self.targetDataLable, 0, 0)
+        self.leftTopLayout.addWidget(self.scanningDataLable, 1, 0)
+        self.leftTopLayout.addWidget(self.targetDataDirectoryLineEdit, 0, 1)
+        self.leftTopLayout.addWidget(self.scanningDataDirectoryLineEdit, 1, 1)
+        self.leftTopLayout.addWidget(self.targetDataBrowseButton, 0, 2)
+        self.leftTopLayout.addWidget(self.scanningDataBrowseButton, 1, 2)
         
-        self.canvas = StaticCanvas()
+        self.canvas = StaticCanvasForPointCloud()
         self.canvasRegionLable = QLabel("数据可视化区域")
-        self.qFont = QFont()
-        self.qFont.setPointSize(14)
         self.canvasRegionLable.setFont(self.qFont)
-        # 中部布局
-        self.middleLayout = QVBoxLayout()
-        self.middleLayout.setSpacing(10)
-        self.middleLayout.addWidget(self.canvasRegionLable)
-        self.middleLayout.addWidget(self.canvas)
+        # 左半部分中部布局
+        self.leftMiddleLayout = QVBoxLayout()
+        self.leftMiddleLayout.setSpacing(10)
+        self.leftMiddleLayout.addWidget(self.canvasRegionLable)
+        self.leftMiddleLayout.addWidget(self.canvas)
 
         self.prevButton = PreviousButton()
         self.prevButton.clicked.connect(self.prev_page)
         self.nextButton = NextButton()
         self.nextButton.clicked.connect(self.next_page)
         self.quitButton = QuitButton()
+        # 左半部分底部布局
+        self.leftBottomLayout = QHBoxLayout()
+        self.leftBottomLayout.addStretch()
+        self.leftBottomLayout.setSpacing(60)
+        self.leftBottomLayout.addWidget(self.prevButton)
+        self.leftBottomLayout.addWidget(self.nextButton)
+        self.leftBottomLayout.addWidget(self.quitButton)
+
+        # 左半部分布局
+        self.leftLayout = QVBoxLayout()
+        self.leftLayout.setSpacing(23)
+        self.leftLayout.addLayout(self.leftTopLayout)
+        self.leftLayout.addLayout(self.leftMiddleLayout)
+        self.leftLayout.addLayout(self.leftBottomLayout)
+
+        self.logRegionLable = QLabel("后台执行过程展示区域")
+        self.logRegionLable.setFont(self.qFont)
+        self.logTextEdit = QTextEdit()
+        self.executeProgressBar = QProgressBar()
+        self.executeProgressBar.setValue(10)
+        # 右半部分中部布局
+        self.rightMiddleLayout = QVBoxLayout()
+        self.rightMiddleLayout.addWidget(self.logRegionLable)
+        self.rightMiddleLayout.addWidget(self.logTextEdit)
+        self.rightMiddleLayout.addWidget(self.executeProgressBar)
+
         self.pointCloudDataScanButton = PointCloudDataScanButton()
+        self.pointCloudDataScanButton.clicked.connect(self.point_cloud_data_scan)
         self.pointCloudDataDenoisingButton = PointCloudDataDenoisingButton()
+        self.pointCloudDataDenoisingButton.clicked.connect(self.point_cloud_data_denoising )
         self.pointCloudDataFittingButton = PointCloudDataFittingButton()
-        # 底部布局
-        self.bottomLayout = QHBoxLayout()
-        self.bottomLayout.addStretch()
-        self.bottomLayout.setSpacing(80)
-        self.bottomLayout.addWidget(self.prevButton)
-        self.bottomLayout.addWidget(self.nextButton)
-        self.bottomLayout.addWidget(self.quitButton)
-        self.bottomLayout.addWidget(self.pointCloudDataScanButton)
-        self.bottomLayout.addWidget(self.pointCloudDataDenoisingButton)
-        self.bottomLayout.addWidget(self.pointCloudDataFittingButton)
+        self.pointCloudDataFittingButton.clicked.connect(self.point_cloud_data_fitting)
+        # 右半部分底部布局
+        self.rightBottomLayout = QHBoxLayout()
+        self.rightBottomLayout.addStretch()
+        self.rightBottomLayout.setSpacing(60)
+        self.rightBottomLayout.addWidget(self.pointCloudDataScanButton)
+        self.rightBottomLayout.addWidget(self.pointCloudDataDenoisingButton)
+        self.rightBottomLayout.addWidget(self.pointCloudDataFittingButton)
+
+        # 右半部分布局
+        self.rightLayout = QVBoxLayout()
+        self.rightLayout.setSpacing(23)
+        self.rightLayout.addLayout(self.rightMiddleLayout)
+        self.rightLayout.addLayout(self.rightBottomLayout)
 
         # 全局布局
-        self.widgetLayout = QVBoxLayout()
-        self.widgetLayout.setContentsMargins(280, 20, 280, 40)
-        self.widgetLayout.setSpacing(20)
-        self.widgetLayout.addLayout(self.topLayout)
-        self.widgetLayout.addLayout(self.middleLayout)
-        self.widgetLayout.addLayout(self.bottomLayout)
+        self.widgetLayout = QHBoxLayout()
+        self.widgetLayout.setContentsMargins(40, 40, 40, 40)
+        self.widgetLayout.setSpacing(40)
+        self.widgetLayout.addLayout(self.leftLayout)
+        self.widgetLayout.addLayout(self.rightLayout)
 
     def get_current_screen_size(self):
         self.width = 1440
@@ -538,9 +518,30 @@ class LaserQtMainWindowSub02(QWidget):
     def next_page(self):
         pass
 
-    def browse_directory(self):
+    def browse_target_data_directory(self): ## TODO
+        mainDirectory = check_os()
+        currentFileDialog = OpenFileDialog()
+        fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Excel Files (*.xlsx)")
+        if fileName != "":
+            self.fileName = fileName
+            self.targetDataDirectoryLineEdit.setText(self.fileName)
+
+    def browse_scanning_data_directory(self): ## TODO
+        mainDirectory = check_os()
+        currentFileDialog = OpenFileDialog()
+        fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Excel Files (*.xlsx)")
+        if fileName != "":
+            self.fileName = fileName
+            self.scanningDataDirectoryLineEdit.setText(self.fileName)
+
+    def point_cloud_data_scan(self):
         pass
 
+    def point_cloud_data_denoising(self):
+        pass
+
+    def point_cloud_data_fitting(self):
+        pass
 
 class LaserQtMainWindowSub03(QWidget):
     pass
@@ -549,6 +550,14 @@ class LaserQtMainWindowSub03(QWidget):
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
+
+    # 读取样式表
+    file = open("LaserQt_Gui/LaserQt_Gui_Style.qss", 'r')
+    styleSheet = file.read()
+    file.close()
+    # 设置全局样式
+    qApp.setStyleSheet(styleSheet)
+
     myLaserQt = LaserQtMainWindow()
     myLaserQtSub01 = LaserQtMainWindowSub01()
     myLaserQtSub02 = LaserQtMainWindowSub02()
