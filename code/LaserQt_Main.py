@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import qApp
 from PyQt5.QtWidgets import QAbstractItemView
@@ -165,6 +165,7 @@ class LaserQtMainWindow(QWidget):
         for i in range(numOfRows):
             for j in range(numOfColums):
                 value = table.cell(i, j).value
+                ## TODO
                 if j <= 3:
                     value = "%.2f"%value
                 elif j > 3 and j <=5:
@@ -178,6 +179,7 @@ class LaserQtMainWindow(QWidget):
 
     # 绘制路径图
     def plot_the_data(self):
+        self.canvas.axes.plot() # 很关键的代码！！！重新导入文件时清除所有的绘图
         self.canvas.axes.hold(True)
         for i in range(self.numOfPath):
             xStart = float(self.dataTable.item(i, 0).text()) ;yStart = float(self.dataTable.item(i, 1).text())
@@ -222,7 +224,6 @@ class LaserQtMainWindow(QWidget):
 
     # 更新路径图
     def update_the_plot(self):
-        self.canvas.axes.plot()
         self.plot_the_data()
         self.update_the_excel()
         QMessageBox.information(self, "消息提示对话框", "更新数据完毕！", QMessageBox.Yes, QMessageBox.Yes)
@@ -293,55 +294,65 @@ class LaserQtMainWindowSub01(QWidget):
         self.tableRegionLable = QLabel("数据实时显示区域")
         self.tableRegionLable.setFont(self.qFont)
         self.dataShowLayout = QGridLayout()
-        self.dataShow01Lable = QLabel("路径编号")
+
+        self.dataShow01Lable = QLabel("加载文件")
         self.dataShow01Lable.setFont(self.qFont)
         self.dataShowLayout.addWidget(self.dataShow01Lable, 0, 0)
         self.dataShow01Edit = QLineEdit()
         self.dataShow01Edit.setEnabled(False)
         self.dataShowLayout.addWidget(self.dataShow01Edit, 0, 1)
 
-        self.dataShow02Lable = QLabel("起点坐标")
+        self.dataShow02Lable = QLabel("路径编号")
         self.dataShow02Lable.setFont(self.qFont)
         self.dataShowLayout.addWidget(self.dataShow02Lable, 1, 0)
         self.dataShow02Edit = QLineEdit()
         self.dataShow02Edit.setEnabled(False)
         self.dataShowLayout.addWidget(self.dataShow02Edit, 1, 1)
 
-        self.dataShow03Lable = QLabel("终点坐标")
+        self.dataShow03Lable = QLabel("起点坐标")
         self.dataShow03Lable.setFont(self.qFont)
         self.dataShowLayout.addWidget(self.dataShow03Lable, 2, 0)
         self.dataShow03Edit = QLineEdit()
         self.dataShow03Edit.setEnabled(False)
         self.dataShowLayout.addWidget(self.dataShow03Edit, 2, 1)
 
-        self.dataShow04Lable = QLabel("下压量")
+        self.dataShow04Lable = QLabel("终点坐标")
         self.dataShow04Lable.setFont(self.qFont)
         self.dataShowLayout.addWidget(self.dataShow04Lable, 3, 0)
         self.dataShow04Edit = QLineEdit()
         self.dataShow04Edit.setEnabled(False)
         self.dataShowLayout.addWidget(self.dataShow04Edit, 3, 1)
 
-        self.dataShow05Lable = QLabel("热参数")
+        self.dataShow05Lable = QLabel("下压量")
         self.dataShow05Lable.setFont(self.qFont)
         self.dataShowLayout.addWidget(self.dataShow05Lable, 4, 0)
         self.dataShow05Edit = QLineEdit()
         self.dataShow05Edit.setEnabled(False)
         self.dataShowLayout.addWidget(self.dataShow05Edit, 4, 1)
 
-        self.dataShow06Lable = QLabel("加工时间")
+        self.dataShow06Lable = QLabel("热参数")
         self.dataShow06Lable.setFont(self.qFont)
         self.dataShowLayout.addWidget(self.dataShow06Lable, 5, 0)
         self.dataShow06Edit = QLineEdit()
         self.dataShow06Edit.setEnabled(False)
         self.dataShowLayout.addWidget(self.dataShow06Edit, 5, 1)
+
+        self.dataShow07Lable = QLabel("加工时间")
+        self.dataShow07Lable.setFont(self.qFont)
+        self.dataShowLayout.addWidget(self.dataShow07Lable, 6, 0)
+        self.dataShow07Edit = QLineEdit()
+        self.dataShow07Edit.setEnabled(False)
+        self.dataShowLayout.addWidget(self.dataShow07Edit, 6, 1)
         # 右半部分中部布局
         self.rightMiddleLayout = QVBoxLayout()
-        self.rightMiddleLayout.setSpacing(62)
+        self.rightMiddleLayout.setSpacing(52)
         self.rightMiddleLayout.addWidget(self.tableRegionLable)
         self.rightMiddleLayout.addLayout(self.dataShowLayout)
         
         self.startProcessingButton = StartProcessingButton()
         self.startProcessingButton.clicked.connect(self.start_processing)
+        self.timer = QTimer() # 初始化定时器对象
+        self.timer.timeout.connect(self.time_count)
         self.stopProcessingButton = StopProcessingButton()
         self.stopProcessingButton.clicked.connect(self.stop_processing)
         self.continueProcessingButton = ContinueProcessingButton()
@@ -388,7 +399,32 @@ class LaserQtMainWindowSub01(QWidget):
         myLaserQtSub02.show()
 
     def start_processing(self):
-        pass       
+        self.dataShow01Edit.setText(myLaserQt.fileName)
+        excelReadOnly = xlrd.open_workbook(myLaserQt.fileName)
+        table = excelReadOnly.sheets()[0]
+        numOfRows = table.nrows
+        numOfColums = table.ncols
+
+        import time
+        self.time = "00：00：00"
+        self.count = 0
+        self.timer.start(1000) ## TODO
+        for i in range(numOfRows):
+            dataCell = []
+            for j in range(numOfColums):
+                # 打包的数据有哪些，正反标志需要发吗？
+                value = table.cell(i, j).value ## TODO
+                dataCell.append(value)
+            self.dataShow02Edit.setText(str(i + 1))
+            self.dataShow03Edit.setText('( ' + str(dataCell[0]) + ', ' + str(dataCell[1]) + ' )')
+            self.dataShow04Edit.setText('( ' + str(dataCell[2]) + ', ' + str(dataCell[3]) + ' )')
+            self.dataShow05Edit.setText(str(dataCell[4]))
+            self.dataShow06Edit.setText(str(dataCell[5]))
+            self.dataShow07Edit.setText(self.time) # 时间显示好像有点不靠谱！！！
+            qApp.processEvents() # 强制刷新界面
+            time.sleep(1)
+        self.timer.stop()
+        QMessageBox.information(self, "消息提示对话框", "所有路径加工完毕", QMessageBox.Yes, QMessageBox.Yes)
 
     def stop_processing(self):
         pass
@@ -396,6 +432,20 @@ class LaserQtMainWindowSub01(QWidget):
     def continue_processing(self):
         pass
 
+    # 计时器我
+    def time_count(self):
+        self.count += 1
+        m = self.count // 60 # Python3中的整除写法 -- // 
+        s = self.count % 60
+        if s < 10:
+            self.time = "00：0{}：0{}".format(m, s)
+        else:
+            self.time = "00：0{}：{}".format(m, s)
+
+    def plot_the_dynamic_data(self, dataCell):
+        self.canvas.axes.plot([dataCell[0], dataCell[2]], [dataCell[1], dataCell[3]], 'r', label="正面加工路径")
+        # self.canvas.axes.plot([dataCell[0], dataCell[2]], [dataCell[1], dataCell[3]], 'b', label="反面加工路径")
+        
 
 class LaserQtMainWindowSub02(QWidget):
     def __init__(self):

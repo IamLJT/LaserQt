@@ -64,7 +64,7 @@ class DynamicCanvasForPathInfo(BaseCanvas):
         self.axes.arrow(0.05, 0.05, 0, 0.1)
         self.axes.arrow(0.05, 0.05, 0.1, 0)
         # We want the axes cleared every time plot() is called
-        self.axes.hold(False)
+        self.axes.hold(True)
         super(DynamicCanvasForPathInfo, self).__init__(figure=fig)
     
     def compute_initial_figure(self):
