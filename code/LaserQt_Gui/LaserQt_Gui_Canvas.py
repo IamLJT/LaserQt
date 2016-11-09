@@ -48,6 +48,7 @@ class StaticCanvasForPathInfo(BaseCanvas):
     def compute_initial_figure(self):
         pass
 
+
 class DynamicCanvasForPathInfo(BaseCanvas):
     '''
     动态路径信息画布，继承自基类画布
@@ -73,6 +74,7 @@ class DynamicCanvasForPathInfo(BaseCanvas):
     def update_figure(self):
         pass
 
+
 class StaticCanvasForPointCloud(BaseCanvas):
     '''
     静态点云数据拟合画布，继承自基类画布
@@ -91,6 +93,132 @@ class StaticCanvasForPointCloud(BaseCanvas):
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
         super(StaticCanvasForPointCloud, self).__init__(figure=fig)
+
+    def compute_initial_figure(self):
+        pass
+
+
+class StaticCanvasForErrorCurve01(BaseCanvas):
+    '''
+    静态点云数据拟合画布，继承自基类画布
+    '''
+    def __init__(self, width=2, height=2, dpi=50):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_facecolor("white")
+        fig.set_edgecolor("black")
+        self.axes = fig.add_subplot(111)
+        self.axes.set_title("加工板水平方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.axes.set_xlabel("X", fontproperties=FONT, fontsize=10)
+        self.axes.set_ylabel("Y", fontproperties=FONT, fontsize=10)
+        self.axes.grid(True, which="both")
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(False)
+        super(StaticCanvasForErrorCurve01, self).__init__(figure=fig)
+
+    def compute_initial_figure(self):
+        pass
+
+
+class StaticCanvasForErrorCurve02(BaseCanvas):
+    '''
+    静态点云数据拟合画布，继承自基类画布
+    '''
+    def __init__(self, width=2, height=2, dpi=50):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_facecolor("white")
+        fig.set_edgecolor("black")
+        self.axes = fig.add_subplot(111)
+        self.axes.set_title("加工板水平方向1/2处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.axes.set_xlabel("X", fontproperties=FONT, fontsize=10)
+        self.axes.set_ylabel("Y", fontproperties=FONT, fontsize=10)
+        self.axes.grid(True, which="both")
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(False)
+        super(StaticCanvasForErrorCurve02, self).__init__(figure=fig)
+
+    def compute_initial_figure(self):
+        pass
+
+
+class StaticCanvasForErrorCurve03(BaseCanvas):
+    '''
+    静态点云数据拟合画布，继承自基类画布
+    '''
+    def __init__(self, width=2, height=2, dpi=50):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_facecolor("white")
+        fig.set_edgecolor("black")
+        self.axes = fig.add_subplot(111)
+        self.axes.set_title("加工板水平方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.axes.set_xlabel("X", fontproperties=FONT, fontsize=10)
+        self.axes.set_ylabel("Y", fontproperties=FONT, fontsize=10)
+        self.axes.grid(True, which="both")
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(False)
+        super(StaticCanvasForErrorCurve03, self).__init__(figure=fig)
+
+    def compute_initial_figure(self):
+        pass
+
+
+class StaticCanvasForErrorCurve04(BaseCanvas):
+    '''
+    静态点云数据拟合画布，继承自基类画布
+    '''
+    def __init__(self, width=2, height=2, dpi=50):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_facecolor("white")
+        fig.set_edgecolor("black")
+        self.axes = fig.add_subplot(111)
+        self.axes.set_title("加工板垂直方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.axes.set_xlabel("X", fontproperties=FONT, fontsize=10)
+        self.axes.set_ylabel("Y", fontproperties=FONT, fontsize=10)
+        self.axes.grid(True, which="both")
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(False)
+        super(StaticCanvasForErrorCurve04, self).__init__(figure=fig)
+
+    def compute_initial_figure(self):
+        pass
+
+
+class StaticCanvasForErrorCurve05(BaseCanvas):
+    '''
+    静态点云数据拟合画布，继承自基类画布
+    '''
+    def __init__(self, width=2, height=2, dpi=50):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_facecolor("white")
+        fig.set_edgecolor("black")
+        self.axes = fig.add_subplot(111)
+        self.axes.set_title("加工板垂直方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.axes.set_xlabel("X", fontproperties=FONT, fontsize=10)
+        self.axes.set_ylabel("Y", fontproperties=FONT, fontsize=10)
+        self.axes.grid(True, which="both")
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(False)
+        super(StaticCanvasForErrorCurve05, self).__init__(figure=fig)
+
+    def compute_initial_figure(self):
+        pass
+
+
+class StaticCanvasForErrorCurve06(BaseCanvas):
+    '''
+    静态点云数据拟合画布，继承自基类画布
+    '''
+    def __init__(self, width=2, height=2, dpi=50):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_facecolor("white")
+        fig.set_edgecolor("black")
+        self.axes = fig.add_subplot(111)
+        self.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
+        self.axes.set_xlabel("X", fontproperties=FONT, fontsize=10)
+        self.axes.set_ylabel("Y", fontproperties=FONT, fontsize=10)
+        self.axes.grid(True, which="both")
+        # We want the axes cleared every time plot() is called
+        self.axes.hold(False)
+        super(StaticCanvasForErrorCurve06, self).__init__(figure=fig)
 
     def compute_initial_figure(self):
         pass

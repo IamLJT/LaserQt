@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
 from LaserQt_Gui.LaserQt_Gui_Button import *
-from LaserQt_Gui.LaserQt_Gui_Canvas import FONT, StaticCanvasForPathInfo, DynamicCanvasForPathInfo, StaticCanvasForPointCloud
+from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import OpenFileDialog
 
 import xlrd
@@ -566,7 +566,8 @@ class LaserQtMainWindowSub02(QWidget):
         myLaserQtSub01.show()
 
     def next_page(self):
-        pass
+        myLaserQtSub02.hide()
+        myLaserQtSub03.show()
 
     def browse_target_data_directory(self): ## TODO
         mainDirectory = check_os()
@@ -594,7 +595,125 @@ class LaserQtMainWindowSub02(QWidget):
         pass
 
 class LaserQtMainWindowSub03(QWidget):
-    pass
+    def __init__(self):
+        super(LaserQtMainWindowSub03, self).__init__()
+        self.create_main_window()
+
+    def create_main_window(self):
+        self.setWindowTitle("复杂曲率板加工系统-开发者V1.0版")
+        self.get_current_screen_size()
+        self.setMinimumSize(self.width, self.height)
+        self.setMaximumSize(self.width, self.height)
+        self.set_widgets()
+        self.setLayout(self.widgetLayout)
+
+    def set_widgets(self):
+        self.canvas = StaticCanvasForPointCloud() ## TODO
+        self.canvasRegionLable = QLabel("数据可视化区域")
+        self.qFont = QFont()
+        self.qFont.setPointSize(12)
+        self.canvasRegionLable.setFont(self.qFont)
+        # 左半部分中部布局
+        self.leftMiddleLayout = QVBoxLayout()
+        self.leftMiddleLayout.setSpacing(10)
+        self.leftMiddleLayout.addWidget(self.canvasRegionLable)
+        self.leftMiddleLayout.addWidget(self.canvas)
+
+        self.prevButton = PreviousButton()
+        self.prevButton.clicked.connect(self.prev_page)
+        self.quitButton = QuitButton()
+        # 左半部分底部布局
+        self.leftBottomLayout = QHBoxLayout()
+        self.leftBottomLayout.addStretch()
+        self.leftBottomLayout.setSpacing(60)
+        self.leftBottomLayout.addWidget(self.prevButton)
+        self.leftBottomLayout.addWidget(self.quitButton)
+
+        # 左半部分布局
+        self.leftLayout = QVBoxLayout()
+        self.leftLayout.setSpacing(23)
+        self.leftLayout.addLayout(self.leftMiddleLayout)
+        self.leftLayout.addLayout(self.leftBottomLayout)
+
+        self.tableRegionLable = QLabel("误差曲线显示区域")
+        self.tableRegionLable.setFont(self.qFont)
+
+        self.canvas01 = StaticCanvasForErrorCurve01()
+        self.canvas02 = StaticCanvasForErrorCurve02()
+        self.canvas03 = StaticCanvasForErrorCurve03()
+        self.canvas04 = StaticCanvasForErrorCurve04()
+        self.canvas05 = StaticCanvasForErrorCurve05()
+        self.canvas06 = StaticCanvasForErrorCurve06()
+        self.dataShowLayout = QGridLayout()
+        self.dataShowLayout.addWidget(self.canvas01, 0, 0)
+        self.dataShowLayout.addWidget(self.canvas02, 0, 1)
+        self.dataShowLayout.addWidget(self.canvas03, 0, 2)
+        self.dataShowLayout.addWidget(self.canvas04, 1, 0)
+        self.dataShowLayout.addWidget(self.canvas05, 1, 1)
+        self.dataShowLayout.addWidget(self.canvas06, 1, 2)
+        # 右半部分顶部布局
+        self.rightTopLayout = QVBoxLayout()
+        self.rightTopLayout.addWidget(self.tableRegionLable)
+        self.rightTopLayout.addLayout(self.dataShowLayout)
+
+        self.XStartLable = QLabel("起点X坐标")
+        self.XStartLable.setFont(self.qFont)
+        self.XStartLineEdit = QLineEdit()
+        self.YStartLable = QLabel("起点Y坐标")
+        self.YStartLable.setFont(self.qFont)
+        self.YStartLineEdit = QLineEdit()
+        self.XEndLable = QLabel("终点X坐标")
+        self.XEndLable.setFont(self.qFont)
+        self.XEndLineEdit = QLineEdit()
+        self.YEndLable = QLabel("终点Y坐标")
+        self.YEndLable.setFont(self.qFont)
+        self.YEndLineEdit = QLineEdit()
+        # 右半部分中部布局
+        self.rightMiddleLayout = QGridLayout()
+        self.rightMiddleLayout.addWidget(self.XStartLable, 0, 0)
+        self.rightMiddleLayout.addWidget(self.XStartLineEdit, 0, 1)
+        self.rightMiddleLayout.addWidget(self.YStartLable, 0, 2)
+        self.rightMiddleLayout.addWidget(self.YStartLineEdit, 0, 3)
+        self.rightMiddleLayout.addWidget(self.XEndLable, 1, 0)
+        self.rightMiddleLayout.addWidget(self.XEndLineEdit, 1, 1)
+        self.rightMiddleLayout.addWidget(self.YEndLable, 1, 2)
+        self.rightMiddleLayout.addWidget(self.YEndLineEdit, 1, 3)
+        
+        self.confirmButton = ConfirmButton()
+        # 右半部分底部布局
+        self.rightBottomLayout = QHBoxLayout()
+        self.rightBottomLayout.addStretch()
+        self.rightBottomLayout.addWidget(self.confirmButton)
+
+        # 右半部分布局
+        self.rightLayout = QVBoxLayout()
+        self.rightLayout.setSpacing(30)
+        self.rightLayout.addLayout(self.rightTopLayout)
+        self.rightLayout.addLayout(self.rightMiddleLayout)
+        self.rightLayout.addLayout(self.rightBottomLayout )
+
+        # 全局布局
+        self.widgetLayout = QHBoxLayout()
+        self.widgetLayout.setContentsMargins(40, 40, 40, 40)
+        self.widgetLayout.setSpacing(20)
+        self.widgetLayout.addLayout(self.leftLayout)
+        self.widgetLayout.addLayout(self.rightLayout)
+
+    def get_current_screen_size(self):
+        self.width = 1440
+        self.height = 720
+
+    # 类方法重载 -- 关闭窗口事件
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
+    def prev_page(self):
+        myLaserQtSub03.hide()
+        myLaserQtSub01.show()
 
 
 if __name__ == '__main__':
