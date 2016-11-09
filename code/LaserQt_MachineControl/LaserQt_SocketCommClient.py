@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from socket import *
+from socket import socket, AF_INET, SOCK_STREAM
 
 def main():
     host = "192.168.1.102"

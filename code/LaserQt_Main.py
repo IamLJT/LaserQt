@@ -23,6 +23,8 @@ from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import OpenFileDialog
 
+from socket import socket, AF_INET, SOCK_STREAM
+import threading
 import xlrd
 import xlutils.copy as xlcopy
 
@@ -353,6 +355,8 @@ class LaserQtMainWindowSub01(QWidget):
         self.startProcessingButton.clicked.connect(self.start_processing)
         self.timer = QTimer() # 初始化定时器对象
         self.timer.timeout.connect(self.time_count)
+        self.mplThread = threading.Thread(target=self.socket_communication) ## TODO
+        self.mplThread.setDaemon(True)
         self.stopProcessingButton = StopProcessingButton()
         self.stopProcessingButton.clicked.connect(self.stop_processing)
         self.continueProcessingButton = ContinueProcessingButton()
@@ -400,6 +404,7 @@ class LaserQtMainWindowSub01(QWidget):
 
     def start_processing(self):
         self.dataShow01Edit.setText(myLaserQt.fileName)
+        
         excelReadOnly = xlrd.open_workbook(myLaserQt.fileName)
         table = excelReadOnly.sheets()[0]
         numOfRows = table.nrows
@@ -409,6 +414,9 @@ class LaserQtMainWindowSub01(QWidget):
         self.time = "00：00：00"
         self.count = 0
         self.timer.start(1000) ## TODO
+
+        self.canvas.axes.plot()
+        self.canvas.axes.hold(True)
         for i in range(numOfRows):
             dataCell = []
             for j in range(numOfColums):
@@ -421,18 +429,46 @@ class LaserQtMainWindowSub01(QWidget):
             self.dataShow05Edit.setText(str(dataCell[4]))
             self.dataShow06Edit.setText(str(dataCell[5]))
             self.dataShow07Edit.setText(self.time) # 时间显示好像有点不靠谱！！！
+            self.plot_the_dynamic_data(dataCell)
             qApp.processEvents() # 强制刷新界面
             time.sleep(1)
+        self.canvas.axes.hold(False)
+
         self.timer.stop()
         QMessageBox.information(self, "消息提示对话框", "所有路径加工完毕", QMessageBox.Yes, QMessageBox.Yes)
 
     def stop_processing(self):
-        pass
+        self.mplThread.start()
 
     def continue_processing(self):
         pass
 
-    # 计时器我
+    def socket_communication(self):
+        host = "127.0.0.1"
+        port = 7070
+        addr = (host, port)
+        bufferSize = 1024 
+        
+        while True:
+            tcpClientSock = socket(AF_INET, SOCK_STREAM)
+            tcpClientSock.connect(addr)
+
+            sendData = input('>> ')
+            if not sendData:
+                break
+            else:
+                tcpClientSock.send("{}\r\n".format(sendData).encode("utf-8"))
+            
+            recvData = tcpClientSock.recv(bufferSize).decode("utf-8")
+            if not recvData:
+                break
+            else:
+                dataCell = recvData.strip().split(',')
+                self.plot_the_dynamic_data(dataCell)
+            
+            tcpClientSock.close()
+
+    # 计时器
     def time_count(self):
         self.count += 1
         m = self.count // 60 # Python3中的整除写法 -- // 
@@ -443,9 +479,12 @@ class LaserQtMainWindowSub01(QWidget):
             self.time = "00：0{}：{}".format(m, s)
 
     def plot_the_dynamic_data(self, dataCell):
-        self.canvas.axes.plot([dataCell[0], dataCell[2]], [dataCell[1], dataCell[3]], 'r', label="正面加工路径")
-        # self.canvas.axes.plot([dataCell[0], dataCell[2]], [dataCell[1], dataCell[3]], 'b', label="反面加工路径")
-        
+        if dataCell[4] == "1":
+            self.canvas.axes.plot([float(dataCell[0]), float(dataCell[2])], [float(dataCell[1]), float(dataCell[3])], 'r', label="正面加工路径")
+        else:
+            self.canvas.axes.plot([float(dataCell[0]), float(dataCell[2])], [float(dataCell[1]), float(dataCell[3])], 'b', label="反面加工路径")
+        self.canvas.draw()
+
 
 class LaserQtMainWindowSub02(QWidget):
     def __init__(self):
