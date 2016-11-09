@@ -15,7 +15,7 @@ QMessageBox.about       关于框
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.05
+@date    : 2016.11.07
 '''
 
 class BaseButton(QPushButton):
@@ -112,6 +112,32 @@ class QuitButton(BaseButton):
             pass
 
 
+class EditButton(BaseButton):
+    '''
+    编辑按钮，继承自基类按钮
+    '''
+    def __init__(self):
+        super(EditButton, self).__init__(name="开启编辑")
+        self.function_init()
+    
+    # 功能绑定 - 
+    def function_init(self):
+        pass
+
+
+class UpdateButton(BaseButton):
+    '''
+    更新按钮，继承自基类按钮
+    '''
+    def __init__(self):
+        super(UpdateButton, self).__init__(name="更新路径")
+        self.function_init()
+    
+    # 功能绑定 - 
+    def function_init(self):
+        pass
+
+
 class StartProcessingButton(BaseButton):
     '''
     开始加工按钮，继承自基类按钮
@@ -182,7 +208,7 @@ class PointCloudDataFittingButton(BaseButton):
     点云数据拟合按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(PointCloudDataFittingButton, self).__init__(name="点云去噪")
+        super(PointCloudDataFittingButton, self).__init__(name="点云拟合")
         self.function_init()
     
     # 功能绑定 - 
