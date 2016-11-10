@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import queue
+from socket import socket, AF_INET, SOCK_STREAM
+
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import qApp
@@ -23,8 +26,9 @@ from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import OpenFileDialog
 
-from socket import socket, AF_INET, SOCK_STREAM
 import threading
+import time
+
 import xlrd
 import xlutils.copy as xlcopy
 
@@ -32,7 +36,7 @@ import xlutils.copy as xlcopy
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.08
+@date    : 2016.11.10
 '''
 
 # 检查当前的操作系统并依此设置主路径
@@ -206,7 +210,11 @@ class LaserQtMainWindow(QWidget):
                     unique_handles.append(handles[i]); unique_handles.append(handles[i - 1])
                     unique_labels.append(labels[i]); unique_labels.append(labels[i - 1])
                     break
+        self.canvas.axes.set_title("加工路径静态图", fontproperties=FONT, fontsize=14)
+        self.canvas.axes.set_xlabel("X - 板长方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_ylabel("Y - 板宽方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.legend(unique_handles, unique_labels, prop=FONT, bbox_to_anchor=(1.1, 1.1))
+        self.canvas.axes.grid(True, which="both")
         self.canvas.draw()
         self.canvas.axes.hold(False)
 
@@ -355,7 +363,7 @@ class LaserQtMainWindowSub01(QWidget):
         self.startProcessingButton.clicked.connect(self.start_processing)
         self.timer = QTimer() # 初始化定时器对象
         self.timer.timeout.connect(self.time_count)
-        self.mplThread = threading.Thread(target=self.socket_communication) ## TODO
+        self.mplThread = threading.Thread(target=self.socket_communication) ## 初始化socket通信子线程
         self.mplThread.setDaemon(True)
         self.stopProcessingButton = StopProcessingButton()
         self.stopProcessingButton.clicked.connect(self.stop_processing)
@@ -402,46 +410,90 @@ class LaserQtMainWindowSub01(QWidget):
         myLaserQtSub01.hide()
         myLaserQtSub02.show()
 
-    def start_processing(self):
-        self.dataShow01Edit.setText(myLaserQt.fileName)
-        
+    def init_task_queue(self):
+        self.myTaskQueue = queue.Queue(maxsize=100) # 任务队列 -- 生产者-消费者模式
+
         excelReadOnly = xlrd.open_workbook(myLaserQt.fileName)
         table = excelReadOnly.sheets()[0]
         numOfRows = table.nrows
         numOfColums = table.ncols
+        for i in range(numOfRows):
+            dataCell = []
+            dataCell.append(i + 1)
+            for j in range(numOfColums):
+                value = table.cell(i, j).value
+                dataCell.append(value)
+            self.myTaskQueue.put(dataCell)
 
-        import time
+
+    def start_processing(self):
+        self.init_task_queue()
+
+        self.isStop = False
+
+        self.dataShow01Edit.setText(myLaserQt.fileName)
+
         self.time = "00：00：00"
         self.count = 0
+
         self.timer.start(1000) ## TODO
 
         self.canvas.axes.plot()
         self.canvas.axes.hold(True)
-        for i in range(numOfRows):
-            dataCell = []
-            for j in range(numOfColums):
-                # 打包的数据有哪些，正反标志需要发吗？
-                value = table.cell(i, j).value ## TODO
-                dataCell.append(value)
-            self.dataShow02Edit.setText(str(i + 1))
-            self.dataShow03Edit.setText('( ' + str(dataCell[0]) + ', ' + str(dataCell[1]) + ' )')
-            self.dataShow04Edit.setText('( ' + str(dataCell[2]) + ', ' + str(dataCell[3]) + ' )')
-            self.dataShow05Edit.setText(str(dataCell[4]))
-            self.dataShow06Edit.setText(str(dataCell[5]))
+        self.canvas.axes.set_title("加工路径动态图", fontproperties=FONT, fontsize=14)
+        self.canvas.axes.set_xlabel("X - 板长方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_ylabel("Y - 板宽方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.grid(True, which="both")
+
+        while (not self.isStop) and (not self.myTaskQueue.empty()):
+            dataCell = self.myTaskQueue.get()
+            self.dataShow02Edit.setText(str(dataCell[0]))
+            self.dataShow03Edit.setText('( ' + str(dataCell[1]) + ', ' + str(dataCell[2]) + ' )')
+            self.dataShow04Edit.setText('( ' + str(dataCell[3]) + ', ' + str(dataCell[4]) + ' )')
+            self.dataShow05Edit.setText(str(dataCell[5]))
+            self.dataShow06Edit.setText(str(dataCell[6]))
             self.dataShow07Edit.setText(self.time) # 时间显示好像有点不靠谱！！！
             self.plot_the_dynamic_data(dataCell)
             qApp.processEvents() # 强制刷新界面
             time.sleep(1)
-        self.canvas.axes.hold(False)
 
         self.timer.stop()
-        QMessageBox.information(self, "消息提示对话框", "所有路径加工完毕", QMessageBox.Yes, QMessageBox.Yes)
+
+        if self.myTaskQueue.empty() == True:
+            self.canvas.axes.hold(False)
+            QMessageBox.information(self, "消息提示对话框", "所有路径加工完毕！", QMessageBox.Yes, QMessageBox.Yes)
+        else:
+            QMessageBox.information(self, "消息提示对话框", "您已停止加工！", QMessageBox.Yes, QMessageBox.Yes)
 
     def stop_processing(self):
-        self.mplThread.start()
+        self.isStop = True
 
     def continue_processing(self):
-        pass
+        QMessageBox.information(self, "消息提示对话框", "您将开始加工！", QMessageBox.Yes, QMessageBox.Yes)
+
+        self.isStop = False
+
+        self.timer.start(1000) ## TODO
+        
+        while (not self.isStop) and (not self.myTaskQueue.empty()):
+            dataCell = self.myTaskQueue.get()
+            self.dataShow02Edit.setText(str(dataCell[0]))
+            self.dataShow03Edit.setText('( ' + str(dataCell[1]) + ', ' + str(dataCell[2]) + ' )')
+            self.dataShow04Edit.setText('( ' + str(dataCell[3]) + ', ' + str(dataCell[4]) + ' )')
+            self.dataShow05Edit.setText(str(dataCell[5]))
+            self.dataShow06Edit.setText(str(dataCell[6]))
+            self.dataShow07Edit.setText(self.time) # 时间显示好像有点不靠谱！！！
+            self.plot_the_dynamic_data(dataCell)
+            qApp.processEvents() # 强制刷新界面
+            time.sleep(1)
+        
+        self.timer.stop()
+
+        if self.myTaskQueue.empty() == True:
+            self.canvas.axes.hold(False)
+            QMessageBox.information(self, "消息提示对话框", "所有路径加工完毕！", QMessageBox.Yes, QMessageBox.Yes)
+        else:
+            QMessageBox.information(self, "消息提示对话框", "您已停止加工！", QMessageBox.Yes, QMessageBox.Yes)
 
     def socket_communication(self):
         host = "127.0.0.1"
@@ -479,10 +531,10 @@ class LaserQtMainWindowSub01(QWidget):
             self.time = "00：0{}：{}".format(m, s)
 
     def plot_the_dynamic_data(self, dataCell):
-        if dataCell[4] == "1":
-            self.canvas.axes.plot([float(dataCell[0]), float(dataCell[2])], [float(dataCell[1]), float(dataCell[3])], 'r', label="正面加工路径")
+        if dataCell[7] == 1:
+            self.canvas.axes.plot([float(dataCell[1]), float(dataCell[3])], [float(dataCell[2]), float(dataCell[4])], 'r', label="正面加工路径")
         else:
-            self.canvas.axes.plot([float(dataCell[0]), float(dataCell[2])], [float(dataCell[1]), float(dataCell[3])], 'b', label="反面加工路径")
+            self.canvas.axes.plot([float(dataCell[1]), float(dataCell[3])], [float(dataCell[2]), float(dataCell[4])], 'b', label="反面加工路径")
         self.canvas.draw()
 
 

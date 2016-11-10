@@ -13,7 +13,7 @@ FONT = FontProperties(fname=(os.getcwd() + "/LaserQt_Font/wqy-microhei.ttc"), si
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.07
+@date    : 2016.11.10
 '''
 
 class BaseCanvas(FigureCanvas):
@@ -39,8 +39,6 @@ class StaticCanvasForPathInfo(BaseCanvas):
         self.axes.set_xlabel("X - 板长方向", fontproperties=FONT, fontsize=9)
         self.axes.set_ylabel("Y - 板宽方向", fontproperties=FONT, fontsize=9)
         self.axes.grid(True, which="both")
-        self.axes.arrow(0.05, 0.05, 0, 0.1)
-        self.axes.arrow(0.05, 0.05, 0.1, 0)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
         super(StaticCanvasForPathInfo, self).__init__(figure=fig)
@@ -62,8 +60,6 @@ class DynamicCanvasForPathInfo(BaseCanvas):
         self.axes.set_xlabel("X - 板长方向", fontproperties=FONT, fontsize=9)
         self.axes.set_ylabel("Y - 板宽方向", fontproperties=FONT, fontsize=9)
         self.axes.grid(True, which="both")
-        self.axes.arrow(0.05, 0.05, 0, 0.1)
-        self.axes.arrow(0.05, 0.05, 0.1, 0)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
         super(DynamicCanvasForPathInfo, self).__init__(figure=fig)
@@ -88,8 +84,6 @@ class StaticCanvasForPointCloud(BaseCanvas):
         self.axes.set_xlabel("X", fontproperties=FONT, fontsize=9)
         self.axes.set_ylabel("Y", fontproperties=FONT, fontsize=9)
         self.axes.grid(True, which="both")
-        self.axes.arrow(0.05, 0.05, 0, 0.1)
-        self.axes.arrow(0.05, 0.05, 0.1, 0)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
         super(StaticCanvasForPointCloud, self).__init__(figure=fig)
