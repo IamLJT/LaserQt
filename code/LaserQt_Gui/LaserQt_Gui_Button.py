@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QMessageBox
+
+from .LaserQt_Gui_Dialog import MessageDialog
 
 '''
 QMessageBox.information 信息框
@@ -105,8 +106,9 @@ class QuitButton(BaseButton):
 
     # 弹出消息提示对话框
     def pop_up_hint_dialog(self):
-        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        messageDialog = MessageDialog()
+        reply = messageDialog.question(self, "消息提示对话框", "您要退出系统吗?", messageDialog.Yes | messageDialog.No, messageDialog.No)
+        if reply == messageDialog.Yes:
             QCoreApplication.instance().quit()
         else:
             pass

@@ -33,17 +33,17 @@ static int32_t iminarg1,iminarg2;
 
 using namespace std;
 
-Matrix::Matrix () {
+Matrix::Matrix() {
 	m   = 0;
 	n   = 0;
 	val = 0;
 }
 
-Matrix::Matrix (const int32_t m_,const int32_t n_) {
+Matrix::Matrix(const int32_t m_, const int32_t n_) {
 	allocateMemory(m_,n_);
 }
 
-Matrix::Matrix (const int32_t m_,const int32_t n_,const FLOAT* val_) {
+Matrix::Matrix(const int32_t m_, const int32_t n_, const FLOAT* val_) {
 	allocateMemory(m_,n_);
 	int32_t k=0;
 	for (int32_t i=0; i<m_; i++)
@@ -51,17 +51,17 @@ Matrix::Matrix (const int32_t m_,const int32_t n_,const FLOAT* val_) {
 		val[i][j] = val_[k++];
 }
 
-Matrix::Matrix (const Matrix &M) {
+Matrix::Matrix(const Matrix &M) {
 	allocateMemory(M.m,M.n);
 	for (int32_t i=0; i<M.m; i++)
 	memcpy(val[i],M.val[i],M.n*sizeof(FLOAT));
 }
 
-Matrix::~Matrix () {
+Matrix::~Matrix() {
 	releaseMemory();
 }
 
-Matrix& Matrix::operator= (const Matrix &M) {
+Matrix& Matrix::operator = (const Matrix &M) {
 	if (this!=&M) {
 	if (M.m!=m || M.n!=n) {
 		releaseMemory();
@@ -74,7 +74,7 @@ Matrix& Matrix::operator= (const Matrix &M) {
 	return *this;
 }
 
-void Matrix::getData(FLOAT* val_,int32_t i1,int32_t j1,int32_t i2,int32_t j2) {
+void Matrix::getData(FLOAT* val_, int32_t i1, int32_t j1, int32_t i2, int32_t j2) {
 	if (i2==-1) i2 = m-1;
 	if (j2==-1) j2 = n-1;
 	int32_t k=0;
@@ -83,7 +83,7 @@ void Matrix::getData(FLOAT* val_,int32_t i1,int32_t j1,int32_t i2,int32_t j2) {
 		val_[k++] = val[i][j];
 }
 
-Matrix Matrix::getMat(int32_t i1,int32_t j1,int32_t i2,int32_t j2) {
+Matrix Matrix::getMat(int32_t i1, int32_t j1, int32_t i2, int32_t j2) {
 	if (i2==-1) i2 = m-1;
 	if (j2==-1) j2 = n-1;
 	if (i1<0 || i2>=m || j1<0 || j2>=n || i2<i1 || j2<j1) {
@@ -99,7 +99,7 @@ Matrix Matrix::getMat(int32_t i1,int32_t j1,int32_t i2,int32_t j2) {
 	return M;
 }
 
-void Matrix::setMat(const Matrix &M,const int32_t i1,const int32_t j1) {
+void Matrix::setMat(const Matrix &M, const int32_t i1, const int32_t j1) {
 	if (i1<0 || j1<0 || i1+M.m>m || j1+M.n>n) {
 	cerr << "ERROR: Cannot set submatrix [" << i1 << ".." << i1+M.m-1 <<
 		"] x [" << j1 << ".." << j1+M.n-1 << "]" <<
@@ -111,7 +111,7 @@ void Matrix::setMat(const Matrix &M,const int32_t i1,const int32_t j1) {
 		val[i1+i][j1+j] = M.val[i][j];
 }
 
-void Matrix::setVal(FLOAT s,int32_t i1,int32_t j1,int32_t i2,int32_t j2) {
+void Matrix::setVal(FLOAT s, int32_t i1, int32_t j1, int32_t i2, int32_t j2) {
 	if (i2==-1) i2 = m-1;
 	if (j2==-1) j2 = n-1;
 	if (i2<i1 || j2<j1) {
@@ -123,7 +123,7 @@ void Matrix::setVal(FLOAT s,int32_t i1,int32_t j1,int32_t i2,int32_t j2) {
 		val[i][j] = s;
 }
 
-void Matrix::setDiag(FLOAT s,int32_t i1,int32_t i2) {
+void Matrix::setDiag(FLOAT s, int32_t i1, int32_t i2) {
 	if (i2==-1) i2 = min(m-1,n-1);
 	for (int32_t i=i1; i<=i2; i++)
 	val[i][i] = s;
@@ -157,7 +157,7 @@ void Matrix::eye () {
 	val[i][i] = 1;
 }
 
-Matrix Matrix::ones (const int32_t m,const int32_t n) {
+Matrix Matrix::ones (const int32_t m, const int32_t n) {
 	Matrix M(m,n);
 	for (int32_t i=0; i<m; i++)
 	for (int32_t j=0; j<n; j++)
@@ -181,7 +181,7 @@ Matrix Matrix::diag (const Matrix &M) {
 	exit(0);
 }
 
-Matrix Matrix::reshape(const Matrix &M,int32_t m_,int32_t n_) {
+Matrix Matrix::reshape(const Matrix &M, int32_t m_, int32_t n_) {
 	if (M.m*M.n != m_*n_) {
 	cerr << "ERROR: Trying to reshape a matrix of size (" << M.m << "x" << M.n <<
 			") to size (" << m_ << "x" << n_ << ")" << endl;
@@ -198,7 +198,7 @@ Matrix Matrix::reshape(const Matrix &M,int32_t m_,int32_t n_) {
 	return M2;
 }
 
-Matrix Matrix::rotMatX (const FLOAT &angle) {
+Matrix Matrix::rotMatX(const FLOAT &angle) {
 	FLOAT s = sin(angle);
 	FLOAT c = cos(angle);
 	Matrix R(3,3);
@@ -210,7 +210,7 @@ Matrix Matrix::rotMatX (const FLOAT &angle) {
 	return R;
 }
 
-Matrix Matrix::rotMatY (const FLOAT &angle) {
+Matrix Matrix::rotMatY(const FLOAT &angle) {
 	FLOAT s = sin(angle);
 	FLOAT c = cos(angle);
 	Matrix R(3,3);
@@ -222,7 +222,7 @@ Matrix Matrix::rotMatY (const FLOAT &angle) {
 	return R;
 }
 
-Matrix Matrix::rotMatZ (const FLOAT &angle) {
+Matrix Matrix::rotMatZ(const FLOAT &angle) {
 	FLOAT s = sin(angle);
 	FLOAT c = cos(angle);
 	Matrix R(3,3);
@@ -234,7 +234,7 @@ Matrix Matrix::rotMatZ (const FLOAT &angle) {
 	return R;
 }
 
-Matrix Matrix::operator+ (const Matrix &M) {
+Matrix Matrix::operator + (const Matrix &M) {
 	const Matrix &A = *this;
 	const Matrix &B = M;
 	if (A.m!=B.m || A.n!=B.n) {
@@ -249,7 +249,7 @@ Matrix Matrix::operator+ (const Matrix &M) {
 	return C;
 }
 
-Matrix Matrix::operator- (const Matrix &M) {
+Matrix Matrix::operator - (const Matrix &M) {
 	const Matrix &A = *this;
 	const Matrix &B = M;
 	if (A.m!=B.m || A.n!=B.n) {
@@ -264,7 +264,7 @@ Matrix Matrix::operator- (const Matrix &M) {
 	return C;
 }
 
-Matrix Matrix::operator* (const Matrix &M) {
+Matrix Matrix::operator * (const Matrix &M) {
 	const Matrix &A = *this;
 	const Matrix &B = M;
 	if (A.n!=B.m) {
@@ -280,7 +280,7 @@ Matrix Matrix::operator* (const Matrix &M) {
 	return C;
 }
 
-Matrix Matrix::operator* (const FLOAT &s) {
+Matrix Matrix::operator * (const FLOAT &s) {
 	Matrix C(m,n);
 	for (int32_t i=0; i<m; i++)
 	for (int32_t j=0; j<n; j++)
@@ -288,7 +288,7 @@ Matrix Matrix::operator* (const FLOAT &s) {
 	return C;
 }
 
-Matrix Matrix::operator/ (const Matrix &M) {
+Matrix Matrix::operator / (const Matrix &M) {
 	const Matrix &A = *this;
 	const Matrix &B = M;
   
@@ -323,7 +323,7 @@ Matrix Matrix::operator/ (const Matrix &M) {
 	} 
 }
 
-Matrix Matrix::operator/ (const FLOAT &s) {
+Matrix Matrix::operator / (const FLOAT &s) {
 	if (fabs(s)<1e-20) {
 	cerr << "ERROR: Trying to divide by zero!" << endl;
 	exit(0);
@@ -335,7 +335,7 @@ Matrix Matrix::operator/ (const FLOAT &s) {
 	return C;
 }
 
-Matrix Matrix::operator- () {
+Matrix Matrix::operator - () {
 	Matrix C(m,n);
 	for (int32_t i=0; i<m; i++)
 	for (int32_t j=0; j<n; j++)
@@ -343,7 +343,7 @@ Matrix Matrix::operator- () {
 	return C;
 }
 
-Matrix Matrix::operator~ () {
+Matrix Matrix::operator ~ () {
 	Matrix C(n,m);
 	for (int32_t i=0; i<m; i++)
 	for (int32_t j=0; j<n; j++)
@@ -351,7 +351,7 @@ Matrix Matrix::operator~ () {
 	return C;
 }
 
-FLOAT Matrix::l2norm () {
+FLOAT Matrix::l2norm() {
 	FLOAT norm = 0;
 	for (int32_t i=0; i<m; i++)
 	for (int32_t j=0; j<n; j++)
@@ -359,7 +359,7 @@ FLOAT Matrix::l2norm () {
 	return sqrt(norm);
 }
 
-FLOAT Matrix::mean () {
+FLOAT Matrix::mean() {
 	FLOAT mean = 0;
 	for (int32_t i=0; i<m; i++)
 	for (int32_t j=0; j<n; j++)
@@ -367,7 +367,7 @@ FLOAT Matrix::mean () {
 	return mean/(FLOAT)(m*n);
 }
 
-Matrix Matrix::cross (const Matrix &a, const Matrix &b) {
+Matrix Matrix::cross(const Matrix &a, const Matrix &b) {
 	if (a.m!=3 || a.n!=1 || b.m!=3 || b.n!=1) {
 	cerr << "ERROR: Cross product vectors must be of size (3x1)" << endl;
 	exit(0);
@@ -379,7 +379,7 @@ Matrix Matrix::cross (const Matrix &a, const Matrix &b) {
 	return c;
 }
 
-Matrix Matrix::inv (const Matrix &M) {
+Matrix Matrix::inv(const Matrix &M) {
 	if (M.m!=M.n) {
 	cerr << "ERROR: Trying to invert matrix of size (" << M.m << "x" << M.n << ")" << endl;
 	exit(0);
@@ -390,7 +390,7 @@ Matrix Matrix::inv (const Matrix &M) {
 	return B;
 }
 
-bool Matrix::inv () {
+bool Matrix::inv() {
 	if (m!=n) {
 	cerr << "ERROR: Trying to invert matrix of size (" << m << "x" << n << ")" << endl;
 	exit(0);
@@ -401,7 +401,7 @@ bool Matrix::inv () {
 	return true;
 }
 
-FLOAT Matrix::det () {
+FLOAT Matrix::det() {
   
 	if (m != n) {
 	cerr << "ERROR: Trying to compute determinant of a matrix of size (" << m << "x" << n << ")" << endl;
@@ -417,7 +417,7 @@ FLOAT Matrix::det () {
 	free(idx);
 }
 
-bool Matrix::solve (const Matrix &M, FLOAT eps) {
+bool Matrix::solve(const Matrix &M, FLOAT eps) {
   
 	// substitutes
 	const Matrix &A = M;
@@ -854,4 +854,3 @@ FLOAT Matrix::pythag(FLOAT a,FLOAT b) {
 	else
 	return (absb == 0.0 ? 0.0 : absb*sqrt(1.0+SQR(absa/absb)));
 }
-

@@ -46,6 +46,7 @@ private:
   
 	// normals of model points
 	double *M_normal;
+
 };
 
 #endif  // ICP_POINT_TO_PLANE_H

@@ -34,6 +34,7 @@ private:
 
 	double fitStep (double *T,const int32_t T_num,Matrix &R,Matrix &t,const std::vector<int32_t> &active);
 	std::vector<int32_t> getInliers (double *T,const int32_t T_num,const Matrix &R,const Matrix &t,const double indist);
+
 };
 
 #endif  // ICP_POINT_TO_POINT_H

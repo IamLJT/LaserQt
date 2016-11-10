@@ -5,6 +5,6 @@
 #include <vector>
 #include "matrix.h"
 
-double* ReadFile(char* strPath, int32_t& num);
+double* ReadFile(const char* strPath, int32_t& num);
 
 #endif  // __READFILE_H__

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QTextEdit
 
 '''
 @author  : Zhou Jian
@@ -35,4 +38,10 @@ class OpenFileDialog(BaseFileDialog):
     # 打开文件选择对话框，选择本地数据文件
     def open_file(self, *args, **kwargs):
         return self.getOpenFileName(*args, **kwargs)
-        
+
+class MessageDialog(QMessageBox):
+    '''
+    消息对话框，继承自QMessageBox
+    '''
+    def __init__(self):
+        super(MessageDialog, self).__init__()

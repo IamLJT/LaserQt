@@ -6,7 +6,7 @@
  * 输入参数： path - ; numOfPoints - 
  * 输出参数： M - 
 */
-double* ReadFile(char* path, int32_t& numOfPoints) {
+double* ReadFile(const char* path, int32_t& numOfPoints) {
 	FILE* fp;
 	fp = fopen(path, "r");
 	std::vector<double> dataVector;
@@ -14,9 +14,9 @@ double* ReadFile(char* path, int32_t& numOfPoints) {
 	while (!feof(fp)) {
 		double input_data01, input_data02, input_data03;
 		fscanf(fp, "%lf, %lf, %lf", &input_data01, &input_data02, &input_data03);
-		dataVector.push_back(idata1);
-		dataVector.push_back(idata2);
-		dataVector.push_back(idata3);
+		dataVector.push_back(input_data01);
+		dataVector.push_back(input_data02);
+		dataVector.push_back(input_data03);
 	}
 	fclose(fp);
 

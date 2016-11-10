@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import QHeaderView
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QProgressBar
 from PyQt5.QtWidgets import QStackedWidget
 from PyQt5.QtWidgets import QTableWidget
@@ -24,7 +23,7 @@ from PyQt5.QtWidgets import QWidget
 
 from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
-from LaserQt_Gui.LaserQt_Gui_Dialog import OpenFileDialog
+from LaserQt_Gui.LaserQt_Gui_Dialog import *
 
 import threading
 import time
@@ -145,8 +144,9 @@ class LaserQtMainWindow(QWidget):
 
     # 类方法重载 -- 关闭窗口事件
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        messageDialog = MessageDialog()
+        reply = messageDialog.question(self, "消息提示对话框", "您要退出系统吗?", messageDialog.Yes | messageDialog.No, messageDialog.No)
+        if reply == messageDialog.Yes:
             event.accept()
         else:
             event.ignore()
@@ -181,7 +181,8 @@ class LaserQtMainWindow(QWidget):
                 newItem = QTableWidgetItem(value)
                 newItem.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter) 
                 self.dataTable.setItem(i, j, newItem)
-        QMessageBox.information(self, "消息提示对话框", "路径文件数据已读取！", QMessageBox.Yes, QMessageBox.Yes)
+        messageDialog = MessageDialog()
+        messageDialog.information(self, "消息提示对话框", "路径文件数据已读取！", messageDialog.Yes, messageDialog.Yes)
 
     # 绘制路径图
     def plot_the_data(self):
@@ -227,20 +228,23 @@ class LaserQtMainWindow(QWidget):
         if self.editFlag == False:
             self.editFlag = True
             self.editButton.setText("禁止编辑")
-            QMessageBox.information(self, "消息提示对话框", "您已开启编辑表格功能！", QMessageBox.Yes, QMessageBox.Yes)
+            messageDialog = MessageDialog()
+            messageDialog.information(self, "消息提示对话框", "您已开启编辑表格功能！", messageDialog.Yes, messageDialog.Yes)
             self.dataTable.setEditTriggers(QAbstractItemView.CurrentChanged) # 允许编辑单元格
 
         else:
             self.editFlag = False
             self.editButton.setText("开启编辑")
-            QMessageBox.information(self, "消息提示对话框", "您已关闭编辑表格功能！", QMessageBox.Yes, QMessageBox.Yes)
+            messageDialog = MessageDialog()
+            messageDialog.information(self, "消息提示对话框", "您已关闭编辑表格功能！", messageDialog.Yes, messageDialog.Yes)
             self.dataTable.setEditTriggers(QAbstractItemView.NoEditTriggers) # 禁止编辑编辑单元格
 
     # 更新路径图
     def update_the_plot(self):
         self.plot_the_data()
         self.update_the_excel()
-        QMessageBox.information(self, "消息提示对话框", "更新数据完毕！", QMessageBox.Yes, QMessageBox.Yes)
+        messageDialog = MessageDialog()
+        messageDialog.information(self, "消息提示对话框", "更新数据完毕！", messageDialog.Yes, messageDialog.Yes)
 
     def update_the_excel(self):
         excelReadOnly = xlrd.open_workbook(self.fileName)
@@ -400,8 +404,9 @@ class LaserQtMainWindowSub01(QWidget):
 
     # 类方法重载 -- 关闭窗口事件
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        messageDialog = MessageDialog()
+        reply = messageDialog.question(self, "消息提示对话框", "您要退出系统吗?", messageDialog.Yes | messageDialog.No, messageDialog.No)
+        if reply == messageDialog.Yes:
             event.accept()
         else:
             event.ignore()
@@ -469,15 +474,18 @@ class LaserQtMainWindowSub01(QWidget):
 
         if self.myTaskQueue.empty() == True:
             self.canvas.axes.hold(False)
-            QMessageBox.information(self, "消息提示对话框", "所有路径加工完毕！", QMessageBox.Yes, QMessageBox.Yes)
+            messageDialog = MessageDialog()
+            messageDialog.information(self, "消息提示对话框", "所有路径加工完毕！", messageDialog.Yes, messageDialog.Yes)
         else:
-            QMessageBox.information(self, "消息提示对话框", "您已停止加工！", QMessageBox.Yes, QMessageBox.Yes)
+            messageDialog = MessageDialog()
+            messageDialog.information(self, "消息提示对话框", "您已停止加工！", messageDialog.Yes, messageDialog.Yes)
 
     def stop_processing(self):
         self.isStop = True
 
     def continue_processing(self):
-        QMessageBox.information(self, "消息提示对话框", "您将开始加工！", QMessageBox.Yes, QMessageBox.Yes)
+        messageDialog = MessageDialog()
+        messageDialog.information(self, "消息提示对话框", "您将开始加工！", messageDialog.Yes, messageDialog.Yes)
 
         self.isStop = False
 
@@ -499,9 +507,11 @@ class LaserQtMainWindowSub01(QWidget):
 
         if self.myTaskQueue.empty() == True:
             self.canvas.axes.hold(False)
-            QMessageBox.information(self, "消息提示对话框", "所有路径加工完毕！", QMessageBox.Yes, QMessageBox.Yes)
+            messageDialog = MessageDialog()
+            messageDialog.information(self, "消息提示对话框", "所有路径加工完毕！", messageDialog.Yes, messageDialog.Yes)
         else:
-            QMessageBox.information(self, "消息提示对话框", "您已停止加工！", QMessageBox.Yes, QMessageBox.Yes)
+            messageDialog = MessageDialog()
+            messageDialog.information(self, "消息提示对话框", "您已停止加工！", messageDialog.Yes, messageDialog.Yes)
 
     def socket_communication(self):
         host = "127.0.0.1"
@@ -581,8 +591,8 @@ class LaserQtMainWindowSub02(QWidget):
         self.leftTopLayout.addWidget(self.targetDataBrowseButton, 0, 2)
         self.leftTopLayout.addWidget(self.scanningDataBrowseButton, 1, 2)
         
-        self.canvas = StaticCanvasForPointCloud()
-        self.canvasRegionLable = QLabel("数据可视化区域")
+        self.canvas = Static3DCanvasForPointCloud()
+        self.canvasRegionLable = QLabel("点云拟合三维可视化")
         self.canvasRegionLable.setFont(self.qFont)
         # 左半部分中部布局
         self.leftMiddleLayout = QVBoxLayout()
@@ -654,8 +664,9 @@ class LaserQtMainWindowSub02(QWidget):
 
     # 类方法重载 -- 关闭窗口事件
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        messageDialog = MessageDialog()
+        reply = messageDialog.question(self, "消息提示对话框", "您要退出系统吗?", messageDialog.Yes | messageDialog.No, messageDialog.No)
+        if reply == messageDialog.Yes:
             event.accept()
         else:
             event.ignore()
@@ -673,16 +684,16 @@ class LaserQtMainWindowSub02(QWidget):
         currentFileDialog = OpenFileDialog()
         fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Text Files (*.txt)")
         if fileName != "":
-            self.fileName = fileName
-            self.targetDataDirectoryLineEdit.setText(self.fileName)
+            self.targetDataFileName = fileName
+            self.targetDataDirectoryLineEdit.setText(self.targetDataFileName)
 
     def browse_scanning_data_directory(self): ## TODO
         mainDirectory = check_os()
         currentFileDialog = OpenFileDialog()
         fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Text Files (*.txt)")
         if fileName != "":
-            self.fileName = fileName
-            self.scanningDataDirectoryLineEdit.setText(self.fileName)
+            self.scanningDataFileName = fileName
+            self.scanningDataDirectoryLineEdit.setText(self.scanningDataFileName)
 
     def point_cloud_data_scan(self):
         pass
@@ -691,7 +702,37 @@ class LaserQtMainWindowSub02(QWidget):
         pass
 
     def point_cloud_data_fitting(self):
-        pass
+        self.canvas.axes.plot([0], [0])
+        self.canvas.axes.hold(True)
+        self.canvas.axes.set_xlim([0, 100])
+        self.canvas.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas.axes.set_ylim([0, 100])
+        self.canvas.axes.set_yticks(np.arange(0, 101, 10))
+        self.canvas.axes.set_zticks([])
+        self.canvas.axes.set_xlabel("加工板水平方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_ylabel("加工板垂直方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.grid(True, which="both")
+
+        X = []; Y = []; self.Z1 = []  # X， Y的取值介于1～100？
+        X = [[_] * 100 for _ in range(1, 101)] 
+        Y = [_ for _ in range(1, 101)] * 100
+        with open(self.targetDataFileName, 'r') as fd:
+            for line in fd:
+                dataCell = line.strip().split(',')
+                self.Z1.append(float(dataCell[2]))
+        self.canvas.axes.scatter(X, Y, self.Z1, c='red')
+        self.Z2 = []
+        with open(self.scanningDataFileName, 'r') as fd:
+            for line in fd:
+                dataCell = line.strip().split(',')
+                self.Z2.append(float(dataCell[2]))
+        self.canvas.axes.scatter(X, Y, self.Z2, c='black')
+
+        self.canvas.draw()
+        self.canvas.axes.hold(False)
+        messageDialog = MessageDialog()
+        messageDialog.question(self, "消息提示对话框", "绘图完毕！", messageDialog.Yes, messageDialog.Yes)
+
 
 class LaserQtMainWindowSub03(QWidget):
     def __init__(self):
@@ -707,8 +748,8 @@ class LaserQtMainWindowSub03(QWidget):
         self.setLayout(self.widgetLayout)
 
     def set_widgets(self):
-        self.canvas = StaticCanvasForPointCloud() ## TODO
-        self.canvasRegionLable = QLabel("数据可视化区域")
+        self.canvas = Static3DCanvasForPointCloud() ## TODO
+        self.canvasRegionLable = QLabel("点云拟合三维可视化")
         self.qFont = QFont()
         self.qFont.setPointSize(12)
         self.canvasRegionLable.setFont(self.qFont)
@@ -779,6 +820,7 @@ class LaserQtMainWindowSub03(QWidget):
         self.rightMiddleLayout.addWidget(self.YEndLineEdit, 1, 3)
         
         self.confirmButton = ConfirmButton()
+        self.confirmButton.clicked.connect(self.init_the_canvas)
         # 右半部分底部布局
         self.rightBottomLayout = QHBoxLayout()
         self.rightBottomLayout.addStretch()
@@ -804,8 +846,9 @@ class LaserQtMainWindowSub03(QWidget):
 
     # 类方法重载 -- 关闭窗口事件
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, "消息提示对话框", "您要退出系统吗?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
+        messageDialog = MessageDialog()
+        reply = messageDialog.question(self, "消息提示对话框", "您要退出系统吗?", messageDialog.Yes | messageDialog.No, messageDialog.No)
+        if reply == messageDialog.Yes:
             event.accept()
         else:
             event.ignore()
@@ -813,6 +856,113 @@ class LaserQtMainWindowSub03(QWidget):
     def prev_page(self):
         myLaserQtSub03.hide()
         myLaserQtSub01.show()
+
+    def init_the_canvas(self):
+        self.canvas.axes.plot([0], [0])
+        self.canvas.axes.hold(True)
+        self.canvas.axes.set_xlim([0, 100])
+        self.canvas.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas.axes.set_ylim([0, 100])
+        self.canvas.axes.set_yticks(np.arange(0, 101, 10))
+        self.canvas.axes.set_zticks([])
+        self.canvas.axes.set_xlabel("加工板水平方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_ylabel("加工板垂直方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.grid(True, which="both")
+
+        X = []; Y = [];# X， Y的取值介于1～100？
+        X = [[_] * 100 for _ in range(1, 101)] 
+        Y = [_ for _ in range(1, 101)] * 100
+
+        # myLaserQtSub02.Z1 和  myLaserQtSub02.Z2 哪个是被减数 哪个是减数
+        self.canvas.axes.scatter(X, Y, myLaserQtSub02.Z1, c='red')
+        self.canvas.axes.scatter(X, Y, myLaserQtSub02.Z2, c='black')
+
+        self.canvas.draw()
+        self.canvas.axes.hold(False)
+
+        self.horizontal_direction_1_3_error_curve()
+        self.horizontal_direction_1_2_error_curve()
+        self.horizontal_direction_2_3_error_curve()
+        self.vertical_direction_1_3_error_curve()
+        self.vertical_direction_2_3_error_curve() 
+        
+    def horizontal_direction_1_3_error_curve(self):
+        error = [] 
+        for i in range(1, 101):
+            error.append(myLaserQtSub02.Z1[100 * 32 + i] - myLaserQtSub02.Z2[100 * 32 + i])
+
+        self.canvas01.axes.plot()
+        self.canvas01.axes.hold(True)
+        self.canvas01.axes.set_xlim([0, 100])
+        self.canvas01.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas01.axes.set_title("加工板水平方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.canvas01.axes.grid(True, which="both")
+        self.canvas01.axes.plot(range(1, 101), error, 'r')
+        self.canvas01.draw()
+        self.canvas01.axes.hold(False)
+
+    def horizontal_direction_1_2_error_curve(self):
+        error = [] 
+        for i in range(1, 101):
+            error.append(myLaserQtSub02.Z1[100 * 49 + i] - myLaserQtSub02.Z2[100 * 49 + i])
+
+        self.canvas02.axes.plot()
+        self.canvas02.axes.hold(True)
+        self.canvas02.axes.set_xlim([0, 100])
+        self.canvas02.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas02.axes.set_title("加工板水平方向1/2处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.canvas02.axes.grid(True, which="both")
+        self.canvas02.axes.plot(range(1, 101), error, 'r')
+        self.canvas02.draw()
+        self.canvas02.axes.hold(False)
+
+    def horizontal_direction_2_3_error_curve(self):
+        error = [] 
+        for i in range(1, 101):
+            error.append(myLaserQtSub02.Z1[100 * 65 + i] - myLaserQtSub02.Z2[100 * 65 + i])
+
+        self.canvas03.axes.plot()
+        self.canvas03.axes.hold(True)
+        self.canvas03.axes.set_xlim([0, 100])
+        self.canvas03.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas03.axes.set_title("加工板水平方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.canvas03.axes.grid(True, which="both")
+        self.canvas03.axes.plot(range(1, 101), error, 'r')
+        self.canvas03.draw()
+        self.canvas03.axes.hold(False)
+
+    def vertical_direction_1_3_error_curve(self):
+        error = [] 
+        for i in range(100):
+            error.append(myLaserQtSub02.Z1[100 * i + 33] - myLaserQtSub02.Z2[100 * i + 33])
+
+        self.canvas04.axes.plot()
+        self.canvas04.axes.hold(True)
+        self.canvas04.axes.set_xlim([0, 100])
+        self.canvas04.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas04.axes.set_title("加工板垂直方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.canvas04.axes.grid(True, which="both")
+        self.canvas04.axes.plot(range(1, 101), error, 'r')
+        self.canvas04.draw()
+        self.canvas04.axes.hold(False)
+
+    def vertical_direction_2_3_error_curve(self):
+        error = [] 
+        for i in range(100):
+            error.append(myLaserQtSub02.Z1[100 * i + 66] - myLaserQtSub02.Z2[100 * i + 66])
+
+        self.canvas05.axes.plot()
+        self.canvas05.axes.hold(True)
+        self.canvas05.axes.set_xlim([0, 100])
+        self.canvas05.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas05.axes.set_title("加工板垂直方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
+        self.canvas05.axes.grid(True, which="both")
+        self.canvas05.axes.plot(range(1, 101), error, 'r')
+        self.canvas05.draw()
+        self.canvas05.axes.hold(False)
+
+    def between_two_arbitrary_point_error_curve(self):
+        pass
 
 
 if __name__ == '__main__':
