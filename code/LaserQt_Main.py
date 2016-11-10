@@ -210,9 +210,13 @@ class LaserQtMainWindow(QWidget):
                     unique_handles.append(handles[i]); unique_handles.append(handles[i - 1])
                     unique_labels.append(labels[i]); unique_labels.append(labels[i - 1])
                     break
+        self.canvas.axes.set_xlim([0, 2])
+        self.canvas.axes.set_xticks(np.arange(0, 22, 2)/10)
+        self.canvas.axes.set_ylim([0, 1])
+        self.canvas.axes.set_yticks(np.arange(0, 11)/10)
         self.canvas.axes.set_title("加工路径静态图", fontproperties=FONT, fontsize=14)
-        self.canvas.axes.set_xlabel("X - 板长方向", fontproperties=FONT, fontsize=9)
-        self.canvas.axes.set_ylabel("Y - 板宽方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_xlabel("X - 板长方向（m）", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_ylabel("Y - 板宽方向（m）", fontproperties=FONT, fontsize=9)
         self.canvas.axes.legend(unique_handles, unique_labels, prop=FONT, bbox_to_anchor=(1.1, 1.1))
         self.canvas.axes.grid(True, which="both")
         self.canvas.draw()
@@ -440,9 +444,13 @@ class LaserQtMainWindowSub01(QWidget):
 
         self.canvas.axes.plot()
         self.canvas.axes.hold(True)
+        self.canvas.axes.set_xlim([0, 2])
+        self.canvas.axes.set_xticks(np.arange(0, 22, 2)/10)
+        self.canvas.axes.set_ylim([0, 1])
+        self.canvas.axes.set_yticks(np.arange(0, 11)/10)
         self.canvas.axes.set_title("加工路径动态图", fontproperties=FONT, fontsize=14)
-        self.canvas.axes.set_xlabel("X - 板长方向", fontproperties=FONT, fontsize=9)
-        self.canvas.axes.set_ylabel("Y - 板宽方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_xlabel("X - 板长方向（m）", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_ylabel("Y - 板宽方向（m）", fontproperties=FONT, fontsize=9)
         self.canvas.axes.grid(True, which="both")
 
         while (not self.isStop) and (not self.myTaskQueue.empty()):
@@ -663,7 +671,7 @@ class LaserQtMainWindowSub02(QWidget):
     def browse_target_data_directory(self): ## TODO
         mainDirectory = check_os()
         currentFileDialog = OpenFileDialog()
-        fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Excel Files (*.xlsx)")
+        fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Text Files (*.txt)")
         if fileName != "":
             self.fileName = fileName
             self.targetDataDirectoryLineEdit.setText(self.fileName)
@@ -671,7 +679,7 @@ class LaserQtMainWindowSub02(QWidget):
     def browse_scanning_data_directory(self): ## TODO
         mainDirectory = check_os()
         currentFileDialog = OpenFileDialog()
-        fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Excel Files (*.xlsx)")
+        fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Text Files (*.txt)")
         if fileName != "":
             self.fileName = fileName
             self.scanningDataDirectoryLineEdit.setText(self.fileName)
