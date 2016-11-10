@@ -1,5 +1,5 @@
-#ifndef READFILE_H
-#define READFILE_H
+#ifndef __READFILE_H__
+#define __READFILE_H__
 
 #include <fstream>
 #include <vector>
@@ -7,4 +7,4 @@
 
 double* ReadFile(char* strPath, int32_t& num);
 
-#endif
+#endif  // __READFILE_H__

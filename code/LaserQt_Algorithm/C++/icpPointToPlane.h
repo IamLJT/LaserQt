@@ -18,8 +18,8 @@ libicp; if not, write to the Free Software Foundation, Inc., 51 Franklin
 Street, Fifth Floor, Boston, MA 02110-1301, USA 
 */
 
-#ifndef ICP_POINT_TO_PLANE_H
-#define ICP_POINT_TO_PLANE_H
+#ifndef __ICP_POINT_TO_PLANE_H__
+#define __ICP_POINT_TO_PLANE_H__
 
 #include "icp.h"
 
@@ -48,4 +48,4 @@ private:
 	double *M_normal;
 };
 
-#endif // ICP_POINT_TO_PLANE_H
+#endif  // ICP_POINT_TO_PLANE_H

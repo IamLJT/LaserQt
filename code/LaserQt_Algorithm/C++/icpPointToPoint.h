@@ -18,8 +18,8 @@ libicp; if not, write to the Free Software Foundation, Inc., 51 Franklin
 Street, Fifth Floor, Boston, MA 02110-1301, USA 
 */
 
-#ifndef ICP_POINT_TO_POINT_H
-#define ICP_POINT_TO_POINT_H
+#ifndef __ICP_POINT_TO_POINT_H__
+#define __ICP_POINT_TO_POINT_H__
 
 #include "icp.h"
 
@@ -36,4 +36,4 @@ private:
 	std::vector<int32_t> getInliers (double *T,const int32_t T_num,const Matrix &R,const Matrix &t,const double indist);
 };
 
-#endif // ICP_POINT_TO_POINT_H
+#endif  // ICP_POINT_TO_POINT_H

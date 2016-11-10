@@ -7,24 +7,23 @@ using namespace std;
 
 int main (int argc, char** argv) {
 
-	int32_t dim = 3, num=0;	//	dim means dimension£¬only can be 2 or 3; num is number of data.
+	int32_t dim = 3, num = 0;  // dim means dimensionï¿½ï¿½only can be 2 or 3; num is number of data.
 
-	char* str1="D:\\ÑĞ¾¿Éú\\ÏîÄ¿\\¼¤¹âÉ¨ÃèÒÇÈí¼ş¿ª·¢\\LaserQt\\LaserQt-master\\code\\LaserQt_Material\\²âÊÔÊı¾İ.txt";
-	char* str2="D:\\ÑĞ¾¿Éú\\ÏîÄ¿\\¼¤¹âÉ¨ÃèÒÇÈí¼ş¿ª·¢\\LaserQt\\LaserQt-master\\code\\LaserQt_Material\\Ä¿±êÊı¾İ.txt";
-	//	name of Path
+	char* pathForTestingDataFile = "./LaserQt_Material/æµ‹è¯•æ•°æ®.txt";  // æ•°æ®æ–‡ä»¶è·¯å¾„å
+	char* pathForTargetDataFile = "./LaserQt_Material/ç›®æ ‡æ•°æ®.txt";  // æ•°æ®æ–‡ä»¶è·¯å¾„å
 
-	double *M = ReadFile(str1, num);
-	double *T = ReadFile(str2, num);
+	double* M = ReadFile(pathForTestingDataFile, num);
+	double* T = ReadFile(pathForTargetDataFile, num);
 
 	// start with identity as initial transformation
 	// in practice you might want to use some kind of prediction here
 	Matrix R = Matrix::eye(3);
-	Matrix t(3,1);
+	Matrix t(3, 1);
 
 	// run point-to-plane ICP (-1 = no outlier threshold)
 	cout << endl << "Running ICP (point-to-plane, no outliers)" << endl;
 	IcpPointToPlane icp(M,num,dim);
-	icp.fit(T,num,R,t,-1);
+	icp.fit(T, num, R, t, -1);
 	//	T is dest-matrix, num is number of data
 	//	R and t means Ratate and Translate Matrix
 
