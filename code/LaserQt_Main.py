@@ -678,6 +678,7 @@ class LaserQtMainWindowSub02(QWidget):
     def next_page(self):
         myLaserQtSub02.hide()
         myLaserQtSub03.show()
+        myLaserQtSub03.init_the_canvas()
 
     def browse_target_data_directory(self): ## TODO
         mainDirectory = check_os()
@@ -820,7 +821,7 @@ class LaserQtMainWindowSub03(QWidget):
         self.rightMiddleLayout.addWidget(self.YEndLineEdit, 1, 3)
         
         self.confirmButton = ConfirmButton()
-        self.confirmButton.clicked.connect(self.init_the_canvas)
+        self.confirmButton.clicked.connect(self.between_two_arbitrary_point_error_curve)
         # 右半部分底部布局
         self.rightBottomLayout = QHBoxLayout()
         self.rightBottomLayout.addStretch()
@@ -962,7 +963,27 @@ class LaserQtMainWindowSub03(QWidget):
         self.canvas05.axes.hold(False)
 
     def between_two_arbitrary_point_error_curve(self):
-        pass
+        x1 = int(self.XStartLineEdit.text().strip())
+        y1 = int(self.YStartLineEdit.text().strip())
+        x2 = int(self.XEndLineEdit.text().strip())
+        y2 = int(self.YEndLineEdit.text().strip())
+
+        dots_index = []
+
+        if x1 < x2:
+            if y1 < y2:
+                while x1 <= x2 and y1 <= y2:
+                    pass
+            else:
+                while x1 <= x2 and y1 >= y2:
+                    pass
+        else:
+            if y1 < y2:
+                while x1 <= x2 and y1 <= y2:
+                    pass
+            else:
+                while x1 <= x2 and y1 >= y2:
+                    pass
 
 
 if __name__ == '__main__':
