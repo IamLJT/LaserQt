@@ -2,8 +2,14 @@
 import queue
 from socket import socket, AF_INET, SOCK_STREAM
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QImage
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import qApp
 from PyQt5.QtWidgets import QAbstractItemView
 from PyQt5.QtWidgets import QApplication
@@ -13,6 +19,7 @@ from PyQt5.QtWidgets import QHeaderView
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QProgressBar
 from PyQt5.QtWidgets import QStackedWidget
 from PyQt5.QtWidgets import QTableWidget
@@ -25,6 +32,8 @@ from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import *
 
+import os
+import shutil
 import threading
 import time
 
@@ -56,7 +65,8 @@ class LaserQtMainWindow(QWidget):
         self.create_main_window()
 
     def create_main_window(self):
-        self.setWindowTitle("复杂曲率板加工系统-开发者V1.0版")
+        self.setWindowTitle("复杂曲率板加工系统--开发者V1.0版")
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
         self.get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)
@@ -275,7 +285,8 @@ class LaserQtMainWindowSub01(QWidget):
         self.create_main_window()
 
     def create_main_window(self):
-        self.setWindowTitle("复杂曲率板加工系统-开发者V1.0版")
+        self.setWindowTitle("复杂曲率板加工系统--开发者V1.0版")
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
         self.get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)
@@ -566,7 +577,8 @@ class LaserQtMainWindowSub02(QWidget):
         self.create_main_window()
 
     def create_main_window(self):
-        self.setWindowTitle("复杂曲率板加工系统-开发者V1.0版")
+        self.setWindowTitle("复杂曲率板加工系统--开发者V1.0版")
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
         self.get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)
@@ -581,7 +593,11 @@ class LaserQtMainWindowSub02(QWidget):
         self.scanningDataLable = QLabel("扫描数据")
         self.scanningDataLable.setFont(self.qFont)
         self.targetDataDirectoryLineEdit = QLineEdit()
+        self.targetDataDirectoryLineEdit.setText("/home/summychou/Github/LaserQt/code/LaserQt_Material/目标数据.txt")  ## TODO
+        self.targetDataFileName = "/home/summychou/Github/LaserQt/code/LaserQt_Material/目标数据.txt"
         self.scanningDataDirectoryLineEdit = QLineEdit()
+        self.scanningDataDirectoryLineEdit.setText("/home/summychou/Github/LaserQt/code/LaserQt_Material/测试数据.txt")
+        self.scanningDataFileName = "/home/summychou/Github/LaserQt/code/LaserQt_Material/测试数据.txt"
         self.targetDataBrowseButton = BrowseButton()
         self.targetDataBrowseButton.clicked.connect(self.browse_target_data_directory)
         self.scanningDataBrowseButton = BrowseButton()
@@ -758,7 +774,8 @@ class LaserQtMainWindowSub03(QWidget):
         self.create_main_window()
 
     def create_main_window(self):
-        self.setWindowTitle("复杂曲率板加工系统-开发者V1.0版")
+        self.setWindowTitle("复杂曲率板加工系统--开发者V1.0版")
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
         self.get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)
@@ -803,6 +820,8 @@ class LaserQtMainWindowSub03(QWidget):
         self.canvas05 = StaticCanvasForErrorCurve05()
         self.canvas06 = StaticCanvasForErrorCurve06()
         self.dataShowLayout = QGridLayout()
+        self.dataShowLayout.setHorizontalSpacing(2)
+        self.dataShowLayout.setVerticalSpacing(2)
         self.dataShowLayout.addWidget(self.canvas01, 0, 0)
         self.dataShowLayout.addWidget(self.canvas02, 0, 1)
         self.dataShowLayout.addWidget(self.canvas03, 0, 2)
@@ -839,10 +858,14 @@ class LaserQtMainWindowSub03(QWidget):
         
         self.confirmButton = ConfirmButton()
         self.confirmButton.clicked.connect(self.between_two_arbitrary_point_error_curve)
+        self.enlargeButton = EnlargeButton()
+        self.enlargeButton.clicked.connect(self.enlarge_the_plot)
         # 右半部分底部布局
         self.rightBottomLayout = QHBoxLayout()
         self.rightBottomLayout.addStretch()
+        self.rightBottomLayout.setSpacing(60)
         self.rightBottomLayout.addWidget(self.confirmButton)
+        self.rightBottomLayout.addWidget(self.enlargeButton)
 
         # 右半部分布局
         self.rightLayout = QVBoxLayout()
@@ -898,6 +921,10 @@ class LaserQtMainWindowSub03(QWidget):
         self.canvas.draw()
         self.canvas.axes.hold(False)
 
+        if os.path.exists("LaserQt_Temp"):
+            shutil.rmtree("LaserQt_Temp")
+        os.mkdir("LaserQt_Temp")
+        
         self.horizontal_direction_1_3_error_curve()
         self.horizontal_direction_1_2_error_curve()
         self.horizontal_direction_2_3_error_curve()
@@ -905,6 +932,7 @@ class LaserQtMainWindowSub03(QWidget):
         self.vertical_direction_2_3_error_curve() 
         
     def horizontal_direction_1_3_error_curve(self):
+        from matplotlib.pyplot import savefig
         error = [] 
         for i in range(1, 101):
             error.append(myLaserQtSub02.Z1[100 * 32 + i] - myLaserQtSub02.Z2[100 * 32 + i])
@@ -916,6 +944,7 @@ class LaserQtMainWindowSub03(QWidget):
         self.canvas01.axes.set_title("加工板水平方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas01.axes.grid(True, which="both")
         self.canvas01.axes.plot(range(1, 101), error, 'r')
+        self.canvas01.print_figure("LaserQt_Temp/horizontal_direction_1_3_error_curve.png")
         self.canvas01.draw()
         self.canvas01.axes.hold(False)
 
@@ -931,6 +960,7 @@ class LaserQtMainWindowSub03(QWidget):
         self.canvas02.axes.set_title("加工板水平方向1/2处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas02.axes.grid(True, which="both")
         self.canvas02.axes.plot(range(1, 101), error, 'r')
+        self.canvas02.print_figure("LaserQt_Temp/horizontal_direction_1_2_error_curve.png")
         self.canvas02.draw()
         self.canvas02.axes.hold(False)
 
@@ -946,6 +976,7 @@ class LaserQtMainWindowSub03(QWidget):
         self.canvas03.axes.set_title("加工板水平方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas03.axes.grid(True, which="both")
         self.canvas03.axes.plot(range(1, 101), error, 'r')
+        self.canvas03.print_figure("LaserQt_Temp/horizontal_direction_2_3_error_curve.png")
         self.canvas03.draw()
         self.canvas03.axes.hold(False)
 
@@ -961,6 +992,7 @@ class LaserQtMainWindowSub03(QWidget):
         self.canvas04.axes.set_title("加工板垂直方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas04.axes.grid(True, which="both")
         self.canvas04.axes.plot(range(1, 101), error, 'r')
+        self.canvas04.print_figure("LaserQt_Temp/vertical_direction_1_3_error_curve.png")
         self.canvas04.draw()
         self.canvas04.axes.hold(False)
 
@@ -976,6 +1008,7 @@ class LaserQtMainWindowSub03(QWidget):
         self.canvas05.axes.set_title("加工板垂直方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas05.axes.grid(True, which="both")
         self.canvas05.axes.plot(range(1, 101), error, 'r')
+        self.canvas05.print_figure("LaserQt_Temp/vertical_direction_2_3_error_curve.png")
         self.canvas05.draw()
         self.canvas05.axes.hold(False)
 
@@ -1002,6 +1035,39 @@ class LaserQtMainWindowSub03(QWidget):
                 while x1 <= x2 and y1 >= y2:
                     pass
 
+    def enlarge_the_plot(self):
+        global myLaserQtSub03Sub
+        myLaserQtSub03Sub = LaserQtMainWindowSub03Sub()
+        myLaserQtSub03Sub.show()
+
+
+class LaserQtMainWindowSub03Sub(QWidget):
+    def __init__(self):
+        super(LaserQtMainWindowSub03Sub, self).__init__()
+        self.create_main_window()
+
+    def create_main_window(self):
+        self.setWindowTitle("复杂曲率板加工系统--开发者V1.0版")
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
+        self.get_current_screen_size()
+        self.setMinimumSize(self.width, self.height)
+        self.setMaximumSize(self.width, self.height)
+        self.set_widgets()
+        self.setLayout(self.widgetLayout)
+
+    def set_widgets(self):
+        self.image = QImage("LaserQt_Temp/horizontal_direction_1_3_error_curve.png")
+        self.imageLabel = QLabel()
+        self.imageLabel.setPixmap(QPixmap.fromImage(self.image));
+
+        # 全局布局
+        self.widgetLayout = QHBoxLayout()
+        self.widgetLayout.setContentsMargins(40, 40, 40, 40)
+        self.widgetLayout.addWidget(self.imageLabel)
+
+    def get_current_screen_size(self):
+        self.width = int(444*1.2)
+        self.height = int(436*1.2)
 
 if __name__ == '__main__':
     import sys
@@ -1018,5 +1084,6 @@ if __name__ == '__main__':
     myLaserQtSub01 = LaserQtMainWindowSub01()
     myLaserQtSub02 = LaserQtMainWindowSub02()
     myLaserQtSub03 = LaserQtMainWindowSub03()
+    myLaserQtSub03Sub = None
     myLaserQt.show()
     sys.exit(app.exec_())

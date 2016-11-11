@@ -238,3 +238,19 @@ class PointCloudDataFittingButton(BaseButton):
     # 功能绑定 - 
     def function_init(self):
         pass
+
+
+class EnlargeButton(BaseButton):
+    '''
+    点云数据拟合按钮，继承自基类按钮
+    '''
+    def __init__(self):
+        super(EnlargeButton, self).__init__()
+        self.setFixedSize(50, 30)
+        self.setIcon(QIcon("LaserQt_Ui/search.png"))
+        self.setToolTip("放大显示")
+        self.function_init()
+    
+    # 功能绑定 - 
+    def function_init(self):
+        pass

@@ -87,7 +87,7 @@ class Static3DCanvasForPointCloud(BaseCanvas):
     '''
     静态点云数据拟合画布，继承自基类画布
     '''
-    def __init__(self, width=6, height=4, dpi=100):
+    def __init__(self):
         fig = plt.figure()
         fig.set_facecolor("white")
         fig.set_edgecolor("black")

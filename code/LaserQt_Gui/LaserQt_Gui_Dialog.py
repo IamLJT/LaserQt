@@ -2,8 +2,6 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QSizePolicy
-from PyQt5.QtWidgets import QTextEdit
 
 '''
 @author  : Zhou Jian
@@ -46,3 +44,18 @@ class MessageDialog(QMessageBox):
     '''
     def __init__(self):
         super(MessageDialog, self).__init__()
+
+
+class SingleButtonDialog(QDialog):
+    '''
+    消息对话框，继承自QMessageBox
+    '''
+    def __init__(self):
+        super(SingleButtonDialog, self).__init__()
+
+class DoubleButtonDialog(QDialog):
+    '''
+    消息对话框，继承自QMessageBox
+    '''
+    def __init__(self):
+        super(DoubleButtonDialog, self).__init__()
