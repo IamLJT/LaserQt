@@ -5,9 +5,18 @@ QWidget {
 
 QLineEdit {
     background-color: white;
+    border:1px solid black;
 }
 
 QPushButton {
+    color: #EEEEEE;   
+    background-color: #888888;
+    border-radius: 10px;
+    padding: 4px 6px;
+}
+
+QPushButton:hover {  
+    background-color: #444444;
 }
 
 QTableWidget {
@@ -16,6 +25,7 @@ QTableWidget {
 
 QTextEdit {
     background-color: white;
+    padding: 10px;
 }
 
 QProgressBar {

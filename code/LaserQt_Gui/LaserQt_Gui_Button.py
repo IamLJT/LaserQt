@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QPushButton
 
 from .LaserQt_Gui_Dialog import MessageDialog
@@ -16,7 +17,7 @@ QMessageBox.about       关于框
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.07
+@date    : 2016.11.14
 '''
 
 class BaseButton(QPushButton):
@@ -32,7 +33,10 @@ class BrowseButton(BaseButton):
     浏览按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(BrowseButton, self).__init__(name="浏览")
+        super(BrowseButton, self).__init__()
+        self.setFixedSize(50, 30)
+        self.setIcon(QIcon("LaserQt_Ui/folder.png"))
+        self.setToolTip("浏览")
         self.function_init()
     
     # 功能绑定 - 
@@ -45,7 +49,10 @@ class PreviousButton(BaseButton):
     上一步按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(PreviousButton, self).__init__(name="上一步")
+        super(PreviousButton, self).__init__()
+        self.setFixedSize(50, 30)
+        self.setIcon(QIcon("LaserQt_Ui/previous.png"))
+        self.setToolTip("上一步")
         self.function_init()
     
     # 功能绑定 - 
@@ -58,7 +65,10 @@ class NextButton(BaseButton):
     下一步按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(NextButton, self).__init__(name="下一步")
+        super(NextButton, self).__init__()
+        self.setFixedSize(50, 30)
+        self.setIcon(QIcon("LaserQt_Ui/next.png"))
+        self.setToolTip("下一步")
         self.function_init()
     
     # 功能绑定 - 
@@ -71,7 +81,10 @@ class ConfirmButton(BaseButton):
     确认按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(ConfirmButton, self).__init__(name="确认")
+        super(ConfirmButton, self).__init__()
+        self.setFixedSize(50, 30)
+        self.setIcon(QIcon("LaserQt_Ui/ok.png"))
+        self.setToolTip("确定")
         self.function_init()
     
     # 功能绑定 - 
@@ -97,7 +110,10 @@ class QuitButton(BaseButton):
     退出按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(QuitButton, self).__init__(name="退出")
+        super(QuitButton, self).__init__()
+        self.setFixedSize(50, 30)
+        self.setIcon(QIcon("LaserQt_Ui/exit.png"))
+        self.setToolTip("退出")
         self.function_init()
     
     # 功能绑定 - 弹出消息提示对话框
@@ -119,7 +135,10 @@ class EditButton(BaseButton):
     编辑按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(EditButton, self).__init__(name="开启编辑")
+        super(EditButton, self).__init__()
+        self.setFixedSize(50, 30)
+        self.setIcon(QIcon("LaserQt_Ui/edit.png"))
+        self.setToolTip("开启编辑")
         self.function_init()
     
     # 功能绑定 - 
@@ -132,7 +151,10 @@ class UpdateButton(BaseButton):
     更新按钮，继承自基类按钮
     '''
     def __init__(self):
-        super(UpdateButton, self).__init__(name="更新路径")
+        super(UpdateButton, self).__init__()
+        self.setFixedSize(50, 30)
+        self.setIcon(QIcon("LaserQt_Ui/update.png"))
+        self.setToolTip("更新表格")
         self.function_init()
     
     # 功能绑定 - 

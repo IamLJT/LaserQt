@@ -39,6 +39,7 @@ class OpenFileDialog(BaseFileDialog):
     def open_file(self, *args, **kwargs):
         return self.getOpenFileName(*args, **kwargs)
 
+
 class MessageDialog(QMessageBox):
     '''
     消息对话框，继承自QMessageBox

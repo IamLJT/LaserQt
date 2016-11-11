@@ -35,7 +35,7 @@ import xlutils.copy as xlcopy
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.10
+@date    : 2016.11.14
 '''
 
 # 检查当前的操作系统并依此设置主路径
@@ -103,7 +103,7 @@ class LaserQtMainWindow(QWidget):
 
         self.tableRegionLable = QLabel("数据列表区域")
         self.tableRegionLable.setFont(self.qFont)
-        self.dataTable = QTableWidget(100, 7)
+        self.dataTable = QTableWidget(0, 7)
         self.dataTable.setHorizontalHeaderLabels(["起点X坐标", "起点Y坐标", "终点X坐标", "终点Y坐标", "下压量", "热参数", "正反标志"])
         self.dataTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) # 按照表格宽度对各单元格宽度进行均分
         self.dataTable.setEditTriggers(QAbstractItemView.NoEditTriggers) # 禁止编辑单元格
@@ -167,6 +167,8 @@ class LaserQtMainWindow(QWidget):
         excelReadOnly = xlrd.open_workbook(self.fileName)
         table = excelReadOnly.sheets()[0]
         self.numOfPath = numOfRows = table.nrows
+        rowIndex = self.dataTable.rowCount()  # 获取当前表格的行数，默认为0行
+        self.dataTable.setRowCount(rowIndex + numOfRows)  # 根据Excel文件的行数动态得设置表格的行数
         self.numofParams = numOfColums = table.ncols
         for i in range(numOfRows):
             for j in range(numOfColums):
@@ -227,14 +229,16 @@ class LaserQtMainWindow(QWidget):
     def edit_the_table(self):
         if self.editFlag == False:
             self.editFlag = True
-            self.editButton.setText("禁止编辑")
+            self.editButton.setIcon(QIcon("LaserQt_Ui/forbidden.png"))
+            self.editButton.setToolTip("禁止编辑")
             messageDialog = MessageDialog()
             messageDialog.information(self, "消息提示对话框", "您已开启编辑表格功能！", messageDialog.Yes, messageDialog.Yes)
             self.dataTable.setEditTriggers(QAbstractItemView.CurrentChanged) # 允许编辑单元格
 
         else:
             self.editFlag = False
-            self.editButton.setText("开启编辑")
+            self.editButton.setIcon(QIcon("LaserQt_Ui/edit.png"))
+            self.editButton.setToolTip("开启编辑")
             messageDialog = MessageDialog()
             messageDialog.information(self, "消息提示对话框", "您已关闭编辑表格功能！", messageDialog.Yes, messageDialog.Yes)
             self.dataTable.setEditTriggers(QAbstractItemView.NoEditTriggers) # 禁止编辑编辑单元格
@@ -623,8 +627,9 @@ class LaserQtMainWindowSub02(QWidget):
         self.logRegionLable = QLabel("后台执行过程展示区域")
         self.logRegionLable.setFont(self.qFont)
         self.logTextEdit = QTextEdit()
+        self.logTextEdit.setEnabled(False)
+        self.logTextEdit.setFontPointSize(12)
         self.executeProgressBar = QProgressBar()
-        self.executeProgressBar.setValue(10)
         # 右半部分中部布局
         self.rightMiddleLayout = QVBoxLayout()
         self.rightMiddleLayout.addWidget(self.logRegionLable)
@@ -640,7 +645,6 @@ class LaserQtMainWindowSub02(QWidget):
         # 右半部分底部布局
         self.rightBottomLayout = QHBoxLayout()
         self.rightBottomLayout.addStretch()
-        self.rightBottomLayout.setSpacing(60)
         self.rightBottomLayout.addWidget(self.pointCloudDataScanButton)
         self.rightBottomLayout.addWidget(self.pointCloudDataDenoisingButton)
         self.rightBottomLayout.addWidget(self.pointCloudDataFittingButton)
@@ -697,12 +701,15 @@ class LaserQtMainWindowSub02(QWidget):
             self.scanningDataDirectoryLineEdit.setText(self.scanningDataFileName)
 
     def point_cloud_data_scan(self):
-        pass
+        self.logTextEdit.setText("")  # 清空日志窗口
 
     def point_cloud_data_denoising(self):
-        pass
+        self.logTextEdit.setText("")
 
     def point_cloud_data_fitting(self):
+        self.logTextEdit.setText("")
+        self.put_info_into_log("开始点云数据拟合...", 30)    
+
         self.canvas.axes.plot([0], [0])
         self.canvas.axes.hold(True)
         self.canvas.axes.set_xlim([0, 100])
@@ -713,6 +720,7 @@ class LaserQtMainWindowSub02(QWidget):
         self.canvas.axes.set_xlabel("加工板水平方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.set_ylabel("加工板垂直方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.grid(True, which="both")
+        self.put_info_into_log("可视化窗口初始化完成...", 60) 
 
         X = []; Y = []; self.Z1 = []  # X， Y的取值介于1～100？
         X = [[_] * 100 for _ in range(1, 101)] 
@@ -730,9 +738,18 @@ class LaserQtMainWindowSub02(QWidget):
         self.canvas.axes.scatter(X, Y, self.Z2, c='black')
 
         self.canvas.draw()
+        self.put_info_into_log("点云数据拟合完成...", 100)
         self.canvas.axes.hold(False)
         messageDialog = MessageDialog()
         messageDialog.question(self, "消息提示对话框", "绘图完毕！", messageDialog.Yes, messageDialog.Yes)
+
+    def put_info_into_log(self, info, progressValue):
+        self.logTextEdit.append("[ {} ] : {}".format(self.get_current_screen_time(), info))
+        self.executeProgressBar.setValue(progressValue)
+        qApp.processEvents() # 强制刷新界面
+
+    def get_current_screen_time(self):
+        return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))
 
 
 class LaserQtMainWindowSub03(QWidget):

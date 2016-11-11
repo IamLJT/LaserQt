@@ -17,7 +17,7 @@ FONT = FontProperties(fname=(os.getcwd() + "/LaserQt_Font/wqy-microhei.ttc"), si
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.10
+@date    : 2016.11.14
 '''
 
 class BaseCanvas(FigureCanvas):
