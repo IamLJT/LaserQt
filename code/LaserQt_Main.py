@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
+from PyQt5.QtCore import QTranslator
 from PyQt5.QtWidgets import qApp
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QInputDialog
 
 from LaserQt_MainWindow import LaserQtMainWindow
 from LaserQt_SecondWindow import LaserQtSecondWindow
 from LaserQt_ThirdWindow import LaserQtThirdWindow
 from LaserQt_FourthWindow import LaserQtFourthWindow
 from LaserQt_ImageWindow import LaserQtImageWindow
+
+from LaserQt_Gui.LaserQt_Gui_Dialog import MessageDialog
+
+import os
 
 '''
 @author  : Zhou Jian
@@ -48,8 +54,30 @@ class OverLoadClassMethod(object):
 
     def laser_qt_fourth_window_enlarge_the_plot(self):
         global myLaserQtImageWindow
-        myLaserQtImageWindow = LaserQtImageWindow()
-        myLaserQtImageWindow.show()
+        num, isOk = QInputDialog.getInt(myLaserQtFourthWindow, "复杂曲率板加工系统", "输入待放大误差曲线图像序号", 1, 1, 6, 1)
+        if isOk:
+            if num == 1:
+                myLaserQtImageWindow = LaserQtImageWindow("horizontal_direction_1_3_error_curve.png")
+                myLaserQtImageWindow.show()
+            elif num == 2:
+                myLaserQtImageWindow = LaserQtImageWindow("horizontal_direction_1_2_error_curve.png")
+                myLaserQtImageWindow.show()
+            elif num == 3:
+                myLaserQtImageWindow = LaserQtImageWindow("horizontal_direction_2_3_error_curve.png")
+                myLaserQtImageWindow.show()
+            elif num == 4:
+                myLaserQtImageWindow = LaserQtImageWindow("vertical_direction_1_3_error_curve.png")
+                myLaserQtImageWindow.show()
+            elif num == 5:
+                myLaserQtImageWindow = LaserQtImageWindow("vertical_direction_2_3_error_curve.png")
+                myLaserQtImageWindow.show()
+            elif num == 6:
+                if os.path.exists("LaserQt_Temp/between_two_arbitrary_point_error_curve.png"):
+                    myLaserQtImageWindow = LaserQtImageWindow("between_two_arbitrary_point_error_curve.png")
+                    myLaserQtImageWindow.show
+                else:
+                    messageDialog = MessageDialog()
+                    messageDialog.warning(myLaserQtFourthWindow, "消息提示对话框", "请先绘图！", messageDialog.Yes, messageDialog.Yes)
 
 if __name__ == '__main__':
     import sys
@@ -61,6 +89,10 @@ if __name__ == '__main__':
     file.close()
     # 设置全局样式
     qApp.setStyleSheet(styleSheet)
+
+    tran = QTranslator()
+    tran.load("qt_zh_CN.qm", "LaserQt_Font/")
+    qApp.installTranslator(tran)
 
     myLaserQtMainWindow = LaserQtMainWindow()
     myLaserQtSecondWindow = LaserQtSecondWindow()

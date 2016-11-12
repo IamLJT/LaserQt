@@ -34,8 +34,8 @@ import xlrd
 class LaserQtSecondWindow(QWidget):
     def __init__(self):
         super(LaserQtSecondWindow, self).__init__()
-        self.create_main_window()
         self.fileName = ""
+        self.create_main_window()
 
     def create_main_window(self):
         self.setWindowTitle("复杂曲率板加工系统")
@@ -141,17 +141,19 @@ class LaserQtSecondWindow(QWidget):
         self.timer.timeout.connect(self.time_count)
         self.mplThread = threading.Thread(target=self.socket_communication) ## 初始化socket通信子线程
         self.mplThread.setDaemon(True)
-        stopProcessingButton = StopProcessingButton()
-        stopProcessingButton.clicked.connect(self.stop_processing)
-        continueProcessingButton = ContinueProcessingButton()
-        continueProcessingButton.clicked.connect(self.continue_processing)
+        self.stopProcessingButton = StopProcessingButton()
+        self.stopProcessingButton.setEnabled(False)
+        self.stopProcessingButton.clicked.connect(self.stop_processing)
+        self.continueProcessingButton = ContinueProcessingButton()
+        self.continueProcessingButton.setEnabled(False)
+        self.continueProcessingButton.clicked.connect(self.continue_processing)
         # 右半部分底部布局
         rightBottomLayout = QHBoxLayout()
         rightBottomLayout.addStretch()
         rightBottomLayout.setSpacing(62)
         rightBottomLayout.addWidget(startProcessingButton)
-        rightBottomLayout.addWidget(stopProcessingButton)
-        rightBottomLayout.addWidget(continueProcessingButton)
+        rightBottomLayout.addWidget(self.stopProcessingButton)
+        rightBottomLayout.addWidget(self.continueProcessingButton)
 
         # 右半部分布局
         rightLayout = QVBoxLayout()
@@ -204,9 +206,10 @@ class LaserQtSecondWindow(QWidget):
         ret = self.init_task_queue()
         if ret == -1:
             messageDialog = MessageDialog()
-            messageDialog.question(self, "消息提示对话框", "请先加载文件!", messageDialog.Yes, messageDialog.Yes)
+            messageDialog.warning(self, "消息提示对话框", "请先加载文件!", messageDialog.Yes, messageDialog.Yes)
             return
         self.isStop = False
+        self.stopProcessingButton.setEnabled(True)
 
         self.time = "00：00：00"
         self.count = 0
@@ -248,6 +251,7 @@ class LaserQtSecondWindow(QWidget):
 
     def stop_processing(self):
         self.isStop = True
+        self.continueProcessingButton.setEnabled(True)
 
     def continue_processing(self):
         messageDialog = MessageDialog()

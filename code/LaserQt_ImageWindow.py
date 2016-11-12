@@ -15,8 +15,9 @@ from PyQt5.QtWidgets import QWidget
 '''
 
 class LaserQtImageWindow(QWidget):
-    def __init__(self):
+    def __init__(self, imageName):
         super(LaserQtImageWindow, self).__init__()
+        self.imageName = imageName
         self.create_main_window()
 
     def create_main_window(self):
@@ -29,9 +30,9 @@ class LaserQtImageWindow(QWidget):
         self.setLayout(self.widgetLayout)
 
     def set_widgets(self):
-        image = QImage("LaserQt_Temp/horizontal_direction_1_3_error_curve.png")
+        image = QImage("LaserQt_Temp/{}".format(self.imageName))
         imageLabel = QLabel()
-        imageLabel.setPixmap(QPixmap.fromImage(image));
+        imageLabel.setPixmap(QPixmap.fromImage(image))
 
         # 全局布局
         self.widgetLayout = QHBoxLayout()
