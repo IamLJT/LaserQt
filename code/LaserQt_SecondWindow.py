@@ -35,6 +35,7 @@ class LaserQtSecondWindow(QWidget):
     def __init__(self):
         super(LaserQtSecondWindow, self).__init__()
         self.create_main_window()
+        self.fileName = ""
 
     def create_main_window(self):
         self.setWindowTitle("复杂曲率板加工系统")
@@ -184,7 +185,8 @@ class LaserQtSecondWindow(QWidget):
 
     def init_task_queue(self):
         self.myTaskQueue = queue.Queue(maxsize=100) # 任务队列 -- 生产者-消费者模式
-
+        if self.fileName == "":
+            return -1
         excelReadOnly = xlrd.open_workbook(self.fileName)
         table = excelReadOnly.sheets()[0]
         numOfRows = table.nrows
@@ -199,8 +201,11 @@ class LaserQtSecondWindow(QWidget):
 
 
     def start_processing(self):
-        self.init_task_queue()
-
+        ret = self.init_task_queue()
+        if ret == -1:
+            messageDialog = MessageDialog()
+            messageDialog.question(self, "消息提示对话框", "请先加载文件!", messageDialog.Yes, messageDialog.Yes)
+            return
         self.isStop = False
 
         self.time = "00：00：00"

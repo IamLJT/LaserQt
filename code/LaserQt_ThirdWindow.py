@@ -30,6 +30,8 @@ class LaserQtThirdWindow(QWidget):
     def __init__(self):
         super(LaserQtThirdWindow, self).__init__()
         self.create_main_window()
+        self.targetDataFileName = ""
+        self.scanningDataFileName = ""
 
     def create_main_window(self):
         self.setWindowTitle("复杂曲率板加工系统")
@@ -48,11 +50,11 @@ class LaserQtThirdWindow(QWidget):
         scanningDataLable = QLabel("扫描数据")
         scanningDataLable.setFont(qFont)
         self.targetDataDirectoryLineEdit = QLineEdit()
-        self.targetDataDirectoryLineEdit.setText("D:\Qt\LaserQt\code\LaserQt_Material\目标数据.txt") ## TODO
-        self.targetDataFileName = "D:\Qt\LaserQt\code\LaserQt_Material\目标数据.txt"
+        # self.targetDataDirectoryLineEdit.setText("D:\Qt\LaserQt\code\LaserQt_Material\目标数据.txt") ## TODO
+        # self.targetDataFileName = "D:\Qt\LaserQt\code\LaserQt_Material\目标数据.txt"
         self.scanningDataDirectoryLineEdit = QLineEdit()
-        self.scanningDataDirectoryLineEdit.setText("D:\Qt\LaserQt\code\LaserQt_Material\测试数据.txt")
-        self.scanningDataFileName = "D:\Qt\LaserQt\code\LaserQt_Material\测试数据.txt"
+        # self.scanningDataDirectoryLineEdit.setText("D:\Qt\LaserQt\code\LaserQt_Material\测试数据.txt")
+        # self.scanningDataFileName = "D:\Qt\LaserQt\code\LaserQt_Material\测试数据.txt"
         targetDataBrowseButton = BrowseButton()
         targetDataBrowseButton.clicked.connect(self.browse_target_data_directory)
         scanningDataBrowseButton = BrowseButton()
@@ -163,6 +165,15 @@ class LaserQtThirdWindow(QWidget):
         self.logTextEdit.setText("")
 
     def point_cloud_data_fitting(self):
+        if self.targetDataFileName == "":
+            messageDialog = MessageDialog()
+            messageDialog.question(self, "消息提示对话框", "请先加载目标数据!", messageDialog.Yes, messageDialog.Yes)
+            return
+        elif self.scanningDataFileName == "":
+            messageDialog = MessageDialog()
+            messageDialog.question(self, "消息提示对话框", "请先加载扫描数据!", messageDialog.Yes, messageDialog.Yes)
+            return
+
         self.logTextEdit.setText("")
         self.put_info_into_log("开始点云数据拟合...", 30)    
 
