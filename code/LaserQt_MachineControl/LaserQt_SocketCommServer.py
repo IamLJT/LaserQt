@@ -15,9 +15,8 @@ def current_time():
 class LaserQtRequestHandler(SRH):
     def handle(self):
         print("客户端 < {} > 已经连接!".format(self.client_address))
-        print(self.rfile.readline().decode("utf-8"))
-        self.wfile.write(("[{}] {}".format(current_time(), "This is a message from LaserQtServer!")).encode("utf-8"))
-
+        revcData = self.rfile.readline().decode("utf-8").strip()
+        self.wfile.write(("{}".format("0.1, 0.1, 0.3, 0.3, 0")).encode("utf-8"))
         
 def main():
     host = "0.0.0.0"
