@@ -38,6 +38,18 @@ class OpenFileDialog(BaseFileDialog):
         return self.getOpenFileName(*args, **kwargs)
 
 
+class SaveFileDialog(BaseFileDialog):
+    '''
+    选择文件对话框，继承自基类文件对话框
+    '''
+    def __init__(self):
+        super(SaveFileDialog, self).__init__()
+
+    # 打开文件选择对话框，选择本地数据文件
+    def save_file(self, *args, **kwargs):
+        return self.getSaveFileName(*args, **kwargs)
+
+
 class MessageDialog(QMessageBox):
     '''
     消息对话框，继承自QMessageBox

@@ -18,8 +18,8 @@ libicp; if not, write to the Free Software Foundation, Inc., 51 Franklin
 Street, Fifth Floor, Boston, MA 02110-1301, USA 
 */
 
-#ifndef __ICP_H__
-#define __ICP_H__
+#ifndef ICP_H
+#define ICP_H
 
 #include <stdio.h>
 #include <string.h>
@@ -39,19 +39,19 @@ public:
 	//        M_num ... number of model points
 	//        dim   ... dimensionality of model points (2 or 3)
 	Icp (double *M,const int32_t M_num,const int32_t dim);
-
+  
 	// deconstructor
 	virtual ~Icp ();
-
+  
 	// set subsampling step size of coarse matching (1. stage)
 	void setSubsamplingStep (int32_t val) { sub_step  = val; }
-
+  
 	// set maximum number of iterations (1. stopping criterion)
 	void setMaxIterations   (int32_t val) { max_iter  = val; }
-
+  
 	// set minimum delta of rot/trans parameters (2. stopping criterion)
 	void setMinDeltaParam   (double  val) { min_delta = val; }
-
+  
 	// fit template to model yielding R,t (M = R*T + t)
 	// input:  T ....... pointer to first template point
 	//         T_num ... number of template points
@@ -61,27 +61,26 @@ public:
 	// output: R ....... final rotation matrix
 	//         t ....... final translation vector
 	void fit(double *T,const int32_t T_num,Matrix &R,Matrix &t,const double indist);
-
+  
 private:
-
+  
 	// iterative fitting
 	void fitIterate(double *T,const int32_t T_num,Matrix &R,Matrix &t,const std::vector<int32_t> &active);
-
+  
 	// inherited classes need to overwrite these functions
 	virtual double               fitStep(double *T,const int32_t T_num,Matrix &R,Matrix &t,const std::vector<int32_t> &active) = 0;
 	virtual std::vector<int32_t> getInliers(double *T,const int32_t T_num,const Matrix &R,const Matrix &t,const double indist) = 0;
-
+  
 protected:
-
+  
 	// kd tree of model points
 	kdtree::KDTree*     M_tree;
 	kdtree::KDTreeArray M_data;
-
+  
 	int32_t dim;       // dimensionality of model + template data (2 or 3)
 	int32_t sub_step;  // subsampling step size
 	int32_t max_iter;  // max number of iterations
 	double  min_delta; // min parameter delta
-
 };
 
-#endif  // __ICP_H__
+#endif // ICP_H

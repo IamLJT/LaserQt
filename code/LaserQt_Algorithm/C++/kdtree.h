@@ -1,5 +1,5 @@
-#ifndef __KDTREE_HPP__
-#define __KDTREE_HPP__
+#ifndef __KDTREE_HPP
+#define __KDTREE_HPP
 
 // (c) Matthew B. Kennel, Institute for Nonlinear Science, UCSD (2004)
 //
@@ -12,8 +12,8 @@
 #include <vector>
 #include <algorithm>
 
-#include "array.hpp"
-#include "multi_array.hpp"
+#include <boost/multi_array.hpp>
+#include <boost/array.hpp>
 
 namespace kdtree {
   
@@ -173,4 +173,4 @@ namespace kdtree {
   
 } // namespace kdtree
 
-#endif  // __KDTREE_HPP__
+#endif

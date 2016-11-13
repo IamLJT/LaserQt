@@ -1,0 +1,1 @@
+g++ -g -Wall -o PointCloudAlgorithm.so XXX.cpp YYY.cpp ZZZ.cpp -fPIC -shared

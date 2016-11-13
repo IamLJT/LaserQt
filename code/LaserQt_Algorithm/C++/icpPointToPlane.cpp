@@ -23,7 +23,7 @@ Street, Fifth Floor, Boston, MA 02110-1301, USA
 using namespace std;
 
 // Also see (3d part): "Linear Least-Squares Optimization for Point-to-Plane ICP Surface Registration" (Kok-Lim Low)
-double IcpPointToPlane::fitStep (double *T, const int32_t T_num, Matrix &R, Matrix &t, const std::vector<int32_t> &active) {
+double IcpPointToPlane::fitStep (double *T,const int32_t T_num,Matrix &R,Matrix &t,const std::vector<int32_t> &active) {
 
 	// kd tree query + result
 	std::vector<float>	query(dim);
@@ -34,7 +34,7 @@ double IcpPointToPlane::fitStep (double *T, const int32_t T_num, Matrix &R, Matr
 	Matrix p_t(active.size(),dim); // template
   
 	// dimensionality 2
-	if (dim == 2) {
+	if (dim==2) {
 
 	// extract matrix and translation vector
 	double r00 = R.val[0][0]; double r01 = R.val[0][1];
