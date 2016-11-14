@@ -7,11 +7,11 @@
 
 using namespace std;
 
-void PointCloudDenoise()
-{
+void PointCloudDenoise(const char* path) {
 	int32_t dim = 3, num=0;	//	dim means dimension��only can be 2 or 3; num is number of data.
 	vector<int> DataFile(4, 0);
-	double *M = ReadFile("/home/summychou/Github/LaserQt/code/LaserQt_Material/测试数据.txt", DataFile);
+	// double *M = ReadFile("/home/summychou/Github/LaserQt/code/LaserQt_Material/测试数据.txt", DataFile);
+	double *M = ReadFile(path, DataFile);
 
 	num = DataFile[0];
 	dim = DataFile[1];
@@ -23,8 +23,7 @@ void PointCloudDenoise()
 	WriteFile(OutPath, M0, num, dim);
 }
 
-void PointCloudFitting(const char* Path, const char *inPath, bool isFilter, const char *TargetData)
-{
+void PointCloudFitting(const char* path, bool isFilter, const char* targetData) {
 	int32_t dim = 3, num=0, m = 0, n = 0;
 	vector<int> DataFile(4, 0);
 	double *M;
@@ -55,6 +54,6 @@ void PointCloudFitting(const char* Path, const char *inPath, bool isFilter, cons
 
 	double *M0 = Matrix::MatrixToArray(res, dim);
 
-	char OutPath[] = "..\��������.txt";
+	char OutPath[] = "/home/summychou/Github/LaserQt/code/LaserQt_Material/输出数据.txt";
 	WriteFile(OutPath, M0, num, dim);
 }

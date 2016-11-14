@@ -53,11 +53,11 @@ class LaserQtThirdWindow(QWidget):
         scanningDataLable = QLabel("扫描数据")
         scanningDataLable.setFont(qFont)
         self.targetDataDirectoryLineEdit = QLineEdit()
-        self.targetDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt") ## TODO
-        self.targetDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt"
+        # self.targetDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt") ## TODO
+        # self.targetDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt"
         self.scanningDataDirectoryLineEdit = QLineEdit()
-        self.scanningDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt")
-        self.scanningDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt"
+        # self.scanningDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt")
+        # self.scanningDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt"
         targetDataBrowseButton = BrowseButton()
         targetDataBrowseButton.clicked.connect(self.browse_target_data_directory)
         scanningDataBrowseButton = BrowseButton()
@@ -112,15 +112,16 @@ class LaserQtThirdWindow(QWidget):
 
         pointCloudDataScanButton = PointCloudDataScanButton()
         pointCloudDataScanButton.clicked.connect(self.point_cloud_data_scan)
-        pointCloudDataDenoisingButton = PointCloudDataDenoisingButton()
-        pointCloudDataDenoisingButton.clicked.connect(self.point_cloud_data_denoising )
+        self.pointCloudDataDenoisingButton = PointCloudDataDenoisingButton()
+        self.pointCloudDataDenoisingButton.clicked.connect(self.point_cloud_data_denoising )
+        self.pointCloudDataDenoisingButton.setEnabled(False)
         pointCloudDataFittingButton = PointCloudDataFittingButton()
         pointCloudDataFittingButton.clicked.connect(self.point_cloud_data_fitting)
         # 右半部分底部布局
         rightBottomLayout = QHBoxLayout()
         rightBottomLayout.addStretch()
         rightBottomLayout.addWidget(pointCloudDataScanButton)
-        rightBottomLayout.addWidget(pointCloudDataDenoisingButton)
+        rightBottomLayout.addWidget(self.pointCloudDataDenoisingButton)
         rightBottomLayout.addWidget(pointCloudDataFittingButton)
 
         # 右半部分布局
@@ -165,16 +166,29 @@ class LaserQtThirdWindow(QWidget):
         self.hasDoDenoising = False
 
     def point_cloud_data_scan(self):
+        if self.scanningDataFileName == "":
+            messageDialog = MessageDialog()
+            messageDialog.warning(self, "消息提示对话框", "请先加载扫描数据!", messageDialog.Yes, messageDialog.Yes)
+            return
+
         self.logTextEdit.setText("")  # 清空日志窗口
+        self.put_info_into_log("开始点云数据扫描...", 0)
+
+        # 点云扫描过程
+
+        self.put_info_into_log("点云数据扫描完毕...", 100)
+
         self.hasDoDenoising = True
+        self.pointCloudDataDenoisingButton.setEnabled(True)
 
     def point_cloud_data_denoising(self):
         self.logTextEdit.setText("")
         self.put_info_into_log("开始点云数据去噪...", 0)
 
         # 调用点云去噪算法
-        self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")
-        self.dll.PointCloudDenoise()
+        self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
+        path = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("utf-8")))  # 创建C/C++可调用的字符串对象
+        self.dll.PointCloudDenoise(path)  # 调用那个C++函数 void PointCloudDenoise(const char* path)
 
         self.put_info_into_log("点云数据去噪完毕...", 100)
 
@@ -214,8 +228,9 @@ class LaserQtThirdWindow(QWidget):
             self.logTextEdit.setText("")
             self.put_info_into_log("开始点云数据拟合...", 0)
 
-            # # 调用点云拟合算法  
-            # self.dll.PointCloudDenoise()
+            # 调用点云拟合算法  
+            # path = ctypes.create_string_buffer(bytes("LaserQt_Material/tempData.txt".encode("utf-8")))  # 创建C/C++可调用的字符串对象
+            # self.dll.PointCloudFitting()  # 调用那个C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
 
             self.put_info_into_log("点云数据拟合完成...", 100)
 
