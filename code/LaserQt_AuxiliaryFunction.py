@@ -18,6 +18,7 @@ def check_os():
         user = getpass.getuser()
         return "/home/" + user + "/"
 
+# 返回当前操作系统版本信息
 def return_os():
     if platform.system() == "Windows":
         return "Windows"
