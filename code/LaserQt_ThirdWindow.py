@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
-from LaserQt_AuxiliaryFunction import check_os, get_current_screen_size, get_current_screen_time
+from LaserQt_AuxiliaryFunction import check_os, return_os, get_current_screen_size, get_current_screen_time
 from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import *
@@ -186,7 +186,10 @@ class LaserQtThirdWindow(QWidget):
         self.put_info_into_log("开始点云数据去噪...", 0)
 
         # 调用点云去噪算法
-        self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
+        if "Windows" == return_os():
+            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.dll")  # 创建动态链接库对象
+        elif "Linux" == return_os():
+            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
         path = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("utf-8")))  # 创建C/C++可调用的字符串对象
         self.dll.PointCloudDenoise(path)  # 调用那个C++函数 void PointCloudDenoise(const char* path)
 

@@ -18,6 +18,12 @@ def check_os():
         user = getpass.getuser()
         return "/home/" + user + "/"
 
+def return_os():
+    if platform.system() == "Windows":
+        return "Windows"
+    elif platform.system() == "Linux":
+        return "Linux"
+
 # 获取当前屏幕尺寸
 def get_current_screen_size():
     width = 1440
