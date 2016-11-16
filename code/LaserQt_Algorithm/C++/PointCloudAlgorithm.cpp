@@ -27,11 +27,11 @@ void PointCloudFitting(const char* path, bool isFilter, const char* targetData) 
 	int32_t dim = 3, num=0, m = 0, n = 0;
 	vector<int> DataFile(4, 0);
 	double *M;
-	double *T = ReadFile(TargetData, DataFile);
+	double *T = ReadFile(targetData, DataFile);
 	if(false == isFilter)
-		M = ReadFile(inPath, DataFile);
+		M = ReadFile(targetData, DataFile);
 	else
-		M = ReadFile(Path, DataFile);
+		M = ReadFile(path, DataFile);
 
 	num = DataFile[0];
 	dim = DataFile[1];

@@ -1,0 +1,2 @@
+g++ -c Filter.cpp icp.cpp icpPointToPlane.cpp icpPointToPoint.cpp kdtree.cpp matrix.cpp readfile.cpp PointCloudAlgorithm.cpp
+ar -r libPointCloudAlgorithm.a Filter.o icp.o icpPointToPlane.o icpPointToPoint.o kdtree.o matrix.o readfile.o PointCloudAlgorithm.o
