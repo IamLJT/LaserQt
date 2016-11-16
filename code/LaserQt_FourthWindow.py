@@ -263,6 +263,8 @@ class LaserQtFourthWindow(QWidget):
         x2 = int(self.XEndLineEdit.text().strip())
         y2 = int(self.YEndLineEdit.text().strip())
 
+        k = (y2 - y1) / (x2 -x1) # 两点连线的斜率
+
         dots_index = []
 
         if x1 < x2:

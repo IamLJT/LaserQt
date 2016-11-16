@@ -42,6 +42,10 @@ class OverLoadClassMethod(object):
         myLaserQtSecondWindow.show()
 
     def laser_qt_third_window_next_page(self):
+        messageDialog = MessageDialog()
+        reply = messageDialog.question(myLaserQtThirdWindow, "消息提示对话框", "您是否已完成点云数据处理？", messageDialog.Yes | messageDialog.No, messageDialog.Yes)
+        if reply == messageDialog.No:
+            return
         myLaserQtThirdWindow.hide()
         myLaserQtFourthWindow.show()
         myLaserQtFourthWindow.Z1 = myLaserQtThirdWindow.Z1

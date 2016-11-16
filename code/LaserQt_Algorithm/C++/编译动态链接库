@@ -1,0 +1,5 @@
+[Linux�����±��빲����] 
+g++ -o PointCloudAlgorithm.so Filter.cpp icp.cpp icpPointToPlane.cpp icpPointToPoint.cpp kdtree.cpp matrix.cpp readfile.cpp PointCloudAlgorithm.cpp -fPIC -shared
+[Windows�����±��붯̬���ӿ�] 
+g++ -c -DBUILD_DLL Filter.cpp icp.cpp icpPointToPlane.cpp icpPointToPoint.cpp kdtree.cpp matrix.cpp readfile.cpp PointCloudAlgorithm.cpp
+g++ -o PointCloudAlgorithm.dll Filter.o icp.o icpPointToPlane.o icpPointToPoint.o kdtree.o matrix.o readfile.o PointCloudAlgorithm.o -shared

@@ -14,10 +14,13 @@ from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
-from LaserQt_AuxiliaryFunction import check_os, get_current_screen_size, get_current_screen_time
+from LaserQt_AuxiliaryFunction import check_os, return_os, get_current_screen_size, get_current_screen_time
 from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import *
+
+import ctypes
+import os
 
 '''
 @author  : Zhou Jian
@@ -50,11 +53,11 @@ class LaserQtThirdWindow(QWidget):
         scanningDataLable = QLabel("扫描数据")
         scanningDataLable.setFont(qFont)
         self.targetDataDirectoryLineEdit = QLineEdit()
-        self.targetDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt") ## TODO
-        self.targetDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt"
+        # self.targetDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt") ## TODO
+        # self.targetDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt"
         self.scanningDataDirectoryLineEdit = QLineEdit()
-        self.scanningDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt")
-        self.scanningDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt"
+        # self.scanningDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt")
+        # self.scanningDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt"
         targetDataBrowseButton = BrowseButton()
         targetDataBrowseButton.clicked.connect(self.browse_target_data_directory)
         scanningDataBrowseButton = BrowseButton()
@@ -109,15 +112,16 @@ class LaserQtThirdWindow(QWidget):
 
         pointCloudDataScanButton = PointCloudDataScanButton()
         pointCloudDataScanButton.clicked.connect(self.point_cloud_data_scan)
-        pointCloudDataDenoisingButton = PointCloudDataDenoisingButton()
-        pointCloudDataDenoisingButton.clicked.connect(self.point_cloud_data_denoising )
+        self.pointCloudDataDenoisingButton = PointCloudDataDenoisingButton()
+        self.pointCloudDataDenoisingButton.clicked.connect(self.point_cloud_data_denoising )
+        self.pointCloudDataDenoisingButton.setEnabled(False)
         pointCloudDataFittingButton = PointCloudDataFittingButton()
         pointCloudDataFittingButton.clicked.connect(self.point_cloud_data_fitting)
         # 右半部分底部布局
         rightBottomLayout = QHBoxLayout()
         rightBottomLayout.addStretch()
         rightBottomLayout.addWidget(pointCloudDataScanButton)
-        rightBottomLayout.addWidget(pointCloudDataDenoisingButton)
+        rightBottomLayout.addWidget(self.pointCloudDataDenoisingButton)
         rightBottomLayout.addWidget(pointCloudDataFittingButton)
 
         # 右半部分布局
@@ -144,6 +148,7 @@ class LaserQtThirdWindow(QWidget):
 
     def browse_target_data_directory(self): ## TODO
         mainDirectory = check_os()
+        # 打开文件选择对话框
         currentFileDialog = OpenFileDialog()
         fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Text Files (*.txt)")
         if fileName != "":
@@ -152,17 +157,60 @@ class LaserQtThirdWindow(QWidget):
 
     def browse_scanning_data_directory(self): ## TODO
         mainDirectory = check_os()
+        # 打开文件选择对话框
         currentFileDialog = OpenFileDialog()
-        fileName, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Text Files (*.txt)")
-        if fileName != "":
-            self.scanningDataFileName = fileName
+        filename, filetype= currentFileDialog.open_file(self, caption="选取文件", directory=mainDirectory, filter="Text Files (*.txt)")
+        if filename != "":
+            self.scanningDataFileName = filename
             self.scanningDataDirectoryLineEdit.setText(self.scanningDataFileName)
+        self.hasDoDenoising = False
 
     def point_cloud_data_scan(self):
+        if self.scanningDataFileName == "":
+            messageDialog = MessageDialog()
+            messageDialog.warning(self, "消息提示对话框", "请先加载扫描数据!", messageDialog.Yes, messageDialog.Yes)
+            return
+
         self.logTextEdit.setText("")  # 清空日志窗口
+        self.put_info_into_log("开始点云数据扫描...", 0)
+
+        # 点云扫描过程
+
+        self.put_info_into_log("点云数据扫描完毕...", 100)
+
+        self.hasDoDenoising = True
+        self.pointCloudDataDenoisingButton.setEnabled(True)
 
     def point_cloud_data_denoising(self):
         self.logTextEdit.setText("")
+        self.put_info_into_log("开始点云数据去噪...", 0)
+
+        # 调用点云去噪算法
+        if "Windows" == return_os():
+            # self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.dll")  # 创建动态链接库对象
+            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/libPointCloudAlgorithm.a")  # 创建静态链接库对象
+        elif "Linux" == return_os():
+            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
+        path = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("utf-8")))  # 创建C/C++可调用的字符串对象
+        self.dll.PointCloudDenoise(path)  # 调用那个C++函数 void PointCloudDenoise(const char* path)
+
+        self.put_info_into_log("点云数据去噪完毕...", 100)
+
+        messageDialog = MessageDialog()
+        reply = messageDialog.information(self, "消息提示对话框", "本次去噪共去除噪声点XX个，剩余噪声点XX个！是否需要保存数据？", messageDialog.Yes | messageDialog.No, messageDialog.Yes)
+        if reply == messageDialog.No:
+            return
+
+        # 打开文件保存对话框
+        currentFileDialog = SaveFileDialog()
+        filename, filetype = currentFileDialog.save_file(self, caption="保存文件", filter="Text Files (*.txt)")
+        if filename == "":
+            messageDialog.warning(self, "消息提示对话框", "您已取消保存!", messageDialog.Yes, messageDialog.Yes)
+        else:
+            with open(filename, 'w') as fd1:
+                with open("LaserQt_Material/tempData.txt", 'r') as fd2:
+                    for line in fd2:
+                        fd1.write(line)
 
     def point_cloud_data_fitting(self):
         if self.targetDataFileName == "":
@@ -174,8 +222,23 @@ class LaserQtThirdWindow(QWidget):
             messageDialog.warning(self, "消息提示对话框", "请先加载扫描数据!", messageDialog.Yes, messageDialog.Yes)
             return
 
-        self.logTextEdit.setText("")
-        self.put_info_into_log("开始点云数据拟合...", 30)    
+        if not self.hasDoDenoising:
+            messageDialog = MessageDialog()
+            reply = messageDialog.question(self, "消息提示对话框", "您未作点云去噪处理，需要预览初始拟合效果吗？", messageDialog.Yes | messageDialog.No, messageDialog.No)
+            if reply == messageDialog.No:
+                return
+            fittingDataFileName = self.scanningDataFileName
+        else:
+            self.logTextEdit.setText("")
+            self.put_info_into_log("开始点云数据拟合...", 0)
+
+            # 调用点云拟合算法  
+            # path = ctypes.create_string_buffer(bytes("LaserQt_Material/tempData.txt".encode("utf-8")))  # 创建C/C++可调用的字符串对象
+            # self.dll.PointCloudFitting()  # 调用那个C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
+
+            self.put_info_into_log("点云数据拟合完成...", 100)
+
+            fittingDataFileName = "LaserQt_Material/输出数据.txt"
 
         self.canvas.axes.plot([0], [0])
         self.canvas.axes.hold(True)
@@ -186,8 +249,7 @@ class LaserQtThirdWindow(QWidget):
         self.canvas.axes.set_zticks([])
         self.canvas.axes.set_xlabel("加工板水平方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.set_ylabel("加工板垂直方向", fontproperties=FONT, fontsize=9)
-        self.canvas.axes.grid(True, which="both")
-        self.put_info_into_log("可视化窗口初始化完成...", 60) 
+        self.canvas.axes.grid(True, which="both") 
 
         X = []; Y = []; self.Z1 = []  # X， Y的取值介于1～100？
         X = [[_] * 100 for _ in range(1, 101)] 
@@ -198,17 +260,19 @@ class LaserQtThirdWindow(QWidget):
                 self.Z1.append(float(dataCell[2]))
         self.canvas.axes.scatter(X, Y, self.Z1, c='red')
         self.Z2 = []
-        with open(self.scanningDataFileName, 'r') as fd:
+        with open(fittingDataFileName, 'r') as fd:
             for line in fd:
                 dataCell = line.strip().split(',')
                 self.Z2.append(float(dataCell[2]))
         self.canvas.axes.scatter(X, Y, self.Z2, c='black')
 
         self.canvas.draw()
-        self.put_info_into_log("点云数据拟合完成...", 100)
+        
         self.canvas.axes.hold(False)
         messageDialog = MessageDialog()
         messageDialog.question(self, "消息提示对话框", "绘图完毕！", messageDialog.Yes, messageDialog.Yes)
+
+        self.hasDoDenoising = False
 
     def put_info_into_log(self, info, progressValue):
         self.logTextEdit.append("[ {} ] : {}".format(get_current_screen_time(), info))
