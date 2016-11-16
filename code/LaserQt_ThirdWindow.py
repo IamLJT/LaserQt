@@ -187,10 +187,10 @@ class LaserQtThirdWindow(QWidget):
 
         # 调用点云去噪算法
         if "Windows" == return_os():
-            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.dll")  # 创建动态链接库对象
+            # self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.dll")  # 创建动态链接库对象
+            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/libPointCloudAlgorithm.a")  # 创建静态链接库对象
         elif "Linux" == return_os():
-            # self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
-            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/libPointCloudAlgorithm.a")  # 创建动态链接库对象
+            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
         path = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("utf-8")))  # 创建C/C++可调用的字符串对象
         self.dll.PointCloudDenoise(path)  # 调用那个C++函数 void PointCloudDenoise(const char* path)
 
@@ -208,7 +208,7 @@ class LaserQtThirdWindow(QWidget):
             messageDialog.warning(self, "消息提示对话框", "您已取消保存!", messageDialog.Yes, messageDialog.Yes)
         else:
             with open(filename, 'w') as fd1:
-                with open("LaserQt_Material/tempDataFile.txt", 'r') as fd2:
+                with open("LaserQt_Material/tempData.txt", 'r') as fd2:
                     for line in fd2:
                         fd1.write(line)
 
