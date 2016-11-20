@@ -1,5 +1,6 @@
 #include "readfile.h"
 #include <vector>
+#include <algorithm>
 
 #ifndef _MAX_
 #define MAX 256
@@ -31,7 +32,13 @@ struct Point3d
 	}
 };
 
+int cmp(Point3d p1, Point3d p2)
+{
+	return p1 < p2;
+}
+
 void ReadxyzFile(const char* Path)
+	//	读取.xyz文件
 {
 	FILE *fp = fopen(Path, "r");
 	if(fp == NULL)
@@ -65,9 +72,10 @@ void ReadxyzFile(const char* Path)
 	vecPtXYZ.reserve(rowNumber);
 	vecPtColor.reserve(rowNumber);
 
+	//	数据读取
 	while(fgets(buf, BUFSIZE, fp) != NULL)
 	{
-		sscanf(buf, "%d %d %lf %lf %lf %d %d %d",
+		sscanf(buf, "%f %f %f %f %f %f %f %f",
 			&(pointID.m),    &(pointID.n),
 			&(pointXYZ.x),   &(pointXYZ.y),   &(pointXYZ.z),
 			&(pointColor.x), &(pointColor.y), &(pointColor.z));
@@ -80,18 +88,24 @@ void ReadxyzFile(const char* Path)
 	fclose(fp);
 	fp = 0;
 
+	sort(vecPtXYZ.begin(), vecPtXYZ.end(), cmp);
+
+	// 
 	double *M = new double[vecPtXYZ.size() * 3];
 	for(int i=0; i<(int)vecPtXYZ.size(); i++)
 	{
-		M[i] = vecPtXYZ[i].x;
-		M[i+1] = vecPtXYZ[i].y;
-		M[i+2] = vecPtXYZ[i].z;
+		M[i*3]   = vecPtXYZ[i].x;
+		M[i*3+1] = vecPtXYZ[i].y;
+		M[i*3+2] = vecPtXYZ[i].z;
 	}
 	char sPath[MAX];
 	getcwd(sPath, MAX_PATH);
 
 	strcat(sPath, "\\提取数据.txt");
+	FILE *ifp = fopen(sPath, "w+");	//	以写文件的方式打开，再关闭即是清空文件
+	fclose(ifp);
 	WriteFile(sPath, M, rowNumber, 3);
+	delete [] M;
 }
 
 double* ReadFile(const char* strPath, std::vector<int>& DataFile)	
