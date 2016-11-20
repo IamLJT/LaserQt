@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# #-*- coding: utf-8 -*-
+# -*- coding: gb18030 -*- 
 from socket import socket, AF_INET, SOCK_STREAM
 
 from PyQt5.QtGui import QFont
@@ -187,12 +188,19 @@ class LaserQtThirdWindow(QWidget):
 
         # 调用点云去噪算法
         if "Windows" == return_os():
-            # self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.dll")  # 创建动态链接库对象
-            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/libPointCloudAlgorithm.a")  # 创建静态链接库对象
+           #  self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.dll")  # 创建动态链接库对象
+             self.dll = ctypes.LibraryLoader("LaserQt_Algorithm/DLL_Generate/Debug/PointCloudAlgorithm.dll")  # 创建动态链接库对象
+           #  self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/libPointCloudAlgorithm.a")  # 创建静态链接库对象
         elif "Linux" == return_os():
-            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
-        path = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("utf-8")))  # 创建C/C++可调用的字符串对象
-        self.dll.PointCloudDenoise(path)  # 调用那个C++函数 void PointCloudDenoise(const char* path)
+             self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
+        # path = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("utf-8")))  # 创建C/C++可调用的字符串对象
+        #path = "C:/Users/Iam_luffy/Documents/GitHub/LaserQt/code/LaserQt_Material/测试数据.txt"
+        print(self.dll)
+        
+        #noisenum = self.dll.PointCloudKThreshlod("C:\\Users\\Iam_luffy\\Documents\\GitHub\\LaserQt\\code\\LaserQt_Material\\测试数据.txt")  # 获取噪声点数并初步去噪
+        #print(noisenum)
+        self.dll.PointCloudDenoise()
+       # self.dll.PointCloudDenoise(path)  # 调用那个C++函数 void PointCloudDenoise(const char* path)
 
         self.put_info_into_log("点云数据去噪完毕...", 100)
 

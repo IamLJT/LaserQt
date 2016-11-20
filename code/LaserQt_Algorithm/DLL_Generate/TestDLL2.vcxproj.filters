@@ -15,51 +15,51 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\icp_demo_test\Filter.cpp">
+    <ClCompile Include="Filter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\icp_demo_test\icp.cpp">
+    <ClCompile Include="icp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\icp_demo_test\icpPointToPlane.cpp">
+    <ClCompile Include="icpPointToPlane.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\icp_demo_test\icpPointToPoint.cpp">
+    <ClCompile Include="icpPointToPoint.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\icp_demo_test\kdtree.cpp">
+    <ClCompile Include="kdtree.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\icp_demo_test\matrix.cpp">
+    <ClCompile Include="matrix.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\icp_demo_test\PointCloudAlgorithm.cpp">
+    <ClCompile Include="readfile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\icp_demo_test\readfile.cpp">
+    <ClCompile Include="PointCloudAlgorithm.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\icp_demo_test\Filter.h">
+    <ClInclude Include="Filter.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\icp_demo_test\icp.h">
+    <ClInclude Include="icp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\icp_demo_test\icpPointToPlane.h">
+    <ClInclude Include="icpPointToPlane.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\icp_demo_test\icpPointToPoint.h">
+    <ClInclude Include="icpPointToPoint.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\icp_demo_test\kdtree.h">
+    <ClInclude Include="kdtree.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\icp_demo_test\matrix.h">
+    <ClInclude Include="matrix.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\icp_demo_test\readfile.h">
+    <ClInclude Include="readfile.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

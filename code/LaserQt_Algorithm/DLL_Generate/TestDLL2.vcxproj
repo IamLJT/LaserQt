@@ -10,6 +10,25 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="icp.cpp" />
+    <ClCompile Include="icpPointToPlane.cpp" />
+    <ClCompile Include="icpPointToPoint.cpp" />
+    <ClCompile Include="kdtree.cpp" />
+    <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="PointCloudAlgorithm.cpp" />
+    <ClCompile Include="readfile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Filter.h" />
+    <ClInclude Include="icp.h" />
+    <ClInclude Include="icpPointToPlane.h" />
+    <ClInclude Include="icpPointToPoint.h" />
+    <ClInclude Include="kdtree.h" />
+    <ClInclude Include="matrix.h" />
+    <ClInclude Include="readfile.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C4FA4A19-D827-43B1-936A-47C53F8B4A8D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -42,9 +61,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(Configuration)\(ProjectDir)</OutDir>
+    <OutDir>$(Configuration)\</OutDir>
     <IncludePath>D:\研究生\程序\C++\boost_1_62_0;$(IncludePath)</IncludePath>
     <SourcePath>D:\研究生\程序\C++\boost_1_62_0;$(SourcePath)</SourcePath>
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -80,25 +100,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\icp_demo_test\Filter.cpp" />
-    <ClCompile Include="..\..\icp_demo_test\icp.cpp" />
-    <ClCompile Include="..\..\icp_demo_test\icpPointToPlane.cpp" />
-    <ClCompile Include="..\..\icp_demo_test\icpPointToPoint.cpp" />
-    <ClCompile Include="..\..\icp_demo_test\kdtree.cpp" />
-    <ClCompile Include="..\..\icp_demo_test\matrix.cpp" />
-    <ClCompile Include="..\..\icp_demo_test\PointCloudAlgorithm.cpp" />
-    <ClCompile Include="..\..\icp_demo_test\readfile.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\icp_demo_test\Filter.h" />
-    <ClInclude Include="..\..\icp_demo_test\icp.h" />
-    <ClInclude Include="..\..\icp_demo_test\icpPointToPlane.h" />
-    <ClInclude Include="..\..\icp_demo_test\icpPointToPoint.h" />
-    <ClInclude Include="..\..\icp_demo_test\kdtree.h" />
-    <ClInclude Include="..\..\icp_demo_test\matrix.h" />
-    <ClInclude Include="..\..\icp_demo_test\readfile.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
