@@ -75,10 +75,12 @@ double* Filter::ThresholdFilter(double threshold)	//	阈值法求解噪声点数
 	{
 		for(int j=0; j<mx.n; j++)
 		{
-			if(GetChordHeight(mx, 0, i, j) > threshold)
-				r.val[i][j] = (mx.val[i-1][j] + mx.val[i+1][j])/2;
-			else if(GetChordHeight(mx, 1, i, j) > threshold)
-				r.val[i][j] = (mx.val[i][j-1] + mx.val[i][j+1])/2;
+			if(GetChordHeight(r, 0, i, j) > threshold)
+			//if(i >= 1 && i <mx.m-1 && r.val[i][j] - (mx.val[i-1][j] + mx.val[i+1][j])/2 > threshold)
+				r.val[i][j] = (r.val[i-1][j] + r.val[i+1][j])/2;
+			else if(GetChordHeight(r, 1, i, j) > threshold)
+			//else if(j >= 1 && j <mx.n-1 && r.val[i][j] - (mx.val[i][j-1] + mx.val[i][j+1])/2 > threshold)
+				r.val[i][j] = (r.val[i][j-1] + r.val[i][j+1])/2;
 			else
 				continue;
 			noisenum ++;

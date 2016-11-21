@@ -1,4 +1,4 @@
-# #-*- coding: utf-8 -*-
+## -*- coding: utf-8 -*-
 # -*- coding: gb18030 -*- 
 from socket import socket, AF_INET, SOCK_STREAM
 
@@ -22,6 +22,7 @@ from LaserQt_Gui.LaserQt_Gui_Dialog import *
 
 import ctypes
 import os
+from ctypes import *
 
 '''
 @author  : Zhou Jian
@@ -189,18 +190,28 @@ class LaserQtThirdWindow(QWidget):
         # 调用点云去噪算法
         if "Windows" == return_os():
            #  self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.dll")  # 创建动态链接库对象
-             self.dll = ctypes.LibraryLoader("LaserQt_Algorithm/DLL_Generate/Debug/PointCloudAlgorithm.dll")  # 创建动态链接库对象
+             self.dll = ctypes.CDLL("LaserQt_Algorithm/DLL_Generate/Debug/PointCloudAlgorithm.dll")  # 创建动态链接库对象
            #  self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/libPointCloudAlgorithm.a")  # 创建静态链接库对象
         elif "Linux" == return_os():
              self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
-        # path = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("utf-8")))  # 创建C/C++可调用的字符串对象
+        print(self.dll)
+
+        inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("gbk")))  # 创建C/C++可调用的字符串对象
         #path = "C:/Users/Iam_luffy/Documents/GitHub/LaserQt/code/LaserQt_Material/测试数据.txt"
-        #print(self.dll)
         
-        #noisenum = self.dll.PointCloudKThreshlod("C:\\Users\\Iam_luffy\\Documents\\GitHub\\LaserQt\\code\\LaserQt_Material\\测试数据.txt")  # 获取噪声点数并初步去噪
+        noisenum = 0
+        #key = "C:\\Users\\Iam_luffy\\Documents\\GitHub\\LaserQt\\code\\LaserQt_Material\\测试数据.txt"
+        #print(key)
+        #path = create_string_buffer(key.encode("gbk"), 100)
+       
+        #print(inpath)
+        #noisenum = self.dll.PointCloudKThreshlod(inpath)  # 获取噪声点数并初步去噪
         #print(noisenum)
         #self.dll.PointCloudDenoise()
        # self.dll.PointCloudDenoise(path)  # 调用那个C++函数 void PointCloudDenoise(const char* path)
+
+        # 这里应提示是否进行平滑处理
+        self.dll.PointCloudDenoise();
 
         self.put_info_into_log("点云数据去噪完毕...", 100)
 
@@ -241,8 +252,11 @@ class LaserQtThirdWindow(QWidget):
             self.put_info_into_log("开始点云数据拟合...", 0)
 
             # 调用点云拟合算法  
-            # path = ctypes.create_string_buffer(bytes("LaserQt_Material/tempData.txt".encode("utf-8")))  # 创建C/C++可调用的字符串对象
-            # self.dll.PointCloudFitting()  # 调用那个C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
+            #path = ctypes.create_string_buffer(bytes("LaserQt_Material/tempData.txt".encode("utf-8")))  # 创建C/C++可调用的字符串对象
+            inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("gbk")))  # 创建C/C++可调用的字符串对象
+            outpath = ctypes.create_string_buffer(bytes(self.targetDataFileName.encode("gbk")))
+            isFilter = 1
+            self.dll.PointCloudFitting(inpath, isFilter, outpath)  # 调用那个C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
 
             self.put_info_into_log("点云数据拟合完成...", 100)
 

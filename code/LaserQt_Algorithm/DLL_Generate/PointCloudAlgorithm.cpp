@@ -50,7 +50,7 @@ extern "C" _declspec(dllexport) int PointCloudKThreshlod(const char* Path)
 	char sPath[MAX];
 	getcwd(sPath, MAX_PATH);
 
-	strcat(sPath, "\\TempData.txt");
+	strcat(sPath, "\\LaserQt_Material\\TempData.txt");
 	WriteFile(sPath, M0, num, dim);
 
 	return flr.noisenum;
@@ -60,10 +60,13 @@ extern "C" _declspec(dllexport) void PointCloudDenoise()
 {
 	char Path[MAX];
 	getcwd(Path, MAX_PATH);
-	strcat(Path, "\\TempData.txt");
+	strcat(Path, "\\LaserQt_Material\\TempData.txt");
 
 	int32_t dim = 3, num=0, m = 0, n=0;	//	dim means dimension，only can be 2 or 3; num is number of data.
 	vector<int> DataFile(4, 0);
+
+	// 测试
+	//char Path[] = "D:/研究生/项目/激光扫描仪软件开发/LaserQt/code/LaserQt_Material/测试数据.txt";
 	double *M = ReadFile(Path, DataFile);
 
 	num = DataFile[0];
@@ -85,7 +88,7 @@ extern "C" _declspec(dllexport) void PointCloudFitting(const char *inPath, bool 
 {
 	char Path[MAX];
 	getcwd(Path, MAX_PATH);
-	strcat(Path, "\\TempData.txt");
+	strcat(Path, "\\LaserQt_Material\\TempData.txt");
 	//	Path为中间值
 
 	int32_t dim = 3, num=0, m = 0, n = 0;
@@ -114,13 +117,19 @@ extern "C" _declspec(dllexport) void PointCloudFitting(const char *inPath, bool 
 	//	R and t means Ratate and Translate Matrix
 
 	Matrix mx = Matrix::ArrayToMatrix(M, m, n, dim);
-	Matrix res = R*(~mx) + t;
+	Matrix res = R*(~mx);
+	for(int i=0; i<res.n; i++)
+	{
+		res.val[0][i] += t.val[0][0];
+		res.val[1][i] += t.val[1][0];
+		res.val[2][i] += t.val[2][0];
+	}
 
 	double *M0 = Matrix::MatrixToArray(res, dim);
 
 	char OutPath[MAX];
 	getcwd(OutPath, MAX_PATH);
-	strcat(OutPath, "\\输出数据.txt");
+	strcat(OutPath, "\\LaserQt_Material\\输出数据.txt");
 
 	WriteFile(OutPath, M0, num, dim);
 }

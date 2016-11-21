@@ -125,7 +125,7 @@ double* ReadFile(const char* strPath, std::vector<int>& DataFile)
 	std::vector<double> vec;
 	int num = 0, dim = 3;
 	double idata1, idata2, idata3;
-	while(!feof(fp))
+	while(!feof(fp))	//	读取txt文件，格式是每行x,y,z
 	{
 		fscanf(fp, "%lf,%lf,%lf", &idata1,&idata2,&idata3);
 		vec.push_back(idata1);
