@@ -23,7 +23,13 @@ Filter::Filter(double *M, const int32_t M_num, const int32_t dim, int m, int n)
 
 void Filter::copyData(double* M, int dim, int m, int n)
 {
-	mx = Matrix::ArrayToMatrix(M, m, n, dim);
+	//mx = Matrix::ArrayToMatrix(M, m, n, dim);
+	for(int i=0; i<dim * m * n; i+=dim)
+	{
+		int row = M[i];
+		int col = M[i+1];
+		mx.val[row-1][col-1] = M[i+2];
+	}
 }
 
 double Filter::GetChordHeight(Matrix mx, bool direc, int row, int col)
@@ -76,10 +82,8 @@ double* Filter::ThresholdFilter(double threshold)	//	阈值法求解噪声点数
 		for(int j=0; j<mx.n; j++)
 		{
 			if(GetChordHeight(r, 0, i, j) > threshold)
-			//if(i >= 1 && i <mx.m-1 && r.val[i][j] - (mx.val[i-1][j] + mx.val[i+1][j])/2 > threshold)
 				r.val[i][j] = (r.val[i-1][j] + r.val[i+1][j])/2;
 			else if(GetChordHeight(r, 1, i, j) > threshold)
-			//else if(j >= 1 && j <mx.n-1 && r.val[i][j] - (mx.val[i][j-1] + mx.val[i][j+1])/2 > threshold)
 				r.val[i][j] = (r.val[i][j-1] + r.val[i][j+1])/2;
 			else
 				continue;
@@ -149,11 +153,13 @@ double* Filter::SimpleFilter()
 			r[dim*(i*mx.n+j)]=i+1;
 			r[dim*(i*mx.n+j)+1]=j+1;
 			r[dim*(i*mx.n+j)+2]=GetMedian(mx,w_core, i,j);
+			mx.val[i][j] = r[dim*(i*mx.n+j)+2];
 		}
 	}
 	for(int i=0; i<mx.m; i++){
 		for(int j=0; j<mx.n; j++){
 			r[dim*(i*mx.n+j)+2]=GetMean(mx,w_core,i,j);
+			mx.val[i][j] = r[dim*(i*mx.n+j)+2];
 		}
 	}
 	return r;
@@ -163,10 +169,8 @@ double* Filter::SimpleFilter()
 double Filter::GetBFilter2(Matrix mx, int w_core, int row, int col, int sigma_s, int sigma_r)
 {
 	double sum_img = 0, sum_wgt = 0;
-	for(int i=row-w_core; i<=row+w_core; i++)
-	{
-		for(int j=col-w_core; j<=col+w_core; j++)
-		{
+	for(int i=row-w_core; i<=row+w_core; i++){
+		for(int j=col-w_core; j<=col+w_core; j++){
 			if(i<0 || i>=mx.m || j<0 || j>=mx.n)
 				continue;
 			sum_img += mx.val[i][j]*exp(-((row-i)*(row-i)+(col-j)*(col-j))/(2*sigma_s*sigma_s)
@@ -188,7 +192,7 @@ double Filter::GetBFilter2(Matrix mx, int w_core, int row, int col, int sigma_s,
 double* Filter::bFilter2()
 {
 	Matrix r(mx);
-	int w_core = 2;
+	int w_core = 3;
 	for(int i=0; i<mx.m; i++)
 	{
 		for(int j=0; j<mx.n; j++)
