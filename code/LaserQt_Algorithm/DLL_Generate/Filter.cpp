@@ -33,15 +33,25 @@ double Filter::GetChordHeight(Matrix mx, bool direc, int row, int col)
 	double z1, z2;
 	if(direc == 0)
 	{
-		x1 = row - 1, x2 = row + 1;
+		if(row == 0)
+			x1 = row, x2 = row + 1;
+		else if(row == mx.m - 1)
+			x1 = row -1, x2 = row;
+		else
+			x1 = row - 1, x2 = row + 1;
 		y1 = col, y2 = col;
 		z1 = mx.val[x1][y1];
 		z2 = mx.val[x2][y2];
 	}
 	else
 	{
+		if(col == 0)
+			y1 = col, y2 = col + 1;
+		else if(col == mx.n - 1)
+			y1 = col - 1, y2 = col;
+		else
+			y1 = col - 1, y2 = col + 1;
 		x1 = row, x2 = row;
-		y1 = col - 1, y2 = col + 1;
 		z1 = mx.val[x1][y1];
 		z2 = mx.val[x2][y2];
 	}
@@ -188,7 +198,7 @@ double* Filter::bFilter2()
 	return res;
 }
 
-double* Filter::FurtherFilter()
+double* Filter::FurtherFilter()	//	Œ¥ µœ÷
 {
-
+	return 0;
 }

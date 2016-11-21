@@ -10,10 +10,10 @@ public:
 
 	void copyData(double *M, int dim, int m, int n);
 
-	double GetChordHeight(Matrix mx, bool direc, int row, int col);
-	double GetMedian(Matrix mx, int w_core, int row, int col);
-	double GetMean(Matrix mx, int w_core, int row, int col);
-	double GetBFilter2(Matrix mx, int w_core, int row, int col, int sigma_s, int sigma_r);
+	double GetChordHeight(Matrix mx, bool direc, int row, int col);	//	获取弦高
+	double GetMedian(Matrix mx, int w_core, int row, int col);		//	获取算子的中值
+	double GetMean(Matrix mx, int w_core, int row, int col);		//	获取算子的均值
+	double GetBFilter2(Matrix mx, int w_core, int row, int col, int sigma_s, int sigma_r);	//	获取算子的双边滤波值
 
 	double* ThresholdFilter(double threshold = 20);	//	define a threshold, and find the noise number.
 	double* SimpleFilter();		//	For shot noise —— Medium Filter or Mesh Denoise.
@@ -22,7 +22,7 @@ public:
 	double* bFilter2();
 	double* FurtherFilter();
 
-protected:
+public:
 	int noisenum;
 	Matrix mx;
 	double* M;				//	source data

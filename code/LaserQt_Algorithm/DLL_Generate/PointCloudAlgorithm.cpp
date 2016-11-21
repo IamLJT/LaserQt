@@ -4,10 +4,15 @@
 #include "readfile.h"
 #include "Filter.h"
 #include <windows.h>
+#include  <direct.h>
+
+#ifndef _MAX_
+#define MAX 256
+#endif _MAX_
 
 using namespace std;
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)  
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {  
     switch (ul_reason_for_call)  
     {  
@@ -27,26 +32,62 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;  
 }  
 
-_declspec(dllexport) void PointCloudDenoise(const char* Path1)
+extern "C" _declspec(dllexport) int PointCloudKThreshlod(const char* Path)
 {
 	int32_t dim = 3, num=0, m = 0, n=0;	//	dim means dimension，only can be 2 or 3; num is number of data.
 	vector<int> DataFile(4, 0);
-	double *M = ReadFile(Path1, DataFile);
+	double *M = ReadFile(Path, DataFile);
 
 	num = DataFile[0];
 	dim = DataFile[1];
 	m = DataFile[2];
 	n = DataFile[3];
-	char OutPath[] = "..\输出数据.txt";
 
 	Filter flr(M, num, dim, m, n);		//	Filter
 
-	double *M0=flr.SimpleFilter();
-	WriteFile(OutPath, M0, num, dim);
+	double *M0 = flr.ThresholdFilter(20);
+
+	char sPath[MAX];
+	getcwd(sPath, MAX_PATH);
+
+	strcat(sPath, "\\TempData.txt");
+	WriteFile(sPath, M0, num, dim);
+
+	return flr.noisenum;
 }
 
-_declspec(dllexport) void PointCloudFitting(const char* Path, const char *inPath, bool isFilter, const char *TargetData)
+extern "C" _declspec(dllexport) void PointCloudDenoise()
 {
+	char Path[MAX];
+	getcwd(Path, MAX_PATH);
+	strcat(Path, "\\TempData.txt");
+
+	int32_t dim = 3, num=0, m = 0, n=0;	//	dim means dimension，only can be 2 or 3; num is number of data.
+	vector<int> DataFile(4, 0);
+	double *M = ReadFile(Path, DataFile);
+
+	num = DataFile[0];
+	dim = DataFile[1];
+	m = DataFile[2];
+	n = DataFile[3];
+
+	Filter flr(M, num, dim, m, n);		//	Filter
+	//double *M0 = flr.SimpleFilter();
+
+	//flr.copyData(M0, dim, m, n);
+	double* M0 = flr.bFilter2();
+
+	WriteFile(Path, M0, num, dim);
+}
+
+extern "C" _declspec(dllexport) void PointCloudFitting(const char *inPath, bool isFilter, const char *TargetData)
+	//	inPath为初始路径， isFilter表示是否已被去噪，TargetData为目标数据路径
+{
+	char Path[MAX];
+	getcwd(Path, MAX_PATH);
+	strcat(Path, "\\TempData.txt");
+	//	Path为中间值
+
 	int32_t dim = 3, num=0, m = 0, n = 0;
 	vector<int> DataFile(4, 0);
 	double *M;
@@ -77,6 +118,9 @@ _declspec(dllexport) void PointCloudFitting(const char* Path, const char *inPath
 
 	double *M0 = Matrix::MatrixToArray(res, dim);
 
-	char OutPath[] = "..\输出数据.txt";
+	char OutPath[MAX];
+	getcwd(OutPath, MAX_PATH);
+	strcat(OutPath, "\\输出数据.txt");
+
 	WriteFile(OutPath, M0, num, dim);
 }
