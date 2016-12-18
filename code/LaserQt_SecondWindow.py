@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
-from socket import socket, AF_INET, SOCK_STREAM
-
+# ********************系统自带和第三方相关模块导入********************
+import queue  # 用于创建工作队列
+import threading  # 用于多线程处理
+import time
+import xlrd
+from socket import socket, AF_INET, SOCK_STREAM  # 用于socket通信的组件
+# ********************PyQt5相关模块导入********************
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QIcon
@@ -12,17 +17,11 @@ from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
-
+# ********************用户自定义相关模块导入********************
 from LaserQt_AuxiliaryFunction import check_os, get_current_screen_size
 from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import *
-
-import queue
-import threading
-import time
-
-import xlrd
 
 '''
 @author  : Zhou Jian
@@ -32,6 +31,9 @@ import xlrd
 '''
 
 class LaserQtSecondWindow(QWidget):
+    '''
+        系统第二个窗口页面类
+    '''
     def __init__(self):
         super(LaserQtSecondWindow, self).__init__()
         self.fileName = ""
@@ -185,6 +187,7 @@ class LaserQtSecondWindow(QWidget):
             self.fileName = fileName
             self.dataShow01Edit.setText(self.fileName)
 
+    # 初始化加工路径任务队列，
     def init_task_queue(self):
         self.myTaskQueue = queue.Queue(maxsize=100) # 任务队列 -- 生产者-消费者模式
         if self.fileName == "":
@@ -201,7 +204,7 @@ class LaserQtSecondWindow(QWidget):
                 dataCell.append(value)
             self.myTaskQueue.put(dataCell)
 
-
+    # 开始加工
     def start_processing(self):
         ret = self.init_task_queue()
         if ret == -1:
@@ -249,10 +252,12 @@ class LaserQtSecondWindow(QWidget):
             messageDialog = MessageDialog()
             messageDialog.information(self, "消息提示对话框", "您已停止加工！", messageDialog.Yes, messageDialog.Yes)
 
+    # 停止加工
     def stop_processing(self):
         self.isStop = True
         self.continueProcessingButton.setEnabled(True)
 
+    # 继续加工
     def continue_processing(self):
         messageDialog = MessageDialog()
         messageDialog.information(self, "消息提示对话框", "您将开始加工！", messageDialog.Yes, messageDialog.Yes)
@@ -283,6 +288,7 @@ class LaserQtSecondWindow(QWidget):
             messageDialog = MessageDialog()
             messageDialog.information(self, "消息提示对话框", "您已停止加工！", messageDialog.Yes, messageDialog.Yes)
 
+    # socket通信
     def socket_communication(self):
         host = "127.0.0.1"
         port = 7070
@@ -318,9 +324,11 @@ class LaserQtSecondWindow(QWidget):
         else:
             self.time = "00：0{}：{}".format(m, s)
 
+    # 动态得绘制加工数据
     def plot_the_dynamic_data(self, dataCell):
         if dataCell[7] == 1:
             self.canvas.axes.plot([float(dataCell[1]), float(dataCell[3])], [float(dataCell[2]), float(dataCell[4])], 'r', label="正面加工路径")
         else:
             self.canvas.axes.plot([float(dataCell[1]), float(dataCell[3])], [float(dataCell[2]), float(dataCell[4])], 'b', label="反面加工路径")
         self.canvas.draw()
+    

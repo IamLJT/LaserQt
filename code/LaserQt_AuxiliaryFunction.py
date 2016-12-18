@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# ********************系统自带相关模块导入********************
 import platform
 import time
 

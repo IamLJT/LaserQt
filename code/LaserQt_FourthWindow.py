@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+# ********************系统自带相关模块导入********************
+import os
+import math
+import shutil
+# ********************PyQt5相关模块导入********************
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QGridLayout
@@ -8,14 +13,11 @@ from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
-
+# ********************用户自定义相关模块导入********************
 from LaserQt_AuxiliaryFunction import get_current_screen_size
 from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import *
-
-import os
-import shutil
 
 '''
 @author  : Zhou Jian
@@ -25,6 +27,9 @@ import shutil
 '''
 
 class LaserQtFourthWindow(QWidget):
+    '''
+        系统第四个窗口页面类
+    '''
     def __init__(self):
         super(LaserQtFourthWindow, self).__init__()
         self.create_main_window()
@@ -155,7 +160,7 @@ class LaserQtFourthWindow(QWidget):
         self.canvas.axes.set_ylabel("加工板垂直方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.grid(True, which="both")
 
-        X = []; Y = [];# X， Y的取值介于1～100？
+        X = []; Y = [];  # X， Y的取值介于1～100？
         X = [[_] * 100 for _ in range(1, 101)] 
         Y = [_ for _ in range(1, 101)] * 100
 
@@ -263,21 +268,51 @@ class LaserQtFourthWindow(QWidget):
         x2 = int(self.XEndLineEdit.text().strip())
         y2 = int(self.YEndLineEdit.text().strip())
 
-        k = (y2 - y1) / (x2 -x1) # 两点连线的斜率
-
+        error = []
         dots_index = []
 
-        if x1 < x2:
-            if y1 < y2:
-                while x1 <= x2 and y1 <= y2:
-                    pass
-            else:
-                while x1 <= x2 and y1 >= y2:
-                    pass
+        if x1 == x2 or y1 == y2:
+            if x1 == x2:
+                _max = max(y1, y2)
+                _min = min(y1, y2)
+                for i in range(_min, _max + 1):
+                    error.append(self.Z1[100 * (x1 - 1) + i] - self.Z2[100 * (x1 - 1) + i])
+            elif y1 == y2:
+                _max = max(x1, x2)
+                _min = min(x1, x2)
+                for i in range(_min, _max + 1):
+                    error.append(self.Z1[100 * (i - 1) + y1] - self.Z2[100 * (i - 1) + y1])
+            self.canvas06.axes.plot()
+            self.canvas06.axes.hold(True)
+            self.canvas06.axes.set_xlim([_min, _max + 1])
+            self.canvas06.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
+            self.canvas06.axes.grid(True, which="both")
+            self.canvas06.axes.plot(range(_min, _max + 1), error, 'r')
+            self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
+            self.canvas06.draw()
+            self.canvas06.axes.hold(False)
         else:
-            if y1 < y2:
-                while x1 <= x2 and y1 <= y2:
-                    pass
-            else:
-                while x1 <= x2 and y1 >= y2:
-                    pass
+            if x1 < x2:
+                x_start = x1; x_end = x2
+                y_start = y1; y_end = y2
+            elif x1 > x2:
+                x_start = x2; x_end = x1
+                y_start = y2; y_end = y1
+            k = (y_end - y_start) / (x_end - x_start) # 两点连线的斜率
+            if abs(k) == 1:
+                for i in range(x_start, x_end + 1):
+                        error.append(self.Z1[100 * (i - 1) + i] - self.Z2[100 * (i - 1) + i])
+                self.canvas06.axes.plot()
+                self.canvas06.axes.hold(True)
+                self.canvas06.axes.set_xlim([x_start, x_end + 1])
+                self.canvas06.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
+                self.canvas06.axes.grid(True, which="both")
+                self.canvas06.axes.plot(range(x_start, x_end + 1), error, 'r')
+                self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
+                self.canvas06.draw()
+                self.canvas06.axes.hold(False)
+            elif math.abs(k) > 1:
+                pass
+            elif math.abs(k) < 1:
+                pass
+                

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# ********************PyQt5相关模块导入********************
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QImage
 from PyQt5.QtGui import QPixmap
@@ -15,6 +16,9 @@ from PyQt5.QtWidgets import QWidget
 '''
 
 class LaserQtImageWindow(QWidget):
+    '''
+        系统第四个窗口页面中的图像放大显示区域类
+    '''
     def __init__(self, imageName):
         super(LaserQtImageWindow, self).__init__()
         self.imageName = imageName
@@ -40,5 +44,6 @@ class LaserQtImageWindow(QWidget):
         self.widgetLayout.addWidget(imageLabel)
 
     def get_current_screen_size(self):
-        self.width = int(444*1.2)
-        self.height = int(436*1.2)
+        self.width = int(444 * 1.2)
+        self.height = int(436 * 1.2)
+        

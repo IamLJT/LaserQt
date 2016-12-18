@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+# ********************第三方相关模块导入********************
+import xlrd  # 用于读取Excel数据
+import xlutils.copy as xlcopy  # 用于重写Excel数据
+# ********************PyQt5相关模块导入********************
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QIcon
@@ -12,16 +16,12 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QTableWidget
 from PyQt5.QtWidgets import QTableWidgetItem
 from PyQt5.QtWidgets import QVBoxLayout
-
 from PyQt5.QtWidgets import QWidget
-
+# ********************用户自定义相关模块导入********************
 from LaserQt_AuxiliaryFunction import check_os, get_current_screen_size
 from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import *
-
-import xlrd
-import xlutils.copy as xlcopy
 
 '''
 @author  : Zhou Jian
@@ -31,22 +31,34 @@ import xlutils.copy as xlcopy
 '''
 
 class LaserQtMainWindow(QWidget):
+    '''
+        系统第一个窗口页面类
+    '''
     def __init__(self):
         super(LaserQtMainWindow, self).__init__()
         self.create_main_window()
 
     def create_main_window(self):
+        '''
+            4个窗口的编程方式是类似的，只是具体的布局方式不同，对第一个窗口代码的注释可以用于理解第二、三、四个窗口的代码
+        '''
+        # 设置窗口标题
         self.setWindowTitle("复杂曲率板加工系统")
+        # 设置窗口标题栏处的图标
         self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
+        # 同时设置最小尺寸和最大尺寸是为了固定窗口尺寸
         self.width, self.height = get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)
+        # 设置窗口布局方式
         self.set_widgets()
+        # 为当前窗口添加最终的布局方式
         self.setLayout(self.widgetLayout)
 
     def set_widgets(self):
         self.directoryLineEdit = QLineEdit()
         browseButton = BrowseButton()
+        # 为browseButton按钮对象绑定self.browse_directory()方法
         browseButton.clicked.connect(self.browse_directory)
         # 左半部分顶部布局
         leftTopLayout = QHBoxLayout()
@@ -83,10 +95,14 @@ class LaserQtMainWindow(QWidget):
 
         tableRegionLable = QLabel("数据列表区域")
         tableRegionLable.setFont(qFont)
+        # 窗口Qt表格对象，第一个参数表示表格的行数，第二个参数表示表格的列数
         self.dataTable = QTableWidget(0, 7)
+        # 设置表格的列标签
         self.dataTable.setHorizontalHeaderLabels(["起点X坐标", "起点Y坐标", "终点X坐标", "终点Y坐标", "下压量", "热参数", "正反标志"])
-        self.dataTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) # 按照表格宽度对各单元格宽度进行均分
-        self.dataTable.setEditTriggers(QAbstractItemView.NoEditTriggers) # 禁止编辑单元格
+        # 按照表格宽度对各单元格宽度进行均分
+        self.dataTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # 禁止编辑单元格
+        self.dataTable.setEditTriggers(QAbstractItemView.NoEditTriggers) 
         self.editFlag = False
         # 右半部分中部布局
         rightMiddleLayout = QVBoxLayout()
@@ -95,8 +111,10 @@ class LaserQtMainWindow(QWidget):
         rightMiddleLayout.addWidget(self.dataTable)
 
         self.editButton = EditButton()
+        # 为self.editButton按钮对象绑定self.edit_the_table()方法
         self.editButton.clicked.connect(self.edit_the_table)
         updateButton = UpdateButton()
+        # 为self.updateButton按钮对象绑定self.update_the_plot()方法
         updateButton.clicked.connect(self.update_the_plot)
         # 右半部分底部布局
         rightBottomLayout = QHBoxLayout()
@@ -143,13 +161,15 @@ class LaserQtMainWindow(QWidget):
         excelReadOnly = xlrd.open_workbook(self.fileName)
         table = excelReadOnly.sheets()[0]
         self.numOfPath = numOfRows = table.nrows
-        rowIndex = self.dataTable.rowCount()  # 获取当前表格的行数，默认为0行
-        self.dataTable.setRowCount(rowIndex + numOfRows)  # 根据Excel文件的行数动态得设置表格的行数
+        # 获取当前表格的行数，默认为0行
+        rowIndex = self.dataTable.rowCount()
+        # 根据Excel文件的行数动态得设置表格的行数
+        self.dataTable.setRowCount(rowIndex + numOfRows)
         self.numofParams = numOfColums = table.ncols
         for i in range(numOfRows):
             for j in range(numOfColums):
                 value = table.cell(i, j).value
-                ## TODO
+                # 根据参数类型进行显示格式设置
                 if j <= 3:
                     value = "%.2f"%value
                 elif j > 3 and j <=5:
@@ -157,6 +177,7 @@ class LaserQtMainWindow(QWidget):
                 elif j == 6:
                     value = "%d"%value
                 newItem = QTableWidgetItem(value)
+                # 设置数据的对齐方式
                 newItem.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter) 
                 self.dataTable.setItem(i, j, newItem)
         messageDialog = MessageDialog()
@@ -167,8 +188,8 @@ class LaserQtMainWindow(QWidget):
         self.canvas.axes.plot() # 很关键的代码！！！重新导入文件时清除所有的绘图
         self.canvas.axes.hold(True)
         for i in range(self.numOfPath):
-            xStart = float(self.dataTable.item(i, 0).text()) ;yStart = float(self.dataTable.item(i, 1).text())
-            xEnd = float(self.dataTable.item(i, 2).text()) ;yEnd = float(self.dataTable.item(i, 3).text())
+            xStart = float(self.dataTable.item(i, 0).text()); yStart = float(self.dataTable.item(i, 1).text())
+            xEnd = float(self.dataTable.item(i, 2).text()); yEnd = float(self.dataTable.item(i, 3).text())
             flag = float(self.dataTable.item(i, 6).text())
             if flag == 1:
                 self.canvas.axes.plot([xStart, xEnd], [yStart, yEnd], 'r', label="正面加工路径")
@@ -226,6 +247,7 @@ class LaserQtMainWindow(QWidget):
         messageDialog = MessageDialog()
         messageDialog.information(self, "消息提示对话框", "更新数据完毕！", messageDialog.Yes, messageDialog.Yes)
 
+    # 更新表格
     def update_the_excel(self):
         excelReadOnly = xlrd.open_workbook(self.fileName)
         excelReadWrite = xlcopy.copy(excelReadOnly)

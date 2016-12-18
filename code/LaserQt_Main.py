@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
+# ********************系统自带相关模块导入********************
+import os
+# ********************PyQt5相关模块导入********************
 from PyQt5.QtCore import QTranslator
 from PyQt5.QtWidgets import qApp
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QInputDialog
-
+# ********************用户自定义相关模块导入********************
 from LaserQt_MainWindow import LaserQtMainWindow
 from LaserQt_SecondWindow import LaserQtSecondWindow
 from LaserQt_ThirdWindow import LaserQtThirdWindow
 from LaserQt_FourthWindow import LaserQtFourthWindow
 from LaserQt_ImageWindow import LaserQtImageWindow
-
 from LaserQt_Gui.LaserQt_Gui_Dialog import MessageDialog
-
-import os
 
 '''
 @author  : Zhou Jian
@@ -22,42 +22,57 @@ import os
 '''
 
 class OverLoadClassMethod(object):
+    '''
+        利用该类分别对LaserQt_MainWindow.py、LaserQt_SecondWindow.py、LaserQt_ThirdWindow.py、LaserQt_FourthWindow.py中的部分按钮动态得绑定回调函数
+    '''
     def __init__(self):
         super(OverLoadClassMethod, self).__init__()
-
+    
+    # LaserQt_MainWindow.next_page方法
     def laser_qt_main_window_next_page(self):
-        myLaserQtMainWindow.hide()
-        myLaserQtSecondWindow.show()
-
+        myLaserQtMainWindow.hide()  # 隐藏第一个窗口
+        myLaserQtSecondWindow.show()  # 显示第二个窗口
+    
+    # LaserQt_MainWindow.prev_page方法
     def laser_qt_second_window_prev_page(self):
         myLaserQtSecondWindow.hide()
         myLaserQtMainWindow.show()
 
+    # LaserQt_SecondWindow.next_page方法
     def laser_qt_second_window_next_page(self):
         myLaserQtSecondWindow.hide()
         myLaserQtThirdWindow.show()
 
+    # LaserQt_SecondWindow.prev_page方法
     def laser_qt_third_window_prev_page(self):
         myLaserQtThirdWindow.hide()
         myLaserQtSecondWindow.show()
 
+    # LaserQt_ThirdWindow.next_page方法
     def laser_qt_third_window_next_page(self):
         messageDialog = MessageDialog()
         reply = messageDialog.question(myLaserQtThirdWindow, "消息提示对话框", "您是否已完成点云数据处理？", messageDialog.Yes | messageDialog.No, messageDialog.Yes)
+        # 在进入第四个窗口前，先提示用户是否完成点云数据处理，因为第四个窗口的绘图数据依赖于第三个窗口所操作处理的数据
         if reply == messageDialog.No:
             return
+        
         myLaserQtThirdWindow.hide()
         myLaserQtFourthWindow.show()
+        # 将第三个窗口操作处理所产生的中间数据赋给第三个窗口，减少重复计算
         myLaserQtFourthWindow.Z1 = myLaserQtThirdWindow.Z1
         myLaserQtFourthWindow.Z2 = myLaserQtThirdWindow.Z2
+        # 初始化第四个窗口的画布
         myLaserQtFourthWindow.init_the_canvas()
 
+    # LaserQt_FourthWindow.prev_page方法
     def laser_qt_fourth_window_prev_page(self):
         myLaserQtFourthWindow.hide()
         myLaserQtSecondWindow.show()
 
+    # LaserQt_FourthWindow.enlarge_the_plot方法
     def laser_qt_fourth_window_enlarge_the_plot(self):
         global myLaserQtImageWindow
+        # 提示用户输入所要放大显示的图像索引号
         num, isOk = QInputDialog.getInt(myLaserQtFourthWindow, "复杂曲率板加工系统", "输入待放大误差曲线图像序号", 1, 1, 6, 1)
         if isOk:
             if num == 1:
@@ -75,10 +90,11 @@ class OverLoadClassMethod(object):
             elif num == 5:
                 myLaserQtImageWindow = LaserQtImageWindow("vertical_direction_2_3_error_curve.png")
                 myLaserQtImageWindow.show()
+            # 用户自定义显示的图，必须先绘图，才能放大显示
             elif num == 6:
                 if os.path.exists("LaserQt_Temp/between_two_arbitrary_point_error_curve.png"):
                     myLaserQtImageWindow = LaserQtImageWindow("between_two_arbitrary_point_error_curve.png")
-                    myLaserQtImageWindow.show
+                    myLaserQtImageWindow.show()
                 else:
                     messageDialog = MessageDialog()
                     messageDialog.warning(myLaserQtFourthWindow, "消息提示对话框", "请先绘图！", messageDialog.Yes, messageDialog.Yes)
@@ -94,6 +110,7 @@ if __name__ == '__main__':
     # 设置全局样式
     qApp.setStyleSheet(styleSheet)
 
+    # 汉化处理
     tran = QTranslator()
     tran.load("qt_zh_CN.qm", "LaserQt_Font/")
     qApp.installTranslator(tran)
@@ -108,6 +125,7 @@ if __name__ == '__main__':
     overLoad = OverLoadClassMethod()
 
     myLaserQtMainWindow.next_page = overLoad.laser_qt_main_window_next_page
+    # 按钮绑定回调函数
     myLaserQtMainWindow.nextButton.clicked.connect(myLaserQtMainWindow.next_page)
 
     myLaserQtSecondWindow.prev_page = overLoad.laser_qt_second_window_prev_page
