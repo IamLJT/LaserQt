@@ -318,7 +318,7 @@ class LaserQtFourthWindow(QWidget):
                         _x = (1/k) * (i - y_start) + x_start
                         _x_ceil = math.ceil(_x); _x_floor = math.floor(_x)
                         if _x_ceil == _x_floor:
-                            error.append(self.Z1[100 * (_x - 1) + i] - self.Z2[100 * (_x - 1) + i])
+                            error.append(self.Z1[100 * (_x_ceil - 1) + i] - self.Z2[100 * (_x_ceil - 1) + i])
                         else:
                             _error_up = self.Z1[100 * (_x_ceil - 1) + i] - self.Z2[100 * (_x_ceil - 1) + i]
                             _error_down = self.Z1[100 * (_x_floor - 1) + i] - self.Z2[100 * (_x_floor - 1) + i]
