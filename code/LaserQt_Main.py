@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # ********************系统自带相关模块导入********************
 import os
+import time
 # ********************PyQt5相关模块导入********************
 from PyQt5.QtCore import QTranslator
 from PyQt5.QtWidgets import qApp
@@ -62,7 +63,10 @@ class OverLoadClassMethod(object):
         myLaserQtFourthWindow.Z1 = myLaserQtThirdWindow.Z1
         myLaserQtFourthWindow.Z2 = myLaserQtThirdWindow.Z2
         # 初始化第四个窗口的画布
-        myLaserQtFourthWindow.init_the_canvas()
+        messageDialog = MessageDialog()
+        reply = messageDialog.information(myLaserQtThirdWindow, "消息提示对话框", "可视化初始化！", messageDialog.Yes, messageDialog.Yes)
+        if reply == messageDialog.Yes:
+            myLaserQtFourthWindow.init_the_canvas()
 
     # LaserQt_FourthWindow.prev_page方法
     def laser_qt_fourth_window_prev_page(self):

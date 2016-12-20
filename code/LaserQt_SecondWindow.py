@@ -12,6 +12,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import qApp
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMainWindow

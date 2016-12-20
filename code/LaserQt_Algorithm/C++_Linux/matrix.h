@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <vector>
+#include <windows.h>
 
 #ifndef _MSC_VER
 	#include <stdint.h>
@@ -22,7 +23,7 @@
 
 #define endll endl << endl // double end line definition
 
-typedef double FLOAT;      // double precision
+//typedef double FLOAT;      // double precision
 //typedef float  FLOAT;    // single precision
 
 class Matrix {

@@ -1,75 +1,34 @@
 #include <iostream>
-#include "icpPointToPoint.h"
-#include "icpPointToPlane.h"
-#include "readfile.h"
-#include "Filter.h"
+#include <windows.h>
 
-using namespace std;
+typedef void (*DLLFunc)(char*);	//	确定调用函数的形参
 
-int main (int argc, char** argv) {
+#define MAX 256
 
-	//int32_t dim = 3, num=0;	//	dim means dimension锟斤拷only can be 2 or 3; num is number of data.
+int main()
+{
+	DLLFunc dllFunc;
+	//HINSTANCE hInstLibrary = LoadLibrary("D:\\研究生\\程序\\C++\\MFC\\testforicp\\icp\\TestDLL2\\Debug\\(ProjectDir)\\PointCloudAlgorithm.dll");
 
-	int32_t dim = 3, num=0, m = 0, n = 0;
-	vector<int> DataFile(4, 0);
+	//if (hInstLibrary == NULL)
+	//{
+	//	FreeLibrary(hInstLibrary);
+	//}
 
-	char str1[]="../../LaserQt_Material/娴嬭瘯鏁版嵁.txt";
-	char str2[]="../../LaserQt_Material/鐩爣鏁版嵁.txt";
-	//	name of Path
+	//dllFunc = (DLLFunc)GetProcAddress(hInstLibrary, "PointCloudDenoise");//第二个参数为要调用的函数名称
 
-	double *M = ReadFile(str1, DataFile);		// 锟斤拷始值
+	//if (dllFunc == NULL)
+ //   {
+ //       FreeLibrary(hInstLibrary);
+ //   }
 
-	num = DataFile[0];
-	dim = DataFile[1];
-	//char OutPath[] = "..\锟斤拷锟斤拷锟斤拷锟斤拷.txt";
-	char path1[]="../../LaserQt_Material/杈撳嚭鏁版嵁.txt";
+	//dllFunc("C:\\Users\\Iam_luffy\\Documents\\GitHub\\LaserQt\\code\\LaserQt_Material\\测试数据.txt");
+ //   FreeLibrary(hInstLibrary);
 
-	Filter flr(M, num, dim);		//	Filter
+	char sPath[MAX];
+	GetModuleFileName(NULL, sPath, MAX_PATH);
 
-	double *M0=flr.SimpleFilter();
-	WriteFile(path1, M0, num, dim);
+	strcat(sPath, "\\TempData.txt");
 
-	bool isFilter = true;
-	double *T = ReadFile(str2, DataFile);
-	double *M1;
-	if(false == isFilter)
-		M1 = ReadFile(str1, DataFile);
-	else
-		M1 = ReadFile(path1, DataFile);
-
-	num = DataFile[0];
-	dim = DataFile[1];
-	m = DataFile[2];
-	n = DataFile[3];
-
-	// start with identity as initial transformation
-	// in practice you might want to use some kind of prediction here
-	Matrix R = Matrix::eye(3);
-	Matrix t(3,1);
-
-	// run point-to-plane ICP (-1 = no outlier threshold)
-	cout << endl << "Running ICP (point-to-plane, no outliers)" << endl;
-	IcpPointToPlane icp(M1, num, dim);
-	icp.fit(T,num,R,t,-1);
-	//	T is dest-matrix, num is number of data
-	//	R and t means Ratate and Translate Matrix
-
-	Matrix mx = Matrix::ArrayToMatrix(M1, m, n, dim);
-	Matrix res = R*(~mx) ;
-	res = ~res;
-
-	for(int i = 0; i<res.m; i++)
-	{
-		res.val[i][0] += t.val[0][0];
-		res.val[i][1] += t.val[1][0];
-		res.val[i][2] += t.val[2][0];
-	}
-
-	double *M2 = Matrix::MatrixToArray(res, dim);
-
-	//char OutPath[] = "..\锟斤拷锟斤拷锟斤拷锟斤拷.txt";
-	char path2[]="../../LaserQt_Material/杈撳嚭鏁版嵁.txt";
-	WriteFile(path2, M2, num, dim);
-
-	return 0;
+    return(1);
 }

@@ -857,14 +857,14 @@ FLOAT Matrix::pythag(FLOAT a,FLOAT b) {
 
 Matrix Matrix::ArrayToMatrix(double* M, int m, int n, int dim)
 {
-	Matrix mx(m * n, dim);
+	Matrix mx(m * n, 3);
 	int row = 0;
-	for(int i=0; i < m * n; i+=dim)
+	for(int i=0; i < m * n * dim; i+=dim)
 	{
-		row = i/dim;
-		mx.val[row][0] = M[i];
-		mx.val[row][1] = M[i+1];
-		mx.val[row][2] = M[i+2];
+		int row = i/dim;
+		mx.val[row][0]=M[i];
+		mx.val[row][1]=M[i+1];
+		mx.val[row][2]=M[i+2];
 	}
 	return mx;
 }
