@@ -311,8 +311,49 @@ class LaserQtFourthWindow(QWidget):
                 self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
                 self.canvas06.draw()
                 self.canvas06.axes.hold(False)
-            elif math.abs(k) > 1:
-                pass
-            elif math.abs(k) < 1:
-                pass
-                
+            else:
+                if abs(k) > 1:
+                    error.append(self.Z1[100 * (x_start - 1) + y_start] - self.Z2[100 * (x_start - 1) + y_start])
+                    for i in range(y_start + 1, y_end):
+                        _x = (1/k) * (i - y_start) + x_start
+                        _x_ceil = math.ceil(_x); _x_floor = math.floor(_x)
+                        if _x_ceil == _x_floor:
+                            error.append(self.Z1[100 * (_x - 1) + i] - self.Z2[100 * (_x - 1) + i])
+                        else:
+                            _error_up = self.Z1[100 * (_x_ceil - 1) + i] - self.Z2[100 * (_x_ceil - 1) + i]
+                            _error_down = self.Z1[100 * (_x_floor - 1) + i] - self.Z2[100 * (_x_floor - 1) + i]
+                            _error = int(_error_up * (_x_ceil - _x)/(_x_ceil - _x_floor) + _error_down * (_x - _x_floor)/(_x_ceil - _x_floor))
+                            error.append(_error)
+                    error.append(self.Z1[100 * (x_end - 1) + y_end] - self.Z2[100 * (x_end - 1) + y_end])
+                    self.canvas06.axes.plot()
+                    self.canvas06.axes.hold(True)
+                    self.canvas06.axes.set_xlim([y_start, y_end + 1])
+                    self.canvas06.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
+                    self.canvas06.axes.grid(True, which="both")
+                    self.canvas06.axes.plot(range(y_start, y_end + 1), error, 'r')
+                    self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
+                    self.canvas06.draw()
+                    self.canvas06.axes.hold(False)
+                elif abs(k) < 1:
+                    error.append(self.Z1[100 * (x_start - 1) + y_start] - self.Z2[100 * (x_start - 1) + y_start])
+                    for i in range(x_start + 1, x_end):
+                        _y = k * (i - x_start) + y_start
+                        _y_ceil = math.ceil(_y); _y_floor = math.floor(_y)
+                        if _y_ceil == _y_floor:
+                            error.append(self.Z1[100 * (i - 1) + _y_ceil] - self.Z2[100 * (i - 1) + _y_ceil])
+                        else:
+                            _error_up = self.Z1[100 * (i - 1) + _y_ceil] - self.Z2[100 * (i - 1) + _y_ceil]
+                            _error_down = self.Z1[100 * (i - 1) + _y_floor] - self.Z2[100 * (i - 1) + _y_floor]
+                            _error = int(_error_up * (_y_ceil - _y)/(_y_ceil - _y_floor) + _error_down * (_y - _y_floor)/(_y_ceil - _y_floor))
+                            error.append(_error)
+                    error.append(self.Z1[100 * (x_end - 1) + y_end] - self.Z2[100 * (x_end - 1) + y_end])
+                    self.canvas06.axes.plot()
+                    self.canvas06.axes.hold(True)
+                    self.canvas06.axes.set_xlim([x_start, x_end + 1])
+                    self.canvas06.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
+                    self.canvas06.axes.grid(True, which="both")
+                    self.canvas06.axes.plot(range(x_start, x_end + 1), error, 'r')
+                    self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
+                    self.canvas06.draw()
+                    self.canvas06.axes.hold(False)
+                    
