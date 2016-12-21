@@ -172,17 +172,32 @@ class LaserQtThirdWindow(QWidget):
 
     # 点云数据扫描
     def point_cloud_data_scan(self):
-        if self.scanningDataFileName == "":
-            messageDialog = MessageDialog()
-            messageDialog.warning(self, "消息提示对话框", "请先加载扫描数据!", messageDialog.Yes, messageDialog.Yes)
-            return
+        # if self.scanningDataFileName == "":
+        #     messageDialog = MessageDialog()
+        #     messageDialog.warning(self, "消息提示对话框", "请先加载扫描数据!", messageDialog.Yes, messageDialog.Yes)
+        #     return
 
         self.logTextEdit.setText("")  # 清空日志窗口
-        self.put_info_into_log("开始点云数据扫描...", 0)
+        # self.put_info_into_log("开始点云数据扫描...", 0)
 
         # 点云扫描过程
-
-        self.put_info_into_log("点云数据扫描完毕...", 100)
+        messageDialog = MessageDialog()
+        import yaml
+        import subprocess
+        with open("faro_config.yaml", 'r') as fd:
+            yaml_file = yaml.load(fd)
+            faro_sdk = yaml_file["FAROSDKDemoApp"]["dir"]
+            faro_open = yaml_file["FAROOpenDemoApp"]["dir"]
+        reply = messageDialog.information(self, "消息提示对话框", "FAROSDKDemoApp可执行程序路径：\n{}".format(faro_sdk), 
+            messageDialog.Yes | messageDialog.No, messageDialog.Yes)
+        if reply == messageDialog.Yes:
+            subprocess.Popen(faro_sdk)
+            reply = messageDialog.information(self, "消息提示对话框", "FAROOpenDemoApp可执行程序路径：\n{}\n在执行FAROOpenDemoApp前，请确保已执行FAROSDKDemoApp".format(faro_open),
+                messageDialog.Yes | messageDialog.No, messageDialog.Yes)
+            if reply == messageDialog.Yes:
+                subprocess.Popen(faro_open)
+        
+        # self.put_info_into_log("点云数据扫描完毕...", 100)
 
         self.hasDoDenoising = True
         self.pointCloudDataDenoisingButton.setEnabled(True)
