@@ -252,7 +252,7 @@ class LaserQtSecondWindow(QWidget):
                 self.dataShow04Edit.setText('( ' + str(dataCell[4]) + ', ' + str(dataCell[5]) + ' )')
                 self.dataShow05Edit.setText(str(dataCell[6]))
                 self.dataShow06Edit.setText(str(dataCell[7]))
-                self.udpSocket.sendto(bytes(json.dumps(dataCell), "utf-8", (self.HOST, self.PORT))  # 发送的是json格式的列表数据
+                self.udpSocket.sendto(bytes(json.dumps(dataCell), "utf-8"), (self.HOST, self.PORT))  # 发送的是json格式的列表数据
                 self.currentDataCell = dataCell
 
                 self.endX = 0.0
@@ -308,7 +308,7 @@ class LaserQtSecondWindow(QWidget):
             self.dataShow04Edit.setText('( ' + str(dataCell[4]) + ', ' + str(dataCell[5]) + ' )')
             self.dataShow05Edit.setText(str(dataCell[6]))
             self.dataShow06Edit.setText(str(dataCell[7]))
-            self.udpSocket.sendto(bytes(json.dumps(dataCell), "utf-8", (self.HOST, self.PORT))  # 发送的是json格式的列表数据
+            self.udpSocket.sendto(bytes(json.dumps(dataCell), "utf-8"), (self.HOST, self.PORT))  # 发送的是json格式的列表数据
             self.currentDataCell = dataCell
         
         self.timer.stop()
