@@ -57,11 +57,7 @@ class LaserQtThirdWindow(QWidget):
         scanningDataLable = QLabel("扫描数据")
         scanningDataLable.setFont(qFont)
         self.targetDataDirectoryLineEdit = QLineEdit()
-        # self.targetDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt") ## TODO
-        # self.targetDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt"
         self.scanningDataDirectoryLineEdit = QLineEdit()
-        # self.scanningDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt")
-        # self.scanningDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt"
         targetDataBrowseButton = BrowseButton()
         targetDataBrowseButton.clicked.connect(self.browse_target_data_directory)
         scanningDataBrowseButton = BrowseButton()
@@ -209,17 +205,17 @@ class LaserQtThirdWindow(QWidget):
 
         # 调用点云去噪算法
         if "Windows" == return_os():
-             self.dll = ctypes.CDLL("LaserQt_Algorithm/DLL_Generate/Debug/PointCloudAlgorithm.dll")  # 创建动态链接库对象
+             self.dll = ctypes.CDLL("LaserQt_Algorithm/C++_Windows/PointCloudAlgorithm/Debug/PointCloudAlgorithm.dll")  # 创建动态链接库对象
         elif "Linux" == return_os():
-             self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
+             self.dll = ctypes.CDLL("LaserQt_Algorithm/C++_Linux/PointCloudAlgorithm.so")  # 创建动态链接库对象
 
-        inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("utf-8")))  # 创建C/C++可调用的字符串对象
+        inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("gbk")))  # 创建C/C++可调用的字符串对象
         
         removedNoise = self.dll.PointCloudKThreshlod(inpath)  # 获取噪声点数并初步去噪
         residualNoise = 0
 
         # 这里应提示是否进行平滑处理
-        self.dll.PointCloudDenoise();  # 调用那个C++函数 void PointCloudDenoise()
+        self.dll.PointCloudDenoise();  # 调用C++函数 void PointCloudDenoise()
 
         self.put_info_into_log("点云数据去噪完毕...", 100)
 
@@ -264,11 +260,12 @@ class LaserQtThirdWindow(QWidget):
             inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("gbk")))  # 创建C/C++可调用的字符串对象，扫描文件路径
             outpath = ctypes.create_string_buffer(bytes(self.targetDataFileName.encode("gbk")))  # 目标文件路径
             isFilter = 1  # 需要进行判断，是否需要平滑？
-            self.dll.PointCloudFitting(inpath, isFilter, outpath)  # 调用那个C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
+            self.dll.PointCloudFitting(inpath, isFilter, outpath)  # 调用C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
+            # fittingDataFileName = self.dll.PointCloudFitting(inpath, isFilter, outpath)
 
             self.put_info_into_log("点云数据拟合完成...", 100)
 
-            fittingDataFileName = "LaserQt_Material/输出数据.txt"
+            fittingDataFileName = "LaserQt_Material/FittingData.txt"  # TODO
 
         self.canvas.axes.plot([0], [0])
         self.canvas.axes.hold(True)
