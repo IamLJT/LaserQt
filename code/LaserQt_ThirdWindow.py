@@ -1,7 +1,10 @@
-## -*- coding: utf-8 -*-
-# -*- coding: gb18030 -*- 
+# -*- coding: utf-8 -*-
+# ********************系统自带相关模块导入********************
+import ctypes  # 用于调用C++动态链接库
+import os
+from ctypes import *
 from socket import socket, AF_INET, SOCK_STREAM
-
+# ********************PyQt5相关模块导入********************
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import qApp
@@ -14,15 +17,11 @@ from PyQt5.QtWidgets import QProgressBar
 from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
-
+# ********************用户自定义相关模块导入********************
 from LaserQt_AuxiliaryFunction import check_os, return_os, get_current_screen_size, get_current_screen_time
 from LaserQt_Gui.LaserQt_Gui_Button import *
 from LaserQt_Gui.LaserQt_Gui_Canvas import *
 from LaserQt_Gui.LaserQt_Gui_Dialog import *
-
-import ctypes
-import os
-from ctypes import *
 
 '''
 @author  : Zhou Jian
@@ -32,6 +31,9 @@ from ctypes import *
 '''
 
 class LaserQtThirdWindow(QWidget):
+    '''
+        系统第三个窗口页面类
+    '''
     def __init__(self):
         super(LaserQtThirdWindow, self).__init__()
         self.targetDataFileName = ""
@@ -55,11 +57,7 @@ class LaserQtThirdWindow(QWidget):
         scanningDataLable = QLabel("扫描数据")
         scanningDataLable.setFont(qFont)
         self.targetDataDirectoryLineEdit = QLineEdit()
-        # self.targetDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt") ## TODO
-        # self.targetDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\目标数据.txt"
         self.scanningDataDirectoryLineEdit = QLineEdit()
-        # self.scanningDataDirectoryLineEdit.setText("D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt")
-        # self.scanningDataFileName = "D:\PyQt\LaserQt\code\LaserQt_Material\测试数据.txt"
         targetDataBrowseButton = BrowseButton()
         targetDataBrowseButton.clicked.connect(self.browse_target_data_directory)
         scanningDataBrowseButton = BrowseButton()
@@ -148,6 +146,7 @@ class LaserQtThirdWindow(QWidget):
         else:
             event.ignore()
 
+    # 
     def browse_target_data_directory(self): ## TODO
         mainDirectory = check_os()
         # 打开文件选择对话框
@@ -167,54 +166,61 @@ class LaserQtThirdWindow(QWidget):
             self.scanningDataDirectoryLineEdit.setText(self.scanningDataFileName)
         self.hasDoDenoising = False
 
+    # 点云数据扫描
     def point_cloud_data_scan(self):
-        if self.scanningDataFileName == "":
-            messageDialog = MessageDialog()
-            messageDialog.warning(self, "消息提示对话框", "请先加载扫描数据!", messageDialog.Yes, messageDialog.Yes)
-            return
+        # if self.scanningDataFileName == "":
+        #     messageDialog = MessageDialog()
+        #     messageDialog.warning(self, "消息提示对话框", "请先加载扫描数据!", messageDialog.Yes, messageDialog.Yes)
+        #     return
 
         self.logTextEdit.setText("")  # 清空日志窗口
-        self.put_info_into_log("开始点云数据扫描...", 0)
+        # self.put_info_into_log("开始点云数据扫描...", 0)
 
         # 点云扫描过程
-
-        self.put_info_into_log("点云数据扫描完毕...", 100)
+        messageDialog = MessageDialog()
+        import yaml
+        import subprocess
+        with open("faro_config.yaml", 'r') as fd:
+            yaml_file = yaml.load(fd)
+            faro_sdk = yaml_file["FAROSDKDemoApp"]["dir"]
+            faro_open = yaml_file["FAROOpenDemoApp"]["dir"]
+        reply = messageDialog.information(self, "消息提示对话框", "FAROSDKDemoApp可执行程序路径：\n{}".format(faro_sdk), 
+            messageDialog.Yes | messageDialog.No, messageDialog.Yes)
+        if reply == messageDialog.Yes:
+            subprocess.Popen(faro_sdk)
+            reply = messageDialog.information(self, "消息提示对话框", "FAROOpenDemoApp可执行程序路径：\n{}\n在执行FAROOpenDemoApp前，请确保已执行FAROSDKDemoApp".format(faro_open),
+                messageDialog.Yes | messageDialog.No, messageDialog.Yes)
+            if reply == messageDialog.Yes:
+                subprocess.Popen(faro_open)
+        
+        # self.put_info_into_log("点云数据扫描完毕...", 100)
 
         self.hasDoDenoising = True
         self.pointCloudDataDenoisingButton.setEnabled(True)
 
+    # 点云数据去噪
     def point_cloud_data_denoising(self):
         self.logTextEdit.setText("")
         self.put_info_into_log("开始点云数据去噪...", 0)
 
         # 调用点云去噪算法
         if "Windows" == return_os():
-           #  self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.dll")  # 创建动态链接库对象
-             self.dll = ctypes.CDLL("LaserQt_Algorithm/DLL_Generate/Debug/PointCloudAlgorithm.dll")  # 创建动态链接库对象
-           #  self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/libPointCloudAlgorithm.a")  # 创建静态链接库对象
+             self.dll = ctypes.CDLL("LaserQt_Algorithm/C++_Windows/PointCloudAlgorithm/Debug/PointCloudAlgorithm.dll")  # 创建动态链接库对象
         elif "Linux" == return_os():
-             self.dll = ctypes.CDLL("LaserQt_Algorithm/C++/PointCloudAlgorithm.so")  # 创建动态链接库对象
-        print(self.dll)
+             self.dll = ctypes.CDLL("LaserQt_Algorithm/C++_Linux/PointCloudAlgorithm.so")  # 创建动态链接库对象
 
         inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("gbk")))  # 创建C/C++可调用的字符串对象
-        #path = "C:/Users/Iam_luffy/Documents/GitHub/LaserQt/code/LaserQt_Material/测试数据.txt"
         
-        noisenum = 0
-        #key = "C:\\Users\\Iam_luffy\\Documents\\GitHub\\LaserQt\\code\\LaserQt_Material\\测试数据.txt"
-        #print(key)
-        #path = create_string_buffer(key.encode("gbk"), 100)
-       
-        #print(inpath)
-        noisenum = self.dll.PointCloudKThreshlod(inpath)  # 获取噪声点数并初步去噪
-        print(noisenum)
+        removedNoise = self.dll.PointCloudKThreshlod(inpath)  # 获取噪声点数并初步去噪
+        residualNoise = 0
 
         # 这里应提示是否进行平滑处理
-        self.dll.PointCloudDenoise();   # 调用那个C++函数 void PointCloudDenoise()
+        self.dll.PointCloudDenoise();  # 调用C++函数 void PointCloudDenoise()
 
         self.put_info_into_log("点云数据去噪完毕...", 100)
 
         messageDialog = MessageDialog()
-        reply = messageDialog.information(self, "消息提示对话框", "本次去噪共去除噪声点XX个，剩余噪声点XX个！是否需要保存数据？", messageDialog.Yes | messageDialog.No, messageDialog.Yes)
+        reply = messageDialog.information(self, "消息提示对话框", "本次去噪共去除噪声点{}个，剩余噪声点{}个！是否需要保存数据？".format(removedNoise, residualNoise), messageDialog.Yes | messageDialog.No, messageDialog.Yes)
         if reply == messageDialog.No:
             return
 
@@ -229,6 +235,7 @@ class LaserQtThirdWindow(QWidget):
                     for line in fd2:
                         fd1.write(line)
 
+    # # 点云数据拟合
     def point_cloud_data_fitting(self):
         if self.targetDataFileName == "":
             messageDialog = MessageDialog()
@@ -250,15 +257,15 @@ class LaserQtThirdWindow(QWidget):
             self.put_info_into_log("开始点云数据拟合...", 0)
 
             # 调用点云拟合算法  
-            #path = ctypes.create_string_buffer(bytes("LaserQt_Material/tempData.txt".encode("utf-8")))  # 创建C/C++可调用的字符串对象
             inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("gbk")))  # 创建C/C++可调用的字符串对象，扫描文件路径
-            outpath = ctypes.create_string_buffer(bytes(self.targetDataFileName.encode("gbk")))   # 目标文件路径
-            isFilter = 1    # 需要进行判断，是否需要平滑？
-            self.dll.PointCloudFitting(inpath, isFilter, outpath)  # 调用那个C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
+            outpath = ctypes.create_string_buffer(bytes(self.targetDataFileName.encode("gbk")))  # 目标文件路径
+            isFilter = 1  # 需要进行判断，是否需要平滑？
+            self.dll.PointCloudFitting(inpath, isFilter, outpath)  # 调用C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
+            # fittingDataFileName = self.dll.PointCloudFitting(inpath, isFilter, outpath)
 
             self.put_info_into_log("点云数据拟合完成...", 100)
 
-            fittingDataFileName = "LaserQt_Material/输出数据.txt"
+            fittingDataFileName = "LaserQt_Material/FittingData.txt"  # TODO
 
         self.canvas.axes.plot([0], [0])
         self.canvas.axes.hold(True)
@@ -297,4 +304,4 @@ class LaserQtThirdWindow(QWidget):
     def put_info_into_log(self, info, progressValue):
         self.logTextEdit.append("[ {} ] : {}".format(get_current_screen_time(), info))
         self.executeProgressBar.setValue(progressValue)
-        qApp.processEvents() # 强制刷新界面
+        qApp.processEvents()  # 强制刷新界面
