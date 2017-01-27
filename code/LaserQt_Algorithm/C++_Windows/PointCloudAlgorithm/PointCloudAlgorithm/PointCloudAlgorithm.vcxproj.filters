@@ -39,6 +39,9 @@
     <ClInclude Include="readfile.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="GridDivide.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Filter.cpp">
@@ -63,6 +66,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="readfile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GridDivide.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

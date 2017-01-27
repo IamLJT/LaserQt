@@ -5,6 +5,7 @@
 #include "icpPointToPoint.h"
 #include "icpPointToPlane.h"
 #include "readfile.h"
+#include "GridDivide.h"
 
 using namespace std;
 
@@ -40,16 +41,22 @@ extern "C" _declspec(dllexport) int PointCloudKThreshlod(const char* Path) {
 	m = DataFile[2];
 	n = DataFile[3];
 
-	Filter flr(M, num, dim, m, n);
+	/*Filter flr(M, num, dim, m, n);
 
-	double *M0 = flr.ThresholdFilter(20);
+	double *M0 = flr.ThresholdFilter(20);*/
+
+	int num_G = 0;
+	griddivide Grid_temp(M, num, dim);
+	Grid_temp.dividenum(30, 30, 10);
+	Grid_temp.grid_point(M, num, dim);
+	double* M0 = Grid_temp.first_filter_grid(M, num_G, dim);
 
 	char sPath[MAX];
 	getcwd(sPath, MAX_PATH);
 	strcat(sPath, "\\LaserQt_Material\\TempData.txt");
 	WriteFile(sPath, M0, num, dim);
 
-	return flr.noisenum;
+	return num-num_G;
 }
 
 extern "C" _declspec(dllexport) void PointCloudDenoise() {
