@@ -855,11 +855,11 @@ FLOAT Matrix::pythag(FLOAT a,FLOAT b) {
 	return (absb == 0.0 ? 0.0 : absb*sqrt(1.0+SQR(absa/absb)));
 }
 
-Matrix Matrix::ArrayToMatrix(double* M, int m, int n, int dim)
+Matrix Matrix::ArrayToMatrix(double* M, int num, int dim)
 {
-	Matrix mx(m * n, 3);
+	Matrix mx(num, 3);
 	int row = 0;
-	for(int i=0; i < m * n * dim; i+=dim)
+	for(int i=0; i < num * dim; i+=dim)
 	{
 		int row = i/dim;
 		mx.val[row][0]=M[i];

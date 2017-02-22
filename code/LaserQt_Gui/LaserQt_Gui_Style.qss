@@ -1,22 +1,46 @@
+QLabel, QMessageBox {
+    font-family: STKaiti;
+    font-size: 16px;
+    color: #000000;
+}
 
-QWidget {
-    background-color: #DDDDDD;
+QLabel {
+    font-family: STKaiti;
+    font-size: 16px;
 }
 
 QLineEdit {
-    background-color: white;
-    border:1px solid black;
-}
-
-QTableWidget {
-    background-color: white;
+    font-size: 16px;
+    padding: 0 0 0 5px;
 }
 
 QTextEdit {
-    background-color: white;
-    padding: 10px;
+    font-size: 18px;
+    padding: 0 0 0 20px;
+}
+
+QPushButton {
+    width: 70px;
+    height: 30px;
+    background-color: #F0F0F0;
+    border-radius: 5px;
+    font-family: STKaiti;
+    font-size: 14px;
+    color: #000000;
 }
 
 QProgressBar {
-    background-color: white;
+    background-color: #EEEEEE;
+    border:2px solid grey;
+    border-radius: 5px;
+    text-align: center;
+}
+
+QProgressBar::chunk {
+    background-color: #CD96CD;
+}
+
+QTableWidget {
+    font-size: 13px;
+    gridline-color: #000000;
 }

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # ********************第三方相关模块导入********************
+import math
 import xlrd  # 用于读取Excel数据
 import xlutils.copy as xlcopy  # 用于重写Excel数据
 # ********************PyQt5相关模块导入********************
@@ -27,7 +28,7 @@ from LaserQt_Gui.LaserQt_Gui_Dialog import *
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.12
+@date    : 2017.02.22
 '''
 
 class LaserQtMainWindow(QWidget):
@@ -45,7 +46,7 @@ class LaserQtMainWindow(QWidget):
         # 设置窗口标题
         self.setWindowTitle("复杂曲率板加工系统")
         # 设置窗口标题栏处的图标
-        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo_32px.png'))
         # 同时设置最小尺寸和最大尺寸是为了固定窗口尺寸
         self.width, self.height = get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
@@ -68,9 +69,6 @@ class LaserQtMainWindow(QWidget):
 
         self.canvas = StaticCanvasForPathInfo()
         canvasRegionLable = QLabel("数据可视化区域")
-        qFont = QFont()
-        qFont.setPointSize(12)
-        canvasRegionLable.setFont(qFont)
         # 左半部分中部布局
         leftMiddleLayout = QVBoxLayout()
         leftMiddleLayout.setSpacing(10)
@@ -94,7 +92,6 @@ class LaserQtMainWindow(QWidget):
         leftLayout.addLayout(leftBottomLayout)
 
         tableRegionLable = QLabel("数据列表区域")
-        tableRegionLable.setFont(qFont)
         # 窗口Qt表格对象，第一个参数表示表格的行数，第二个参数表示表格的列数
         self.dataTable = QTableWidget(0, 7)
         # 设置表格的列标签
@@ -187,16 +184,34 @@ class LaserQtMainWindow(QWidget):
     def plot_the_data(self):
         self.canvas.axes.plot() # 很关键的代码！！！重新导入文件时清除所有的绘图
         self.canvas.axes.hold(True)
+        xMin = 0.0; xMax = 0.0
+        yMin = 0.0; yMax = 0.0
         for i in range(self.numOfPath):
             xStart = float(self.dataTable.item(i, 0).text()); yStart = float(self.dataTable.item(i, 1).text())
+            if xStart <= xMin:
+                xMin = xStart
+            elif xStart >= xMax:
+                xMax = xStart
+            if yStart <= yMin:
+                yMin = yStart
+            elif yStart >= yMax:
+                yMax = yStart
             xEnd = float(self.dataTable.item(i, 2).text()); yEnd = float(self.dataTable.item(i, 3).text())
+            if xEnd <= xMin:
+                xMin = xEnd
+            elif xEnd >= xMax:
+                xMax = xEnd
+            if yEnd <= yMin:
+                yMin = yEnd
+            elif yEnd >= yMax:
+                yMax = yEnd
             flag = float(self.dataTable.item(i, 6).text())
             if flag == 1:
                 self.canvas.axes.plot([xStart, xEnd], [yStart, yEnd], 'r', label="正面加工路径")
             elif flag == 0:
                 self.canvas.axes.plot([xStart, xEnd], [yStart, yEnd], 'b', label="反面加工路径")
-            self.canvas.axes.annotate('a', xy=(xStart, yStart), xytext=(xStart, yStart), fontsize=8)
-            self.canvas.axes.annotate('b', xy=(xEnd, yEnd), xytext=(xEnd, yEnd), fontsize=8)
+            self.canvas.axes.annotate('s', xy=(xStart, yStart), xytext=(xStart, yStart), fontsize=8)
+            self.canvas.axes.annotate('e', xy=(xEnd, yEnd), xytext=(xEnd, yEnd), fontsize=8)
             self.canvas.axes.annotate(str(i + 1), xy=((xStart + xEnd)/2, (yStart + yEnd)/2), xytext=((xStart + xEnd)/2, (yStart + yEnd)/2))
         handles, labels = self.canvas.axes.get_legend_handles_labels()
         unique_handles = []; unique_labels = []
@@ -210,10 +225,10 @@ class LaserQtMainWindow(QWidget):
                     unique_handles.append(handles[i]); unique_handles.append(handles[i - 1])
                     unique_labels.append(labels[i]); unique_labels.append(labels[i - 1])
                     break
-        self.canvas.axes.set_xlim([0, 2])
-        self.canvas.axes.set_xticks(np.arange(0, 22, 2)/10)
-        self.canvas.axes.set_ylim([0, 1])
-        self.canvas.axes.set_yticks(np.arange(0, 11)/10)
+        self.canvas.axes.set_xlim([math.floor(xMin / 0.2) * 0.2, math.ceil(xMax / 0.2) * 0.2])
+        # self.canvas.axes.set_xticks(np.arange(0, 22, 2)/10)
+        self.canvas.axes.set_ylim([math.floor(yMin / 0.2) * 0.2, math.ceil(yMax / 0.2) * 0.2])
+        # self.canvas.axes.set_yticks(np.arange(0, 11)/10)
         self.canvas.axes.set_title("加工路径静态图", fontproperties=FONT, fontsize=14)
         self.canvas.axes.set_xlabel("X - 板长方向（m）", fontproperties=FONT, fontsize=9)
         self.canvas.axes.set_ylabel("Y - 板宽方向（m）", fontproperties=FONT, fontsize=9)
@@ -261,4 +276,4 @@ class LaserQtMainWindow(QWidget):
                 elif j == 6:
                     sheet.write(i, j, int(self.dataTable.item(i, j).text())) 
         excelReadWrite.save(self.fileName)
-        
+    

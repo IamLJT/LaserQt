@@ -2,9 +2,10 @@
 # ********************系统自带相关模块导入********************
 import ctypes  # 用于调用C++动态链接库
 import os
-from ctypes import *
-from socket import socket, AF_INET, SOCK_STREAM
+# from ctypes import *
 # ********************PyQt5相关模块导入********************
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import qApp
@@ -14,6 +15,8 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QProgressBar
+from PyQt5.QtWidgets import QSlider
+from PyQt5.QtWidgets import QSpinBox
 from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
@@ -42,7 +45,7 @@ class LaserQtThirdWindow(QWidget):
 
     def create_main_window(self):
         self.setWindowTitle("复杂曲率板加工系统")
-        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo_32px.png'))
         self.width, self.height = get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)
@@ -51,29 +54,16 @@ class LaserQtThirdWindow(QWidget):
 
     def set_widgets(self):
         targetDataLable = QLabel("目标数据")
-        qFont = QFont()
-        qFont.setPointSize(12)
-        targetDataLable.setFont(qFont)
         scanningDataLable = QLabel("扫描数据")
-        scanningDataLable.setFont(qFont)
         self.targetDataDirectoryLineEdit = QLineEdit()
         self.scanningDataDirectoryLineEdit = QLineEdit()
         targetDataBrowseButton = BrowseButton()
         targetDataBrowseButton.clicked.connect(self.browse_target_data_directory)
         scanningDataBrowseButton = BrowseButton()
         scanningDataBrowseButton.clicked.connect(self.browse_scanning_data_directory)
-        # 左半部分顶部布局
-        leftTopLayout = QGridLayout()
-        leftTopLayout.addWidget(targetDataLable, 0, 0)
-        leftTopLayout.addWidget(scanningDataLable, 1, 0)
-        leftTopLayout.addWidget(self.targetDataDirectoryLineEdit, 0, 1)
-        leftTopLayout.addWidget(self.scanningDataDirectoryLineEdit, 1, 1)
-        leftTopLayout.addWidget(targetDataBrowseButton, 0, 2)
-        leftTopLayout.addWidget(scanningDataBrowseButton, 1, 2)
         
         self.canvas = Static3DCanvasForPointCloud()
         canvasRegionLable = QLabel("点云拟合三维可视化")
-        canvasRegionLable.setFont(qFont)
         # 左半部分中部布局
         leftMiddleLayout = QVBoxLayout()
         leftMiddleLayout.setSpacing(10)
@@ -94,12 +84,19 @@ class LaserQtThirdWindow(QWidget):
         # 左半部分布局
         leftLayout = QVBoxLayout()
         leftLayout.setSpacing(23)
-        leftLayout.addLayout(leftTopLayout)
         leftLayout.addLayout(leftMiddleLayout)
         leftLayout.addLayout(leftBottomLayout)
 
+        # 右半部分顶部布局
+        rightTopLayout = QGridLayout()
+        rightTopLayout.addWidget(targetDataLable, 0, 0)
+        rightTopLayout.addWidget(scanningDataLable, 1, 0)
+        rightTopLayout.addWidget(self.targetDataDirectoryLineEdit, 0, 1)
+        rightTopLayout.addWidget(self.scanningDataDirectoryLineEdit, 1, 1)
+        rightTopLayout.addWidget(targetDataBrowseButton, 0, 2)
+        rightTopLayout.addWidget(scanningDataBrowseButton, 1, 2)
+
         logRegionLable = QLabel("后台执行过程展示区域")
-        logRegionLable.setFont(qFont)
         self.logTextEdit = QTextEdit()
         self.logTextEdit.setEnabled(False)
         self.logTextEdit.setFontPointSize(12)
@@ -110,10 +107,40 @@ class LaserQtThirdWindow(QWidget):
         rightMiddleLayout.addWidget(self.logTextEdit)
         rightMiddleLayout.addWidget(self.executeProgressBar)
 
+        self.elevationSlider = QSlider()
+        self.elevationSlider.setOrientation(Qt.Horizontal)
+        self.elevationSlider.setMinimum(0)
+        self.elevationSlider.setMaximum(180)
+        self.elevationSlider.setSingleStep(5)
+        self.elevationSlider.valueChanged.connect(self.elevation_slider_value_changed)
+        self.elevationSpinBox = QSpinBox()
+        self.elevationSpinBox.setMinimum(0)
+        self.elevationSpinBox.setMaximum(180)
+        self.elevationSpinBox.setSingleStep(5)
+        self.elevationSpinBox.valueChanged.connect(self.elevation_spinbox_value_changed)
+        self.azimuthSlider = QSlider()
+        self.azimuthSlider.setOrientation(Qt.Horizontal)
+        self.azimuthSlider.setMinimum(-180)
+        self.azimuthSlider.setMaximum(180)
+        self.azimuthSlider.setSingleStep(5)
+        self.azimuthSlider.valueChanged.connect(self.azimuth_slider_value_changed)
+        self.azimuthSpinBox = QSpinBox()
+        self.azimuthSpinBox.setMinimum(-180)
+        self.azimuthSpinBox.setMaximum(180)
+        self.azimuthSpinBox.setSingleStep(5)
+        self.azimuthSpinBox.valueChanged.connect(self.azimuth_spinbox_value_changed)
+        sliderLayout = QGridLayout()
+        sliderLayout.addWidget(self.elevationSlider, 0, 0, 1, 8)
+        sliderLayout.addWidget(QLabel("俯仰角"), 0, 8, 1, 1)
+        sliderLayout.addWidget(self.elevationSpinBox, 0, 9, 1, 1)
+        sliderLayout.addWidget(self.azimuthSlider, 1, 0, 1, 8)
+        sliderLayout.addWidget(QLabel("方位角"), 1, 8, 1, 1)
+        sliderLayout.addWidget(self.azimuthSpinBox, 1, 9, 1, 1)
+
         pointCloudDataScanButton = PointCloudDataScanButton()
         pointCloudDataScanButton.clicked.connect(self.point_cloud_data_scan)
         self.pointCloudDataDenoisingButton = PointCloudDataDenoisingButton()
-        self.pointCloudDataDenoisingButton.clicked.connect(self.point_cloud_data_denoising )
+        self.pointCloudDataDenoisingButton.clicked.connect(self.point_cloud_data_denoising)
         self.pointCloudDataDenoisingButton.setEnabled(False)
         pointCloudDataFittingButton = PointCloudDataFittingButton()
         pointCloudDataFittingButton.clicked.connect(self.point_cloud_data_fitting)
@@ -127,7 +154,9 @@ class LaserQtThirdWindow(QWidget):
         # 右半部分布局
         rightLayout = QVBoxLayout()
         rightLayout.setSpacing(23)
+        rightLayout.addLayout(rightTopLayout)
         rightLayout.addLayout(rightMiddleLayout)
+        rightLayout.addLayout(sliderLayout)
         rightLayout.addLayout(rightBottomLayout)
 
         # 全局布局
@@ -210,12 +239,12 @@ class LaserQtThirdWindow(QWidget):
              self.dll = ctypes.CDLL("LaserQt_Algorithm/C++_Linux/PointCloudAlgorithm.so")  # 创建动态链接库对象
 
         inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("gbk")))  # 创建C/C++可调用的字符串对象
-        
+
         removedNoise = self.dll.PointCloudKThreshlod(inpath)  # 获取噪声点数并初步去噪
         residualNoise = 0
 
         # 这里应提示是否进行平滑处理
-        self.dll.PointCloudDenoise();  # 调用C++函数 void PointCloudDenoise()
+        # self.dll.PointCloudDenoise();  # 调用C++函数 void PointCloudDenoise()
 
         self.put_info_into_log("点云数据去噪完毕...", 100)
 
@@ -260,6 +289,7 @@ class LaserQtThirdWindow(QWidget):
             inpath = ctypes.create_string_buffer(bytes(self.scanningDataFileName.encode("gbk")))  # 创建C/C++可调用的字符串对象，扫描文件路径
             outpath = ctypes.create_string_buffer(bytes(self.targetDataFileName.encode("gbk")))  # 目标文件路径
             isFilter = 1  # 需要进行判断，是否需要平滑？
+            self.dll = ctypes.CDLL("LaserQt_Algorithm/C++_Windows/PointCloudAlgorithm/Debug/PointCloudAlgorithm.dll")
             self.dll.PointCloudFitting(inpath, isFilter, outpath)  # 调用C++函数 void PointCloudFitting(const char* path, bool isFilter, const char* targetData)
             # fittingDataFileName = self.dll.PointCloudFitting(inpath, isFilter, outpath)
 
@@ -269,30 +299,41 @@ class LaserQtThirdWindow(QWidget):
 
         self.canvas.axes.plot([0], [0])
         self.canvas.axes.hold(True)
-        self.canvas.axes.set_xlim([0, 100])
-        self.canvas.axes.set_xticks(np.arange(0, 101, 10))
-        self.canvas.axes.set_ylim([0, 100])
-        self.canvas.axes.set_yticks(np.arange(0, 101, 10))
+        self.canvas.axes.set_xticks([])
+        self.canvas.axes.set_yticks([])
         self.canvas.axes.set_zticks([])
-        self.canvas.axes.set_xlabel("加工板水平方向", fontproperties=FONT, fontsize=9)
-        self.canvas.axes.set_ylabel("加工板垂直方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_xlabel("加工板X方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_ylabel("加工板Y方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_zlabel("加工板Z方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.grid(True, which="both") 
 
-        X = []; Y = []; self.Z1 = []  # X， Y的取值介于1～100？
-        X = [[_] * 100 for _ in range(1, 101)] 
-        Y = [_ for _ in range(1, 101)] * 100
+        self.X1 = []; self.Y1 = []; self.Z1 = []  # X， Y的取值介于1～100？
+        self.X2 = []; self.Y2 = []; self.Z2 = []
+        # X = [[_] * 100 for _ in range(1, 101)] 
+        # Y = [_ for _ in range(1, 101)] * 100
         with open(self.targetDataFileName, 'r') as fd:
             for line in fd:
                 dataCell = line.strip().split(',')
+                self.X1.append(float(dataCell[0]))
+                self.Y1.append(float(dataCell[1]))
                 self.Z1.append(float(dataCell[2]))
-        self.canvas.axes.scatter(X, Y, self.Z1, c='red')
-        self.Z2 = []
+        self.canvas.axes.scatter(self.X1, self.Y1, self.Z1, c='red')
         with open(fittingDataFileName, 'r') as fd:
             for line in fd:
                 dataCell = line.strip().split(',')
+                self.X2.append(float(dataCell[0]))
+                self.Y2.append(float(dataCell[1]))
                 self.Z2.append(float(dataCell[2]))
-        self.canvas.axes.scatter(X, Y, self.Z2, c='black')
+        self.canvas.axes.scatter(self.X2, self.Y2, self.Z2, c='black')
 
+        # 计算坐标极限值
+        # xs = list(itertools.chain.from_iterable([xi[0] for xi in x]))
+        # x_max, x_min = max(xs), min(xs)
+        # ys = list(itertools.chain.from_iterable([xi[1] for xi in x]))
+        # y_max, y_min = max(ys), min(ys)
+
+        # elevation 0 - 180  
+        # azimuth   -180 - 180
         self.canvas.draw()
         
         self.canvas.axes.hold(False)
@@ -305,3 +346,25 @@ class LaserQtThirdWindow(QWidget):
         self.logTextEdit.append("[ {} ] : {}".format(get_current_screen_time(), info))
         self.executeProgressBar.setValue(progressValue)
         qApp.processEvents()  # 强制刷新界面
+
+    def elevation_slider_value_changed(self):
+        pass
+        # self.elevationSpinBox.setValue(self.elevationSlider.value())
+        # self.canvas.axes.view_init(self.elevationSlider.value(), self.azimuthSlider.value())
+        # self.canvas.draw()
+
+    def elevation_spinbox_value_changed(self):
+        self.elevationSlider.setValue(self.elevationSpinBox.value())
+        self.canvas.axes.view_init(self.elevationSpinBox.value(), self.azimuthSpinBox.value())
+        self.canvas.draw()
+
+    def azimuth_slider_value_changed(self):
+        pass
+        # self.azimuthSpinBox.setValue(self.azimuthSlider.value())
+        # self.canvas.axes.view_init(self.elevationSlider.value(), self.azimuthSlider.value())
+        # self.canvas.draw()
+
+    def azimuth_spinbox_value_changed(self):
+        self.azimuthSlider.setValue(self.azimuthSpinBox.value())
+        self.canvas.axes.view_init(self.elevationSpinBox.value(), self.azimuthSpinBox.value())
+        self.canvas.draw()

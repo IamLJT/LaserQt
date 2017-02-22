@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 # ********************系统自带相关模块导入********************
 import os
-import time
 # ********************PyQt5相关模块导入********************
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QTranslator
+from PyQt5.QtGui import QImage
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import qApp
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtWidgets import QSplashScreen
 # ********************用户自定义相关模块导入********************
 from LaserQt_MainWindow import LaserQtMainWindow
 from LaserQt_SecondWindow import LaserQtSecondWindow
@@ -19,7 +22,7 @@ from LaserQt_Gui.LaserQt_Gui_Dialog import MessageDialog
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.12
+@date    : 2017.02.22
 '''
 
 class OverLoadClassMethod(object):
@@ -38,6 +41,9 @@ class OverLoadClassMethod(object):
     def laser_qt_second_window_prev_page(self):
         myLaserQtSecondWindow.hide()
         myLaserQtMainWindow.show()
+        myLaserQtMainWindow.directoryLineEdit.setText("")
+        myLaserQtMainWindow.dataTable.clearContents()
+        myLaserQtMainWindow.dataTable.setRowCount(0)
 
     # LaserQt_SecondWindow.next_page方法
     def laser_qt_second_window_next_page(self):
@@ -60,6 +66,10 @@ class OverLoadClassMethod(object):
         myLaserQtThirdWindow.hide()
         myLaserQtFourthWindow.show()
         # 将第三个窗口操作处理所产生的中间数据赋给第三个窗口，减少重复计算
+        myLaserQtFourthWindow.X1 = myLaserQtThirdWindow.X1
+        myLaserQtFourthWindow.X2 = myLaserQtThirdWindow.X2
+        myLaserQtFourthWindow.Y1 = myLaserQtThirdWindow.Y1
+        myLaserQtFourthWindow.Y2 = myLaserQtThirdWindow.Y2
         myLaserQtFourthWindow.Z1 = myLaserQtThirdWindow.Z1
         myLaserQtFourthWindow.Z2 = myLaserQtThirdWindow.Z2
         # 初始化第四个窗口的画布
@@ -104,8 +114,18 @@ class OverLoadClassMethod(object):
                     messageDialog.warning(myLaserQtFourthWindow, "消息提示对话框", "请先绘图！", messageDialog.Yes, messageDialog.Yes)
 
 if __name__ == '__main__':
+    import warnings
+    warnings.filterwarnings('ignore')
+
     import sys
     app = QApplication(sys.argv)
+    app.setApplicationDisplayName("v1.0");
+    app.setApplicationName("LaserQt");
+    app.setApplicationVersion("version 1.0");
+
+    splash = QSplashScreen(QPixmap.fromImage(QImage("LaserQt_Ui/logo_128px.png")))
+    splash.setDisabled(True);
+    splash.show();
 
     # 读取样式表
     file = open("LaserQt_Gui/LaserQt_Gui_Style.qss", 'r')
@@ -149,4 +169,6 @@ if __name__ == '__main__':
 
     # 显示第一个主窗口
     myLaserQtMainWindow.show()
+    splash.finish(myLaserQtMainWindow);
+
     sys.exit(app.exec_())

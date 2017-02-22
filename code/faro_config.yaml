@@ -1,11 +1,6 @@
 FAROSDKDemoApp:
     dir:
-        D:\QtWin32\FAROSDKDemoApp\Debug.x64\FAROSDKDemoApp
-
+        D:\FARO\FAROSDKDemoApp\Debug.x64\FAROSDKDemoApp.exe
 FAROOpenDemoApp:
     dir:
-        D:\QtWin32\FAROOpenDemoApp\x64\Debug\FAROOpenDemoApp
-
-FAROLSDemoScans:
-    dir:
-        D:\QtWin32\FAROLSDemoScans\Debug.x64\
+        D:\FARO\FAROOpenDemoApp\x64\Debug\FAROOpenDemoApp.exe

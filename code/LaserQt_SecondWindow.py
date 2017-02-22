@@ -2,10 +2,10 @@
 # ********************系统自带和第三方相关模块导入********************
 import json
 import queue  # 用于创建工作队列
+import socket # 用于socket通信的组件
 import threading  # 用于多线程处理
 import time
-import xlrd
-from socket import socket, AF_INET, SOCK_STREAM, SOCK_DGRAM  # 用于socket通信的组件
+import xlrd 
 # ********************PyQt5相关模块导入********************
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QFont
@@ -29,7 +29,7 @@ from LaserQt_Gui.LaserQt_Gui_Dialog import *
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.12
+@date    : 2017.02.22
 '''
 
 class LaserQtSecondWindow(QWidget):
@@ -43,7 +43,7 @@ class LaserQtSecondWindow(QWidget):
 
     def create_main_window(self):
         self.setWindowTitle("复杂曲率板加工系统")
-        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo_32px.png'))
         self.width, self.height = get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)
@@ -53,9 +53,6 @@ class LaserQtSecondWindow(QWidget):
     def set_widgets(self):
         self.canvas = DynamicCanvasForPathInfo() ## TODO
         canvasRegionLable = QLabel("数据可视化区域")
-        qFont = QFont()
-        qFont.setPointSize(12)
-        canvasRegionLable.setFont(qFont)
         # 左半部分中部布局
         leftMiddleLayout = QVBoxLayout()
         leftMiddleLayout.setSpacing(10)
@@ -80,11 +77,9 @@ class LaserQtSecondWindow(QWidget):
         leftLayout.addLayout(leftBottomLayout)
 
         tableRegionLable = QLabel("数据实时显示区域")
-        tableRegionLable.setFont(qFont)
         dataShowLayout = QGridLayout()
 
         dataShow01Lable = QLabel("加载文件")
-        dataShow01Lable.setFont(qFont)
         dataShowLayout.addWidget(dataShow01Lable, 0, 0)
         self.dataShow01Edit = QLineEdit()
         dataShowLayout.addWidget(self.dataShow01Edit, 0, 1)
@@ -93,42 +88,36 @@ class LaserQtSecondWindow(QWidget):
         dataShowLayout.addWidget(browseButton, 0, 2)
 
         dataShow02Lable = QLabel("路径编号")
-        dataShow02Lable.setFont(qFont)
         dataShowLayout.addWidget(dataShow02Lable, 1, 0)
         self.dataShow02Edit = QLineEdit()
         self.dataShow02Edit.setEnabled(False)
         dataShowLayout.addWidget(self.dataShow02Edit, 1, 1)
 
         dataShow03Lable = QLabel("起点坐标")
-        dataShow03Lable.setFont(qFont)
         dataShowLayout.addWidget(dataShow03Lable, 2, 0)
         self.dataShow03Edit = QLineEdit()
         self.dataShow03Edit.setEnabled(False)
         dataShowLayout.addWidget(self.dataShow03Edit, 2, 1)
 
         dataShow04Lable = QLabel("终点坐标")
-        dataShow04Lable.setFont(qFont)
         dataShowLayout.addWidget(dataShow04Lable, 3, 0)
         self.dataShow04Edit = QLineEdit()
         self.dataShow04Edit.setEnabled(False)
         dataShowLayout.addWidget(self.dataShow04Edit, 3, 1)
 
         dataShow05Lable = QLabel("下压量")
-        dataShow05Lable.setFont(qFont)
         dataShowLayout.addWidget(dataShow05Lable, 4, 0)
         self.dataShow05Edit = QLineEdit()
         self.dataShow05Edit.setEnabled(False)
         dataShowLayout.addWidget(self.dataShow05Edit, 4, 1)
 
         dataShow06Lable = QLabel("热参数")
-        dataShow06Lable.setFont(qFont)
         dataShowLayout.addWidget(dataShow06Lable, 5, 0)
         self.dataShow06Edit = QLineEdit()
         self.dataShow06Edit.setEnabled(False)
         dataShowLayout.addWidget(self.dataShow06Edit, 5, 1)
 
         dataShow07Lable = QLabel("加工时间")
-        dataShow07Lable.setFont(qFont)
         dataShowLayout.addWidget(dataShow07Lable, 6, 0)
         self.dataShow07Edit = QLineEdit()
         self.dataShow07Edit.setEnabled(False)
@@ -200,7 +189,7 @@ class LaserQtSecondWindow(QWidget):
         numOfColums = table.ncols
         for i in range(numOfRows):
             dataCell = []
-            dataCell.append('0x1')
+            dataCell.append('0x2')
             dataCell.append(i + 1)
             for j in range(numOfColums):
                 value = table.cell(i, j).value
@@ -235,16 +224,16 @@ class LaserQtSecondWindow(QWidget):
 
             self.canvas.axes.plot()
             self.canvas.axes.hold(True)
-            self.canvas.axes.set_xlim([0, 2])
-            self.canvas.axes.set_xticks(np.arange(0, 22, 2)/10)
-            self.canvas.axes.set_ylim([0, 1])
-            self.canvas.axes.set_yticks(np.arange(0, 11)/10)
+            # self.canvas.axes.set_xlim([0, 2])
+            # self.canvas.axes.set_xticks(np.arange(0, 22, 2)/10)
+            # self.canvas.axes.set_ylim([0, 1])
+            # self.canvas.axes.set_yticks(np.arange(0, 11)/10)
             self.canvas.axes.set_title("加工路径动态图", fontproperties=FONT, fontsize=14)
             self.canvas.axes.set_xlabel("X - 板长方向（m）", fontproperties=FONT, fontsize=9)
             self.canvas.axes.set_ylabel("Y - 板宽方向（m）", fontproperties=FONT, fontsize=9)
             self.canvas.axes.grid(True, which="both")
 
-            self.udpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # IPv4 + UDP
+            self.udpSocketClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # IPv4 + UDP
             while (not self.isStop) and (not self.myTaskQueue.empty()):
                 dataCell = self.myTaskQueue.get()
                 self.dataShow02Edit.setText(str(dataCell[1]))
@@ -252,22 +241,24 @@ class LaserQtSecondWindow(QWidget):
                 self.dataShow04Edit.setText('( ' + str(dataCell[4]) + ', ' + str(dataCell[5]) + ' )')
                 self.dataShow05Edit.setText(str(dataCell[6]))
                 self.dataShow06Edit.setText(str(dataCell[7]))
-                self.udpSocket.sendto(bytes(json.dumps(dataCell), "utf-8"), (self.HOST, self.PORT))  # 发送的是json格式的列表数据
+                self.udpSocketClient.sendto(bytes(json.dumps(dataCell), "utf-8"), (self.HOST, self.PORT))  # 发送的是json格式的列表数据
                 self.currentDataCell = dataCell
 
                 self.endX = 0.0
                 self.endY = 0.0
                 self.prevX = dataCell[2]
                 self.prevY = dataCell[3]
-                while (not self.isStop) and (not (self.endX == self.currentDataCell[4] and self.endY == self.currentDataCell[5])):  # 设置停止标志，返回的坐标等于发送的终点坐标，还是两坐标相应的X、Y值满足一个容差
-                    self.dataShow07Edit.setText(self.time)  # 时间显示好像有点不靠谱！！！
-                    dataRecv = json.loads(str(sock.recv(1024), "utf-8"))
-                    self.endX = _x = dataRecv[1]
-                    self.endY = _y = dataRecv[2]
-                    self.plot_the_dynamic_data(_x, _y)
-                    qApp.processEvents()  # 强制刷新界面
+                # while (not self.isStop) and (not (self.endX == self.currentDataCell[4] and self.endY == self.currentDataCell[5])):  # 设置停止标志，返回的坐标等于发送的终点坐标，还是两坐标相应的X、Y值满足一个容差
+                self.dataShow07Edit.setText(self.time)  # 时间显示好像有点不靠谱！！！
+                time.sleep(1)
+                dataRecv = json.loads(str(self.udpSocketClient.recv(1024), "utf-8"))
+                self.endX = _x = dataRecv[2]
+                self.endY = _y = dataRecv[3]
+                self.plot_the_dynamic_data(_x, _y)
+                qApp.processEvents()  # 强制刷新界面
 
             self.timer.stop()
+            self.udpSocketClient.close()
             # --- 加工结束 ---
 
             if self.myTaskQueue.empty() == True:
@@ -294,13 +285,14 @@ class LaserQtSecondWindow(QWidget):
         self.timer.start(1000) ## TODO
         
         while (not self.isStop) and (not self.myTaskQueue.empty()):
-            while (not self.isStop) and (not (self.endX == self.currentDataCell[4] and self.endY == self.currentDataCell[5])):  # 设置停止标志，返回的坐标等于发送的终点坐标，还是两坐标相应的X、Y值满足一个容差
-                self.dataShow07Edit.setText(self.time)  # 时间显示好像有点不靠谱！！！
-                dataRecv = json.loads(str(sock.recv(1024), "utf-8"))
-                self.endX = _x = dataRecv[1]
-                self.endY = _y = dataRecv[2]
-                self.plot_the_dynamic_data(_x, _y)
-                qApp.processEvents()  # 强制刷新界面
+            # while (not self.isStop) and (not (self.endX == self.currentDataCell[4] and self.endY == self.currentDataCell[5])):  # 设置停止标志，返回的坐标等于发送的终点坐标，还是两坐标相应的X、Y值满足一个容差
+            self.dataShow07Edit.setText(self.time)  # 时间显示好像有点不靠谱！！！
+            time.sleep(1)
+            dataRecv = json.loads(str(self.udpSocketClient.recv(1024), "utf-8"))
+            self.endX = _x = dataRecv[1]
+            self.endY = _y = dataRecv[2]
+            self.plot_the_dynamic_data(_x, _y)
+            qApp.processEvents()  # 强制刷新界面
 
             dataCell = self.myTaskQueue.get()
             self.dataShow02Edit.setText(str(dataCell[1]))
@@ -308,7 +300,7 @@ class LaserQtSecondWindow(QWidget):
             self.dataShow04Edit.setText('( ' + str(dataCell[4]) + ', ' + str(dataCell[5]) + ' )')
             self.dataShow05Edit.setText(str(dataCell[6]))
             self.dataShow06Edit.setText(str(dataCell[7]))
-            self.udpSocket.sendto(bytes(json.dumps(dataCell), "utf-8"), (self.HOST, self.PORT))  # 发送的是json格式的列表数据
+            self.udpSocketClient.sendto(bytes(json.dumps(dataCell), "utf-8"), (self.HOST, self.PORT))  # 发送的是json格式的列表数据
             self.currentDataCell = dataCell
         
         self.timer.stop()
@@ -339,9 +331,10 @@ class LaserQtSecondWindow(QWidget):
     # 动态得绘制加工数据
     def plot_the_dynamic_data(self, x, y):
         if self.currentDataCell[8] == 1:
-            self.canvas.axes.plot([self.prevX, x], [self.prevY, y], 'r', label="正面加工路径")
+            # self.canvas.axes.plot([self.prevX, x], [self.prevY, y], 'r', label="正面加工路径")
+            self.canvas.axes.plot(x, y, 'r.', label="正面加工路径")
         else:
-            self.canvas.axes.plot([self.prevX, x], [self.prevY, y], 'b', label="反面加工路径")
+            self.canvas.axes.plot(x, y, 'b.', label="反面加工路径")
         self.canvas.draw()
 
         self.prevX = x
