@@ -98,7 +98,7 @@ public:
 	bool   lu(int32_t *idx, FLOAT &d, FLOAT eps=1e-20);        // replace *this by lower upper decomposition
 	void   svd(Matrix &U,Matrix &W,Matrix &V);                 // singular value decomposition *this = U*diag(W)*V^T
 
-	static Matrix ArrayToMatrix(double* M, int m, int n, int dim);
+	static Matrix ArrayToMatrix(double* M, int num, int dim);
 	static double* MatrixToArray(const Matrix M, const int dim);
 
 	// print matrix to stream

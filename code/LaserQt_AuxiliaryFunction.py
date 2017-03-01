@@ -13,7 +13,7 @@ import time
 # 检查当前操作系统版本信息并依此设置主路径
 def check_os():
     if platform.system() == "Windows":
-        return "C:/"
+        return "D:/LaserQt-master/code/LaserQt_Material"
     elif platform.system() == "Linux":
         import getpass
         user = getpass.getuser()

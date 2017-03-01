@@ -26,7 +26,7 @@ class LaserQtImageWindow(QWidget):
 
     def create_main_window(self):
         self.setWindowTitle("复杂曲率板加工系统")
-        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo_32px.png'))
         self.get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)

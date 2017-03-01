@@ -2,9 +2,8 @@ import json
 import socket
 import sys
 
-HOST, PORT = "localhost", 9999
+HOST, PORT = "localhost", 2000
 data = ['0x01', 1, 1.2, 1.2, 2.4, 2.4, 700, 350, 0]
-
 
 # SOCK_DGRAM is the socket type to use for UDP sockets
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

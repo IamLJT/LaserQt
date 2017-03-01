@@ -1,3 +1,4 @@
+import time
 import json
 import socketserver
 
@@ -12,12 +13,15 @@ class MyUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         data = self.request[0].strip()
         socket = self.request[1]
-        print("{} wrote:".format(self.client_address[0]))
-        print(data)
+        print("[+] {} wrote:".format(self.client_address[0]))
+        print("[{}] {}".format(json.loads(data.decode())[1], data.decode()))
+        time.sleep(1)
         socket.sendto(data, self.client_address)
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
+    HOST, PORT = "localhost", 2000
     server = socketserver.UDPServer((HOST, PORT), MyUDPHandler)
+    print("[+] Create active UDP server")
+    print("[+] Ready for communication...")
     server.serve_forever()
     

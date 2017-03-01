@@ -36,7 +36,7 @@ class LaserQtFourthWindow(QWidget):
 
     def create_main_window(self):
         self.setWindowTitle("复杂曲率板加工系统")
-        self.setWindowIcon(QIcon('LaserQt_Ui/logo.png'))
+        self.setWindowIcon(QIcon('LaserQt_Ui/logo_32px.png'))
         self.width, self.height = get_current_screen_size()
         self.setMinimumSize(self.width, self.height)
         self.setMaximumSize(self.width, self.height)
@@ -46,9 +46,6 @@ class LaserQtFourthWindow(QWidget):
     def set_widgets(self):
         self.canvas = Static3DCanvasForPointCloud() ## TODO
         canvasRegionLable = QLabel("点云拟合三维可视化")
-        qFont = QFont()
-        qFont.setPointSize(12)
-        canvasRegionLable.setFont(qFont)
         # 左半部分中部布局
         leftMiddleLayout = QVBoxLayout()
         leftMiddleLayout.setSpacing(10)
@@ -71,7 +68,6 @@ class LaserQtFourthWindow(QWidget):
         leftLayout.addLayout(leftBottomLayout)
 
         tableRegionLable = QLabel("误差曲线显示区域")
-        tableRegionLable.setFont(qFont)
         self.canvas01 = StaticCanvasForErrorCurve01()
         self.canvas02 = StaticCanvasForErrorCurve02()
         self.canvas03 = StaticCanvasForErrorCurve03()
@@ -93,16 +89,12 @@ class LaserQtFourthWindow(QWidget):
         rightTopLayout.addLayout(dataShowLayout)
 
         XStartLable = QLabel("起点X坐标")
-        XStartLable.setFont(qFont)
         self.XStartLineEdit = QLineEdit()
         YStartLable = QLabel("起点Y坐标")
-        YStartLable.setFont(qFont)
         self.YStartLineEdit = QLineEdit()
         XEndLable = QLabel("终点X坐标")
-        XEndLable.setFont(qFont)
         self.XEndLineEdit = QLineEdit()
         YEndLable = QLabel("终点Y坐标")
-        YEndLable.setFont(qFont)
         self.YEndLineEdit = QLineEdit()
         # 右半部分中部布局
         rightMiddleLayout = QGridLayout()
@@ -151,22 +143,17 @@ class LaserQtFourthWindow(QWidget):
     def init_the_canvas(self):
         self.canvas.axes.plot([0], [0])
         self.canvas.axes.hold(True)
-        self.canvas.axes.set_xlim([0, 100])
-        self.canvas.axes.set_xticks(np.arange(0, 101, 10))
-        self.canvas.axes.set_ylim([0, 100])
-        self.canvas.axes.set_yticks(np.arange(0, 101, 10))
+        self.canvas.axes.set_xticks([])
+        self.canvas.axes.set_yticks([])
         self.canvas.axes.set_zticks([])
-        self.canvas.axes.set_xlabel("加工板水平方向", fontproperties=FONT, fontsize=9)
-        self.canvas.axes.set_ylabel("加工板垂直方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_xlabel("加工板X方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_ylabel("加工板Y方向", fontproperties=FONT, fontsize=9)
+        self.canvas.axes.set_zlabel("加工板Z方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.grid(True, which="both")
 
-        X = []; Y = [];  # X， Y的取值介于1～100？
-        X = [[_] * 100 for _ in range(1, 101)] 
-        Y = [_ for _ in range(1, 101)] * 100
-
         # myLaserQtSub02.Z1 和  myLaserQtSub02.Z2 哪个是被减数 哪个是减数
-        self.canvas.axes.scatter(X, Y, self.Z1, c='red')
-        self.canvas.axes.scatter(X, Y, self.Z2, c='black')
+        self.canvas.axes.scatter(self.X1, self.Y1, self.Z1, c='red')
+        self.canvas.axes.scatter(self.X2, self.Y2, self.Z2, c='black')
 
         self.canvas.draw()
         self.canvas.axes.hold(False)
@@ -175,11 +162,11 @@ class LaserQtFourthWindow(QWidget):
             shutil.rmtree("LaserQt_Temp")
         os.mkdir("LaserQt_Temp")
         
-        self.horizontal_direction_1_3_error_curve()
-        self.horizontal_direction_1_2_error_curve()
-        self.horizontal_direction_2_3_error_curve()
-        self.vertical_direction_1_3_error_curve()
-        self.vertical_direction_2_3_error_curve() 
+        # self.horizontal_direction_1_3_error_curve()
+        # self.horizontal_direction_1_2_error_curve()
+        # self.horizontal_direction_2_3_error_curve()
+        # self.vertical_direction_1_3_error_curve()
+        # self.vertical_direction_2_3_error_curve() 
         
     def horizontal_direction_1_3_error_curve(self):
         from matplotlib.pyplot import savefig

@@ -17,7 +17,7 @@ QMessageBox.about       关于框
 @author  : Zhou Jian
 @email   : zhoujian@hust.edu.cn
 @version : V1.0
-@date    : 2016.11.14
+@date    : 2017.02.22
 '''
 
 class BaseButton(QPushButton):

@@ -1,17 +1,11 @@
 LaserQtSystem:
     ip:
-        192.168.1.101
+        localhost
     port:
         2000
 
 LaserProcessMachine:
     ip:
-        192.168.1.102
-    port:
-        2000
-
-LaserScanner:
-    ip:
-        192.168.1.103
+        localhost
     port:
         2000
