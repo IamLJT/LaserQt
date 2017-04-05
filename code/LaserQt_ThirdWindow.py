@@ -2,7 +2,9 @@
 # ********************系统自带相关模块导入********************
 import ctypes  # 用于调用C++动态链接库
 import os
-# from ctypes import *
+
+import numpy as np
+import pandas as pd
 # ********************PyQt5相关模块导入********************
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import Qt
@@ -307,30 +309,18 @@ class LaserQtThirdWindow(QWidget):
         self.canvas.axes.set_zlabel("加工板Z方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.grid(True, which="both") 
 
-        self.X1 = []; self.Y1 = []; self.Z1 = []  # X， Y的取值介于1～100？
-        self.X2 = []; self.Y2 = []; self.Z2 = []
-        # X = [[_] * 100 for _ in range(1, 101)] 
-        # Y = [_ for _ in range(1, 101)] * 100
-        with open(self.targetDataFileName, 'r') as fd:
-            for line in fd:
-                dataCell = line.strip().split(',')
-                self.X1.append(float(dataCell[0]))
-                self.Y1.append(float(dataCell[1]))
-                self.Z1.append(float(dataCell[2]))
-        self.canvas.axes.scatter(self.X1, self.Y1, self.Z1, c='red')
-        with open(fittingDataFileName, 'r') as fd:
-            for line in fd:
-                dataCell = line.strip().split(',')
-                self.X2.append(float(dataCell[0]))
-                self.Y2.append(float(dataCell[1]))
-                self.Z2.append(float(dataCell[2]))
-        self.canvas.axes.scatter(self.X2, self.Y2, self.Z2, c='black')
+        dataframe = pd.read_csv(self.targetDataFileName, header=None)
+        dataframe.dropna()
+        self.matrix1 = dataframe.as_matrix()
+        self.canvas.axes.scatter(self.matrix1[::10, 0], self.matrix1[::10, 1], self.matrix1[::10, 2], c='red')
+        # dataframe = pd.read_csv(fittingDataFileName, header=None)
+        # dataframe.dropna()
+        # self.matrix2 = dataframe.as_matrix()
+        # self.canvas.axes.scatter(self.matrix2[::10, 0], self.matrix2[::10, 1], self.matrix2[::10, 2], c='black')
 
-        # 计算坐标极限值
-        # xs = list(itertools.chain.from_iterable([xi[0] for xi in x]))
-        # x_max, x_min = max(xs), min(xs)
-        # ys = list(itertools.chain.from_iterable([xi[1] for xi in x]))
-        # y_max, y_min = max(ys), min(ys)
+        self.canvas.axes.set_xlim([np.min(self.matrix1[:, 0]), np.max(self.matrix1[:, 0])])
+        self.canvas.axes.set_ylim([np.min(self.matrix1[:, 1]), np.max(self.matrix1[:, 1])])
+        self.canvas.axes.set_zlim([np.min(self.matrix1[:, 2]), np.max(self.matrix1[:, 2])])
 
         # elevation 0 - 180  
         # azimuth   -180 - 180

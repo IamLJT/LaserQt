@@ -3,6 +3,8 @@
 import os
 import math
 import shutil
+
+import numpy as np
 # ********************PyQt5相关模块导入********************
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QIcon
@@ -151,9 +153,17 @@ class LaserQtFourthWindow(QWidget):
         self.canvas.axes.set_zlabel("加工板Z方向", fontproperties=FONT, fontsize=9)
         self.canvas.axes.grid(True, which="both")
 
-        # myLaserQtSub02.Z1 和  myLaserQtSub02.Z2 哪个是被减数 哪个是减数
-        self.canvas.axes.scatter(self.X1, self.Y1, self.Z1, c='red')
-        self.canvas.axes.scatter(self.X2, self.Y2, self.Z2, c='black')
+        self.canvas.axes.scatter(self.matrix1[::10, 0], self.matrix1[::10, 1], self.matrix1[::10, 2], c='red')
+        # self.canvas.axes.scatter(self.matrix2[::10, 0], self.matrix2[::10, 1], self.matrix2[::10, 2], c='black')
+
+        x_min = np.min(self.matrix1[:, 0])
+        x_max = np.max(self.matrix1[:, 0])
+        y_min = np.min(self.matrix1[:, 1])
+        y_max = np.max(self.matrix1[:, 1])
+
+        self.canvas.axes.set_xlim([x_min, x_max])
+        self.canvas.axes.set_ylim([y_min, y_max])
+        self.canvas.axes.set_zlim([np.min(self.matrix1[:, 2]), np.max(self.matrix1[:, 2])])
 
         self.canvas.draw()
         self.canvas.axes.hold(False)
@@ -162,185 +172,121 @@ class LaserQtFourthWindow(QWidget):
             shutil.rmtree("LaserQt_Temp")
         os.mkdir("LaserQt_Temp")
         
-        # self.horizontal_direction_1_3_error_curve()
-        # self.horizontal_direction_1_2_error_curve()
-        # self.horizontal_direction_2_3_error_curve()
-        # self.vertical_direction_1_3_error_curve()
-        # self.vertical_direction_2_3_error_curve() 
+        self.horizontal_direction_1_3_error_curve(x_min, x_max)
+        # self.horizontal_direction_1_2_error_curve(x_min, x_max)
+        # self.horizontal_direction_2_3_error_curve(x_min, x_max)
+        # self.vertical_direction_1_3_error_curve(y_min, y_max)
+        # self.vertical_direction_2_3_error_curve(y_min, y_max) 
         
-    def horizontal_direction_1_3_error_curve(self):
-        from matplotlib.pyplot import savefig
-        error = [] 
-        for i in range(1, 101):
-            error.append(self.Z1[100 * 32 + i] - self.Z2[100 * 32 + i])
+    def horizontal_direction_1_3_error_curve(self, min, max):
+        X = self.matrix1[:, 0]
+        Z1 = self.matrix1[:, 2]
+        Z2 = self.matrix2[:, 2]
+
+        cut_off_line = (max - min) / 3 + min
+        index = np.where(np.abs(X - cut_off_line) < 0.0005)[0]
+        error = np.empty(shape=(index.shape[0], ), dtype='float32')
+        for i in range(index.shape[0]):
+            error[i] = Z1[index[i]] - Z2[index[i]]
 
         self.canvas01.axes.plot()
         self.canvas01.axes.hold(True)
-        self.canvas01.axes.set_xlim([0, 100])
-        self.canvas01.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas01.axes.set_xticks([])
+        self.canvas01.axes.set_ylim([np.min(error), np.max(error)])
         self.canvas01.axes.set_title("加工板水平方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas01.axes.grid(True, which="both")
-        self.canvas01.axes.plot(range(1, 101), error, 'r')
+        self.canvas01.axes.plot(np.arange(error.shape[0]), error, 'r')
         self.canvas01.print_figure("LaserQt_Temp/horizontal_direction_1_3_error_curve.png")
         self.canvas01.draw()
         self.canvas01.axes.hold(False)
 
-    def horizontal_direction_1_2_error_curve(self):
-        error = [] 
-        for i in range(1, 101):
-            error.append(self.Z1[100 * 49 + i] - self.Z2[100 * 49 + i])
+    def horizontal_direction_1_2_error_curve(self, min, max):
+        X = self.matrix1[:, 0]
+        Z1 = self.matrix1[:, 2]
+        Z2 = self.matrix2[:, 2]
+
+        cut_off_line = (max - min) / 2 + min
+        index = np.where(np.abs(X - cut_off_line) < 0.0005)[0]
+        error = np.empty(shape=(index.shape[0], ), dtype='float32')
+        for i in range(index.shape[0]):
+            error[i] = Z1[index[i]] - Z2[index[i]]
 
         self.canvas02.axes.plot()
         self.canvas02.axes.hold(True)
-        self.canvas02.axes.set_xlim([0, 100])
-        self.canvas02.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas02.axes.set_xticks([])
+        self.canvas02.axes.set_ylim([np.min(error), np.max(error)])
         self.canvas02.axes.set_title("加工板水平方向1/2处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas02.axes.grid(True, which="both")
-        self.canvas02.axes.plot(range(1, 101), error, 'r')
+        self.canvas02.axes.plot(np.arange(error.shape[0]), error, 'r')
         self.canvas02.print_figure("LaserQt_Temp/horizontal_direction_1_2_error_curve.png")
         self.canvas02.draw()
         self.canvas02.axes.hold(False)
 
-    def horizontal_direction_2_3_error_curve(self):
-        error = [] 
-        for i in range(1, 101):
-            error.append(self.Z1[100 * 65 + i] - self.Z2[100 * 65 + i])
+    def horizontal_direction_2_3_error_curve(self, min, max):
+        X = self.matrix1[:, 0]
+        Z1 = self.matrix1[:, 2]
+        Z2 = self.matrix2[:, 2]
+
+        cut_off_line = (max - min) / 3 * 2 + min
+        index = np.where(np.abs(X - cut_off_line) < 0.0005)[0]
+        error = np.empty(shape=(index.shape[0], ), dtype='float32')
+        for i in range(index.shape[0]):
+            error[i] = Z1[index[i]] - Z2[index[i]]
 
         self.canvas03.axes.plot()
         self.canvas03.axes.hold(True)
-        self.canvas03.axes.set_xlim([0, 100])
-        self.canvas03.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas03.axes.set_xticks([])
+        self.canvas03.axes.set_ylim([np.min(error), np.max(error)])
         self.canvas03.axes.set_title("加工板水平方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas03.axes.grid(True, which="both")
-        self.canvas03.axes.plot(range(1, 101), error, 'r')
+        self.canvas03.axes.plot(np.arange(error.shape[0]), error, 'r')
         self.canvas03.print_figure("LaserQt_Temp/horizontal_direction_2_3_error_curve.png")
         self.canvas03.draw()
         self.canvas03.axes.hold(False)
 
-    def vertical_direction_1_3_error_curve(self):
-        error = [] 
-        for i in range(100):
-            error.append(self.Z1[100 * i + 33] - self.Z2[100 * i + 33])
+    def vertical_direction_1_3_error_curve(self, min, max):
+        Y = self.matrix1[:, 1]
+        Z1 = self.matrix1[:, 2]
+        Z2 = self.matrix2[:, 2]
+
+        cut_off_line = (max - min) / 3 + min
+        index = np.where(np.abs(Y - cut_off_line) < 0.0005)[0]
+        error = np.empty(shape=(index.shape[0], ), dtype='float32')
+        for i in range(index.shape[0]):
+            error[i] = Z1[index[i]] - Z2[index[i]]
 
         self.canvas04.axes.plot()
         self.canvas04.axes.hold(True)
-        self.canvas04.axes.set_xlim([0, 100])
-        self.canvas04.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas04.axes.set_xticks([])
+        self.canvas04.axes.set_ylim([np.min(error), np.max(error)])
         self.canvas04.axes.set_title("加工板垂直方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas04.axes.grid(True, which="both")
-        self.canvas04.axes.plot(range(1, 101), error, 'r')
+        self.canvas04.axes.plot(np.arange(error.shape[0]), error, 'r')
         self.canvas04.print_figure("LaserQt_Temp/vertical_direction_1_3_error_curve.png")
         self.canvas04.draw()
         self.canvas04.axes.hold(False)
 
-    def vertical_direction_2_3_error_curve(self):
-        error = [] 
-        for i in range(100):
-            error.append(self.Z1[100 * i + 66] - self.Z2[100 * i + 66])
+    def vertical_direction_2_3_error_curve(self, min, max):
+        Y = self.matrix1[:, 1]
+        Z1 = self.matrix1[:, 2]
+        Z2 = self.matrix2[:, 2]
+
+        cut_off_line = (max - min) / 3 * 2 + min
+        index = np.where(np.abs(Y - cut_off_line) < 0.0005)[0]
+        error = np.empty(shape=(index.shape[0], ), dtype='float32')
+        for i in range(index.shape[0]):
+            error[i] = Z1[index[i]] - Z2[index[i]]
 
         self.canvas05.axes.plot()
         self.canvas05.axes.hold(True)
-        self.canvas05.axes.set_xlim([0, 100])
-        self.canvas05.axes.set_xticks(np.arange(0, 101, 10))
+        self.canvas05.axes.set_xticks([])
+        self.canvas05.axes.set_ylim([np.min(error), np.max(error)])
         self.canvas05.axes.set_title("加工板垂直方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.canvas05.axes.grid(True, which="both")
-        self.canvas05.axes.plot(range(1, 101), error, 'r')
+        self.canvas05.axes.plot(np.arange(error.shape[0]), error, 'r')
         self.canvas05.print_figure("LaserQt_Temp/vertical_direction_2_3_error_curve.png")
         self.canvas05.draw()
         self.canvas05.axes.hold(False)
 
     def between_two_arbitrary_point_error_curve(self):
-        x1 = int(self.XStartLineEdit.text().strip())
-        y1 = int(self.YStartLineEdit.text().strip())
-        x2 = int(self.XEndLineEdit.text().strip())
-        y2 = int(self.YEndLineEdit.text().strip())
-
-        error = []
-        dots_index = []
-
-        if x1 == x2 or y1 == y2:
-            if x1 == x2:
-                _max = max(y1, y2)
-                _min = min(y1, y2)
-                for i in range(_min, _max + 1):
-                    error.append(self.Z1[100 * (x1 - 1) + i] - self.Z2[100 * (x1 - 1) + i])
-            elif y1 == y2:
-                _max = max(x1, x2)
-                _min = min(x1, x2)
-                for i in range(_min, _max + 1):
-                    error.append(self.Z1[100 * (i - 1) + y1] - self.Z2[100 * (i - 1) + y1])
-            self.canvas06.axes.plot()
-            self.canvas06.axes.hold(True)
-            self.canvas06.axes.set_xlim([_min, _max + 1])
-            self.canvas06.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
-            self.canvas06.axes.grid(True, which="both")
-            self.canvas06.axes.plot(range(_min, _max + 1), error, 'r')
-            self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
-            self.canvas06.draw()
-            self.canvas06.axes.hold(False)
-        else:
-            if x1 < x2:
-                x_start = x1; x_end = x2
-                y_start = y1; y_end = y2
-            elif x1 > x2:
-                x_start = x2; x_end = x1
-                y_start = y2; y_end = y1
-            k = (y_end - y_start) / (x_end - x_start) # 两点连线的斜率
-            if abs(k) == 1:
-                for i in range(x_start, x_end + 1):
-                        error.append(self.Z1[100 * (i - 1) + i] - self.Z2[100 * (i - 1) + i])
-                self.canvas06.axes.plot()
-                self.canvas06.axes.hold(True)
-                self.canvas06.axes.set_xlim([x_start, x_end + 1])
-                self.canvas06.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
-                self.canvas06.axes.grid(True, which="both")
-                self.canvas06.axes.plot(range(x_start, x_end + 1), error, 'r')
-                self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
-                self.canvas06.draw()
-                self.canvas06.axes.hold(False)
-            else:
-                if abs(k) > 1:
-                    error.append(self.Z1[100 * (x_start - 1) + y_start] - self.Z2[100 * (x_start - 1) + y_start])
-                    for i in range(y_start + 1, y_end):
-                        _x = (1/k) * (i - y_start) + x_start
-                        _x_ceil = math.ceil(_x); _x_floor = math.floor(_x)
-                        if _x_ceil == _x_floor:
-                            error.append(self.Z1[100 * (_x_ceil - 1) + i] - self.Z2[100 * (_x_ceil - 1) + i])
-                        else:
-                            _error_up = self.Z1[100 * (_x_ceil - 1) + i] - self.Z2[100 * (_x_ceil - 1) + i]
-                            _error_down = self.Z1[100 * (_x_floor - 1) + i] - self.Z2[100 * (_x_floor - 1) + i]
-                            _error = int(_error_up * (_x_ceil - _x)/(_x_ceil - _x_floor) + _error_down * (_x - _x_floor)/(_x_ceil - _x_floor))
-                            error.append(_error)
-                    error.append(self.Z1[100 * (x_end - 1) + y_end] - self.Z2[100 * (x_end - 1) + y_end])
-                    self.canvas06.axes.plot()
-                    self.canvas06.axes.hold(True)
-                    self.canvas06.axes.set_xlim([y_start, y_end + 1])
-                    self.canvas06.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
-                    self.canvas06.axes.grid(True, which="both")
-                    self.canvas06.axes.plot(range(y_start, y_end + 1), error, 'r')
-                    self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
-                    self.canvas06.draw()
-                    self.canvas06.axes.hold(False)
-                elif abs(k) < 1:
-                    error.append(self.Z1[100 * (x_start - 1) + y_start] - self.Z2[100 * (x_start - 1) + y_start])
-                    for i in range(x_start + 1, x_end):
-                        _y = k * (i - x_start) + y_start
-                        _y_ceil = math.ceil(_y); _y_floor = math.floor(_y)
-                        if _y_ceil == _y_floor:
-                            error.append(self.Z1[100 * (i - 1) + _y_ceil] - self.Z2[100 * (i - 1) + _y_ceil])
-                        else:
-                            _error_up = self.Z1[100 * (i - 1) + _y_ceil] - self.Z2[100 * (i - 1) + _y_ceil]
-                            _error_down = self.Z1[100 * (i - 1) + _y_floor] - self.Z2[100 * (i - 1) + _y_floor]
-                            _error = int(_error_up * (_y_ceil - _y)/(_y_ceil - _y_floor) + _error_down * (_y - _y_floor)/(_y_ceil - _y_floor))
-                            error.append(_error)
-                    error.append(self.Z1[100 * (x_end - 1) + y_end] - self.Z2[100 * (x_end - 1) + y_end])
-                    self.canvas06.axes.plot()
-                    self.canvas06.axes.hold(True)
-                    self.canvas06.axes.set_xlim([x_start, x_end + 1])
-                    self.canvas06.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
-                    self.canvas06.axes.grid(True, which="both")
-                    self.canvas06.axes.plot(range(x_start, x_end + 1), error, 'r')
-                    self.canvas06.print_figure("LaserQt_Temp/between_two_arbitrary_point_error_curve.png")
-                    self.canvas06.draw()
-                    self.canvas06.axes.hold(False)
-                    
+        pass

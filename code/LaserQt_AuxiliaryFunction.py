@@ -28,8 +28,8 @@ def return_os():
 
 # 获取当前屏幕尺寸
 def get_current_screen_size():
-    width = 1440
-    height = 720
+    width = 1280
+    height = 640
     return (width, height)
 
 # 获取当前系统时间

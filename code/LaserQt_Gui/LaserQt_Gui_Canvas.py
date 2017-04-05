@@ -112,6 +112,8 @@ class StaticCanvasForErrorCurve01(BaseCanvas):
         fig.set_facecolor("white")
         fig.set_edgecolor("black")
         self.axes = fig.add_subplot(111)
+        self.axes.set_xticks([])
+        self.axes.set_yticks([])
         self.axes.set_title("加工板水平方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.axes.grid(True, which="both")
         # We want the axes cleared every time plot() is called
@@ -131,6 +133,8 @@ class StaticCanvasForErrorCurve02(BaseCanvas):
         fig.set_facecolor("white")
         fig.set_edgecolor("black")
         self.axes = fig.add_subplot(111)
+        self.axes.set_xticks([])
+        self.axes.set_yticks([])
         self.axes.set_title("加工板水平方向1/2处误差曲线图", fontproperties=FONT, fontsize=14)
         self.axes.grid(True, which="both")
         # We want the axes cleared every time plot() is called
@@ -150,6 +154,8 @@ class StaticCanvasForErrorCurve03(BaseCanvas):
         fig.set_facecolor("white")
         fig.set_edgecolor("black")
         self.axes = fig.add_subplot(111)
+        self.axes.set_xticks([])
+        self.axes.set_yticks([])
         self.axes.set_title("加工板水平方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.axes.grid(True, which="both")
         # We want the axes cleared every time plot() is called
@@ -169,6 +175,8 @@ class StaticCanvasForErrorCurve04(BaseCanvas):
         fig.set_facecolor("white")
         fig.set_edgecolor("black")
         self.axes = fig.add_subplot(111)
+        self.axes.set_xticks([])
+        self.axes.set_yticks([])
         self.axes.set_title("加工板垂直方向1/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.axes.grid(True, which="both")
         # We want the axes cleared every time plot() is called
@@ -188,6 +196,8 @@ class StaticCanvasForErrorCurve05(BaseCanvas):
         fig.set_facecolor("white")
         fig.set_edgecolor("black")
         self.axes = fig.add_subplot(111)
+        self.axes.set_xticks([])
+        self.axes.set_yticks([])
         self.axes.set_title("加工板垂直方向2/3处误差曲线图", fontproperties=FONT, fontsize=14)
         self.axes.grid(True, which="both")
         # We want the axes cleared every time plot() is called
@@ -207,6 +217,8 @@ class StaticCanvasForErrorCurve06(BaseCanvas):
         fig.set_facecolor("white")
         fig.set_edgecolor("black")
         self.axes = fig.add_subplot(111)
+        self.axes.set_xticks([])
+        self.axes.set_yticks([])
         self.axes.set_title("加工板任意两点间误差曲线图", fontproperties=FONT, fontsize=14)
         self.axes.grid(True, which="both")
         # We want the axes cleared every time plot() is called
