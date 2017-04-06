@@ -66,12 +66,8 @@ class OverLoadClassMethod(object):
         myLaserQtThirdWindow.hide()
         myLaserQtFourthWindow.show()
         # 将第三个窗口操作处理所产生的中间数据赋给第三个窗口，减少重复计算
-        myLaserQtFourthWindow.X1 = myLaserQtThirdWindow.X1
-        myLaserQtFourthWindow.X2 = myLaserQtThirdWindow.X2
-        myLaserQtFourthWindow.Y1 = myLaserQtThirdWindow.Y1
-        myLaserQtFourthWindow.Y2 = myLaserQtThirdWindow.Y2
-        myLaserQtFourthWindow.Z1 = myLaserQtThirdWindow.Z1
-        myLaserQtFourthWindow.Z2 = myLaserQtThirdWindow.Z2
+        myLaserQtFourthWindow.matrix1 = myLaserQtThirdWindow.matrix1
+        # myLaserQtFourthWindow.matrix2 = myLaserQtThirdWindow.matrix2
         # 初始化第四个窗口的画布
         messageDialog = MessageDialog()
         reply = messageDialog.information(myLaserQtThirdWindow, "消息提示对话框", "可视化初始化！", messageDialog.Yes, messageDialog.Yes)
@@ -119,13 +115,13 @@ if __name__ == '__main__':
 
     import sys
     app = QApplication(sys.argv)
-    app.setApplicationDisplayName("v1.0");
-    app.setApplicationName("LaserQt");
-    app.setApplicationVersion("version 1.0");
+    app.setApplicationDisplayName("v1.0")
+    app.setApplicationName("LaserQt")
+    app.setApplicationVersion("version 1.0")
 
     splash = QSplashScreen(QPixmap.fromImage(QImage("LaserQt_Ui/logo_128px.png")))
-    splash.setDisabled(True);
-    splash.show();
+    splash.setDisabled(True)
+    splash.show()
 
     # 读取样式表
     file = open("LaserQt_Gui/LaserQt_Gui_Style.qss", 'r')
@@ -169,6 +165,6 @@ if __name__ == '__main__':
 
     # 显示第一个主窗口
     myLaserQtMainWindow.show()
-    splash.finish(myLaserQtMainWindow);
+    splash.finish(myLaserQtMainWindow)
 
     sys.exit(app.exec_())

@@ -124,7 +124,7 @@ class LaserQtSecondWindow(QWidget):
         dataShowLayout.addWidget(self.dataShow07Edit, 6, 1)
         # 右半部分中部布局
         rightMiddleLayout = QVBoxLayout()
-        rightMiddleLayout.setSpacing(52)
+        rightMiddleLayout.setSpacing(42)
         rightMiddleLayout.addWidget(tableRegionLable)
         rightMiddleLayout.addLayout(dataShowLayout)
         
