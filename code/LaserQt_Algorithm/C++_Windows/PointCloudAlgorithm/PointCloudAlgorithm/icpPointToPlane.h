@@ -10,7 +10,7 @@ public:
 	IcpPointToPlane (double *M,const int32_t M_num,const int32_t dim,const int32_t num_neighbors=10,const double flatness=5.0) : Icp(M,M_num,dim) {
 	M_normal = computeNormals(num_neighbors,flatness);
 	}
-
+	double* getM_normal() { return M_normal; }
 	virtual ~IcpPointToPlane () {
 	delete M_normal;
 	}
