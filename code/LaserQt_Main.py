@@ -67,7 +67,7 @@ class OverLoadClassMethod(object):
         myLaserQtFourthWindow.show()
         # 将第三个窗口操作处理所产生的中间数据赋给第三个窗口，减少重复计算
         myLaserQtFourthWindow.matrix1 = myLaserQtThirdWindow.matrix1
-        # myLaserQtFourthWindow.matrix2 = myLaserQtThirdWindow.matrix2
+        myLaserQtFourthWindow.matrix2 = myLaserQtThirdWindow.matrix2
         # 初始化第四个窗口的画布
         messageDialog = MessageDialog()
         reply = messageDialog.information(myLaserQtThirdWindow, "消息提示对话框", "可视化初始化！", messageDialog.Yes, messageDialog.Yes)

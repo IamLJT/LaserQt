@@ -266,7 +266,7 @@ class LaserQtThirdWindow(QWidget):
                     for line in fd2:
                         fd1.write(line)
 
-    # # 点云数据拟合
+    # 点云数据拟合
     def point_cloud_data_fitting(self):
         if self.targetDataFileName == "":
             messageDialog = MessageDialog()
@@ -313,10 +313,10 @@ class LaserQtThirdWindow(QWidget):
         dataframe.dropna()
         self.matrix1 = dataframe.as_matrix()
         self.canvas.axes.scatter(self.matrix1[::10, 0], self.matrix1[::10, 1], self.matrix1[::10, 2], c='red')
-        # dataframe = pd.read_csv(fittingDataFileName, header=None)
-        # dataframe.dropna()
-        # self.matrix2 = dataframe.as_matrix()
-        # self.canvas.axes.scatter(self.matrix2[::10, 0], self.matrix2[::10, 1], self.matrix2[::10, 2], c='black')
+        dataframe = pd.read_csv(fittingDataFileName, header=None)
+        dataframe.dropna()
+        self.matrix2 = dataframe.as_matrix()
+        self.canvas.axes.scatter(self.matrix2[:, 0], self.matrix2[:, 1], self.matrix2[:, 2], c='black')
 
         self.canvas.axes.set_xlim([np.min(self.matrix1[:, 0]), np.max(self.matrix1[:, 0])])
         self.canvas.axes.set_ylim([np.min(self.matrix1[:, 1]), np.max(self.matrix1[:, 1])])

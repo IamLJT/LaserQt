@@ -178,9 +178,9 @@ class LaserQtSecondWindow(QWidget):
             self.fileName = fileName
             self.dataShow01Edit.setText(self.fileName)
 
-    # 初始化加工路径任务队列，
+    # 初始化加工任务队列
     def init_task_queue(self):
-        self.myTaskQueue = queue.Queue(maxsize=100) # 任务队列 -- 生产者-消费者模式
+        self.myTaskQueue = queue.Queue()  # 任务队列 -- 生产者-消费者模式
         if self.fileName == "":
             return -1
         excelReadOnly = xlrd.open_workbook(self.fileName)
@@ -189,8 +189,8 @@ class LaserQtSecondWindow(QWidget):
         numOfColums = table.ncols
         for i in range(numOfRows):
             dataCell = []
-            dataCell.append('0x2')
-            dataCell.append(i + 1)
+            dataCell.append('0x2')  # 通信标志位
+            dataCell.append(i + 1)  # 路劲序号
             for j in range(numOfColums):
                 value = table.cell(i, j).value
                 dataCell.append(value)
@@ -206,28 +206,24 @@ class LaserQtSecondWindow(QWidget):
         self.isStop = False
         self.stopProcessingButton.setEnabled(True)
     
-        messageDialog = MessageDialog()
         import yaml
         with open("ip_config.yaml", 'r') as fd:
             yaml_file = yaml.load(fd)
             local_machine = yaml_file["LaserQtSystem"]["ip"] + ':' + str(yaml_file["LaserQtSystem"]["port"])
             self.HOST, self.PORT = yaml_file["LaserProcessMachine"]["ip"], yaml_file["LaserProcessMachine"]["port"]
             process_machine = self.HOST + ':' + str(self.PORT)
-        reply = messageDialog.information(self, "消息提示对话框", "本地计算机IP：[{}]\n激光加工机IP：[{}]".format(local_machine, process_machine),
+        messageDialog = MessageDialog()
+        reply = messageDialog.information(self, "消息提示对话框", "工艺规划计算机IP：[{}]\n主工控机IP：[{}]".format(local_machine, process_machine),
             messageDialog.Yes | messageDialog.No, messageDialog.Yes)
         if reply == messageDialog.Yes:
             # --- 加工开始 ---
             self.time = "00：00：00"
             self.count = 0
 
-            self.timer.start(1000) ## TODO
+            self.timer.start(1000)  ## TODO
 
             self.canvas.axes.plot()
             self.canvas.axes.hold(True)
-            # self.canvas.axes.set_xlim([0, 2])
-            # self.canvas.axes.set_xticks(np.arange(0, 22, 2)/10)
-            # self.canvas.axes.set_ylim([0, 1])
-            # self.canvas.axes.set_yticks(np.arange(0, 11)/10)
             self.canvas.axes.set_title("加工路径动态图", fontproperties=FONT, fontsize=14)
             self.canvas.axes.set_xlabel("X - 板长方向（m）", fontproperties=FONT, fontsize=9)
             self.canvas.axes.set_ylabel("Y - 板宽方向（m）", fontproperties=FONT, fontsize=9)
@@ -242,20 +238,17 @@ class LaserQtSecondWindow(QWidget):
                 self.dataShow05Edit.setText(str(dataCell[6]))
                 self.dataShow06Edit.setText(str(dataCell[7]))
                 self.udpSocketClient.sendto(bytes(json.dumps(dataCell), "utf-8"), (self.HOST, self.PORT))  # 发送的是json格式的列表数据
-                self.currentDataCell = dataCell
 
-                self.endX = 0.0
-                self.endY = 0.0
-                self.prevX = dataCell[2]
-                self.prevY = dataCell[3]
-                # while (not self.isStop) and (not (self.endX == self.currentDataCell[4] and self.endY == self.currentDataCell[5])):  # 设置停止标志，返回的坐标等于发送的终点坐标，还是两坐标相应的X、Y值满足一个容差
-                self.dataShow07Edit.setText(self.time)  # 时间显示好像有点不靠谱！！！
-                time.sleep(1)
-                dataRecv = json.loads(str(self.udpSocketClient.recv(1024), "utf-8"))
-                self.endX = _x = dataRecv[2]
-                self.endY = _y = dataRecv[3]
-                self.plot_the_dynamic_data(_x, _y)
-                qApp.processEvents()  # 强制刷新界面
+                recv_all_flag = 1
+                while (not self.isStop) and recv_all_flag != 2):  # 设置停止标志
+                    self.dataShow07Edit.setText(self.time)  # 时间显示好像有点不靠谱！！！
+                    dataRecv = json.loads(str(self.udpSocketClient.recv(1024), "utf-8"))
+
+                    _x = double(dataRecv[1])
+                    _y = double(dataRecv[2])
+                    recv_all_flag = int(dataRecv[4])  ## TODO
+                    self.plot_the_dynamic_data(_x, _y)
+                    qApp.processEvents()  # 强制刷新界面
 
             self.timer.stop()
             self.udpSocketClient.close()
@@ -282,17 +275,18 @@ class LaserQtSecondWindow(QWidget):
         self.isStop = False
 
         # --- 加工继续 ---
-        self.timer.start(1000) ## TODO
+        self.timer.start(1000)  ## TODO
         
         while (not self.isStop) and (not self.myTaskQueue.empty()):
-            # while (not self.isStop) and (not (self.endX == self.currentDataCell[4] and self.endY == self.currentDataCell[5])):  # 设置停止标志，返回的坐标等于发送的终点坐标，还是两坐标相应的X、Y值满足一个容差
-            self.dataShow07Edit.setText(self.time)  # 时间显示好像有点不靠谱！！！
-            time.sleep(1)
-            dataRecv = json.loads(str(self.udpSocketClient.recv(1024), "utf-8"))
-            self.endX = _x = dataRecv[1]
-            self.endY = _y = dataRecv[2]
-            self.plot_the_dynamic_data(_x, _y)
-            qApp.processEvents()  # 强制刷新界面
+            while (not self.isStop) and recv_all_flag != 2):  # 设置停止标志
+                self.dataShow07Edit.setText(self.time)  # 时间显示好像有点不靠谱！！！
+                dataRecv = json.loads(str(self.udpSocketClient.recv(1024), "utf-8"))
+
+                _x = double(dataRecv[1])
+                _y = double(dataRecv[2])
+                recv_all_flag = int(dataRecv[4])  ## TODO
+                self.plot_the_dynamic_data(_x, _y)
+                qApp.processEvents()  # 强制刷新界面
 
             dataCell = self.myTaskQueue.get()
             self.dataShow02Edit.setText(str(dataCell[1]))
@@ -301,7 +295,8 @@ class LaserQtSecondWindow(QWidget):
             self.dataShow05Edit.setText(str(dataCell[6]))
             self.dataShow06Edit.setText(str(dataCell[7]))
             self.udpSocketClient.sendto(bytes(json.dumps(dataCell), "utf-8"), (self.HOST, self.PORT))  # 发送的是json格式的列表数据
-            self.currentDataCell = dataCell
+
+            recv_all_flag  = 1
         
         self.timer.stop()
         # --- 加工结束 ---
@@ -313,10 +308,6 @@ class LaserQtSecondWindow(QWidget):
         else:
             messageDialog = MessageDialog()
             messageDialog.information(self, "消息提示对话框", "您已停止加工！", messageDialog.Yes, messageDialog.Yes)
-
-    # socket通信
-    def socket_communication(self, host, port):
-        pass
 
     # 计时器
     def time_count(self):
@@ -331,12 +322,8 @@ class LaserQtSecondWindow(QWidget):
     # 动态得绘制加工数据
     def plot_the_dynamic_data(self, x, y):
         if self.currentDataCell[8] == 1:
-            # self.canvas.axes.plot([self.prevX, x], [self.prevY, y], 'r', label="正面加工路径")
             self.canvas.axes.plot(x, y, 'r.', label="正面加工路径")
         else:
             self.canvas.axes.plot(x, y, 'b.', label="反面加工路径")
         self.canvas.draw()
-
-        self.prevX = x
-        self.prevY = y
     
