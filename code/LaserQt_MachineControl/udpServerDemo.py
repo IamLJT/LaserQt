@@ -15,7 +15,6 @@ class MyUDPHandler(socketserver.BaseRequestHandler):
         socket = self.request[1]
         print("[+] {} wrote:".format(self.client_address[0]))
         print("[{}] {}".format(json.loads(data.decode())[1], data.decode()))
-        time.sleep(1)
         socket.sendto(data, self.client_address)
 
 if __name__ == "__main__":
