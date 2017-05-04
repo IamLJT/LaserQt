@@ -857,7 +857,7 @@ FLOAT Matrix::pythag(FLOAT a,FLOAT b) {
 
 Matrix Matrix::ArrayToMatrix(double* M, int num, int dim)
 {
-	Matrix mx(num, 3);
+	Matrix mx(num, dim);
 	int row = 0;
 	for(int i=0; i < num * dim; i+=dim)
 	{
@@ -882,4 +882,19 @@ double* Matrix::MatrixToArray(const Matrix M, const int dim)
 		}
 	}
 	return r;
+}
+
+double* Matrix::DoubleRotate(double* M, int num, int dim, Matrix R, Matrix t)
+{
+	double* M2 = new double[num*dim];
+	double r00 = R.val[0][0]; double r01 = R.val[0][1]; double r02 = R.val[0][2];
+	double r10 = R.val[1][0]; double r11 = R.val[1][1]; double r12 = R.val[1][2];
+	double r20 = R.val[2][0]; double r21 = R.val[2][1]; double r22 = R.val[2][2];
+	double t0 = t.val[0][0]; double t1 = t.val[1][0]; double t2 = t.val[2][0];
+	for (int idx = 0; idx < num; idx ++) {
+		M2[idx * dim + 0] = r00*M[idx * dim + 0] + r01*M[idx * dim + 1] + r02*M[idx * dim + 2] + t0;
+		M2[idx * dim + 1] = r10*M[idx * dim + 0] + r11*M[idx * dim + 1] + r12*M[idx * dim + 2] + t1;
+		M2[idx * dim + 2] = r20*M[idx * dim + 0] + r21*M[idx * dim + 1] + r22*M[idx * dim + 2] + t2;
+	}
+	return M2;
 }

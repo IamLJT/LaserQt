@@ -108,7 +108,7 @@ void ReadxyzFile(const char* Path)
 	delete [] M;
 }
 
-double* ReadFile(const char* strPath, std::vector<int>& DataFile)	
+double* ReadFile(const char* strPath, std::vector<int>& DataFile, int mode)	
 	// Read file data one by one
 {
 	/*
@@ -127,7 +127,10 @@ double* ReadFile(const char* strPath, std::vector<int>& DataFile)
 	double idata1, idata2, idata3;
 	while(!feof(fp))	//	读取txt文件，格式是每行x,y,z
 	{
-		fscanf(fp, "%lf,%lf,%lf", &idata1,&idata2,&idata3);
+		if (mode == 1)
+			fscanf(fp, "%lf,%lf,%lf\n", &idata1,&idata2,&idata3);
+		else if (mode == 2)
+			fscanf(fp, "%lf %lf %lf\n", &idata1, &idata2, &idata3);
 		vec.push_back(idata1);
 		vec.push_back(idata2);
 		vec.push_back(idata3);

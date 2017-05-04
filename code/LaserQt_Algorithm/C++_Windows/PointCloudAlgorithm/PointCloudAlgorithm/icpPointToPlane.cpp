@@ -19,6 +19,7 @@ Street, Fifth Floor, Boston, MA 02110-1301, USA
 */
 
 #include "icpPointToPlane.h"
+#include "readfile.h"
 
 using namespace std;
 
@@ -346,4 +347,70 @@ double* IcpPointToPlane::computeNormals (const int32_t num_neighbors,const doubl
 	else        computeNormal(neighbors,M_normal+i*3,flatness);
 	}
 	return M_normal;
+}
+
+vector<int> IcpPointToPlane::getNearest(int index, double r, vector<bool>& isvisited) {
+	kdtree::KDTreeResultVector neighbors;
+	M_tree->r_nearest_around_point(index, 0, r, neighbors);
+	// 这里的neighbours中存的序号是M_tree里的序号
+	vector<int> res;
+	for (int i = 0; i < neighbors.size(); ++i) {
+		if (isvisited[neighbors[i].idx])
+			continue;
+		res.push_back(neighbors[i].idx);
+	}
+	return res;
+}
+
+vector<vector<double>> IcpPointToPlane::getcluster(int min_p, double r, vector<bool>& isvisited) {
+	// min_p表示密度邻域值，表示是否能允许新的点加入
+	// r为半径邻域值，即通过r去寻找邻域点
+	int num = isvisited.size();
+	vector<vector<double>> res;
+	for (int i = 0; i < num; ++i) {
+		if (isvisited[i]) continue;
+		vector<double> temp;
+		queue<int> q; // 放入遍历到的数按队列依次
+		//temp.push_back(M_tree->the_data[i][0]);
+		//temp.push_back(M_tree->the_data[i][1]);
+		//temp.push_back(M_tree->the_data[i][2]);
+		q.push(i);
+		while (q.size()) {
+			int t = q.front();
+			q.pop();
+			//if (isvisited[t]) continue;
+			isvisited[t] = 1; // 这里究竟是符合条件后才设置已访问呢？
+			vector<int> tmp_p = getNearest(t, r, isvisited);
+			if (tmp_p.size() > min_p) {
+				temp.push_back(M_tree->the_data[t][0]);
+				temp.push_back(M_tree->the_data[t][1]);
+				temp.push_back(M_tree->the_data[t][2]);
+				for (int j = 0; j < tmp_p.size(); ++j) {
+					q.push(tmp_p[j]);
+					//temp.push_back(M_tree->the_data[tmp_p[j]][0]);
+					//temp.push_back(M_tree->the_data[tmp_p[j]][1]);
+					//temp.push_back(M_tree->the_data[tmp_p[j]][2]);
+					isvisited[tmp_p[j]] = 1;
+				}
+			}
+			else {
+				isvisited[t] = 0;
+			}
+		}
+		if (temp.size() > 5 * dim)
+			res.push_back(temp);
+
+		double *m_temp = new double[temp.size()];
+		int k = 0;
+		for (auto c : temp)
+			m_temp[k++] = c;
+		const int MAX = 256;
+		char sPath[MAX];
+		getcwd(sPath, MAX_PATH);
+
+		strcat(sPath, "\\NewGrid_TempData2.txt");
+		//WriteFile(sPath, M0, num, dim);
+		WriteFile(sPath, m_temp, temp.size() / dim, dim);
+	}
+	return res;
 }

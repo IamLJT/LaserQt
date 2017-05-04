@@ -9,7 +9,7 @@
 #include  <direct.h>
 
 void ReadxyzFile(const char* Path);
-double* ReadFile(const char* strPath, std::vector<int>& DataFile);
+double* ReadFile(const char* strPath, std::vector<int>& DataFile, int mode = 1);
 void WriteFile(char* Path, double* M, int32_t num, int32_t dim);
 
 #endif

@@ -256,7 +256,7 @@ namespace kdtree {
 		}
       
 		if (smin > lmin) smin = lmin;
-		if (smax <lmax) smax = lmax;
+		if (smax < lmax) smax = lmax;
 	}
 	// is there one more element?
 	if (i == u+1) {

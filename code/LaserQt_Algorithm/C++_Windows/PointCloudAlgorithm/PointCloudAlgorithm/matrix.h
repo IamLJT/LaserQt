@@ -100,6 +100,7 @@ public:
 
 	static Matrix ArrayToMatrix(double* M, int num, int dim);
 	static double* MatrixToArray(const Matrix M, const int dim);
+	static double* DoubleRotate(double* M, int num, int dim, Matrix R, Matrix t);
 
 	// print matrix to stream
 	friend std::ostream& operator<< (std::ostream& out,const Matrix& M);
